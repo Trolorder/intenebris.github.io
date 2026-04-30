@@ -6,46 +6,44 @@
     <title>In Tenebris • Tattoo</title>
     <style>
         :root {
-            --noir: #0a0a0a;
-            --rouge: #9b1c2c;
+            --noir: #0c0c0c;
+            --rouge: #8c1c28;
+            --gris: #222222;
         }
         
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             background: var(--noir);
-            color: #ddd;
+            color: #bbb;
             font-family: 'Arial', sans-serif;
-            line-height: 1.6;
         }
         
         header {
             height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('https://picsum.photos/id/1015/2000/1200');
+            background: linear-gradient(rgba(10,10,10,0.85), rgba(10,10,10,0.95)), url('https://picsum.photos/id/1015/2000/1200');
             background-size: cover;
             background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
+            border-bottom: 3px solid var(--rouge);
         }
         
         h1 {
-            font-size: 4.5rem;
-            color: white;
+            font-size: 5rem;
             font-weight: 900;
-            letter-spacing: 8px;
+            letter-spacing: 12px;
+            color: white;
+            text-transform: uppercase;
         }
         
         .tagline {
             color: var(--rouge);
-            font-size: 1.4rem;
-            margin-top: 1rem;
-            letter-spacing: 4px;
+            font-size: 1.5rem;
+            letter-spacing: 6px;
+            margin-top: 10px;
         }
     </style>
 </head>
