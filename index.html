@@ -7,7 +7,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
         
-        body { margin: 0; background: #050505; color: #ccc; font-family: system-ui, sans-serif; }
+        body { 
+            margin: 0; 
+            background: #050505; 
+            color: #ccc; 
+            font-family: system-ui, sans-serif; 
+        }
         
         nav {
             position: fixed;
@@ -48,10 +53,23 @@
             text-shadow: 6px 6px 0 #000;
         }
         
-        .tagline { font-size: 1.3rem; color: #aaa; letter-spacing: 5px; }
+        .tagline { 
+            font-size: 1.3rem; 
+            color: #aaa; 
+            letter-spacing: 5px; 
+        }
         
-        section { padding: 120px 8% 80px; text-align: center; }
-        h2 { color: #9b1c2c; font-size: 3rem; margin-bottom: 60px; letter-spacing: 3px; }
+        section { 
+            padding: 120px 8% 80px; 
+            text-align: center; 
+        }
+        
+        h2 { 
+            color: #9b1c2c; 
+            font-size: 3rem; 
+            margin-bottom: 60px; 
+            letter-spacing: 3px; 
+        }
         
         .gallery {
             display: grid;
@@ -71,6 +89,45 @@
             transform: scale(1.03);
             border-color: #9b1c2c;
             filter: brightness(1.1);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: left;
+        }
+        
+        .info p {
+            margin-bottom: 35px;
+            font-size: 1.2rem;
+        }
+        
+        .info a {
+            color: #d4af37;
+            text-decoration: none;
+        }
+        
+        .form input, .form textarea {
+            width: 100%;
+            background: #111;
+            border: 2px solid #222;
+            color: #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .form button {
+            background: #9b1c2c;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            width: 100%;
         }
     </style>
 </head>
@@ -106,7 +163,26 @@
 
     <section id="contact">
         <h2>CONTACTEZ-NOUS</h2>
-        <p>La section contact arrive bientôt...</p>
+        <div class="contact-grid">
+            <div class="info">
+                <p><strong>Adresse :</strong><br>
+                12 Rue des Ombres<br>
+                75000 Paris</p>
+                
+                <p><strong>Téléphone :</strong><br>
+                <a href="tel:0612345678">06 12 34 56 78</a></p>
+                
+                <p><strong>Instagram :</strong><br>
+                <a href="https://instagram.com/intenebris.tattoo" target="_blank">@intenebris.tattoo</a></p>
+            </div>
+            
+            <div class="form">
+                <input type="text" placeholder="Votre nom">
+                <input type="email" placeholder="Votre email">
+                <textarea placeholder="Votre message..." rows="6"></textarea>
+                <button>ENVOYER LE MESSAGE</button>
+            </div>
+        </div>
     </section>
 </body>
 </html>
