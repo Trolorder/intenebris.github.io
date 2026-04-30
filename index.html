@@ -5,55 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>In Tenebris</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
+        
         body {
-            background: #0a0a0a;
-            color: #ddd;
-            font-family: system-ui, sans-serif;
             margin: 0;
-            padding: 0;
+            background: #050505;
+            color: #ccc;
+            font-family: 'UnifrakturCook', cursive;
         }
         
         header {
             height: 100vh;
-            background: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png') center/cover;
+            background: linear-gradient(rgba(5,5,5,0.8), rgba(5,5,5,0.9)), url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
+            background-size: cover;
+            background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-        }
-        
-        header::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(10,10,10,0.85);
-        }
-        
-        .content {
             text-align: center;
-            position: relative;
-            z-index: 2;
         }
         
         h1 {
-            font-size: 6.5rem;
-            font-weight: 900;
-            letter-spacing: 15px;
-            color: #fff;
-            text-transform: uppercase;
+            font-size: 7rem;
+            color: #9b1c2c;
+            text-shadow: 4px 4px 0 #000;
+            letter-spacing: 5px;
         }
         
         .tagline {
-            color: #9b1c2c;
-            font-size: 1.8rem;
-            letter-spacing: 8px;
+            font-family: system-ui, sans-serif;
+            font-size: 1.6rem;
+            color: #aaa;
+            letter-spacing: 6px;
             margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="content">
+        <div>
             <h1>IN TENEBRIS</h1>
             <p class="tagline">TATTOO STUDIO</p>
         </div>
