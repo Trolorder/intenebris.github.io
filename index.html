@@ -91,43 +91,16 @@
             filter: brightness(1.1);
         }
 
-        .contact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            max-width: 900px;
+        .contact-info {
+            max-width: 600px;
             margin: 0 auto;
-            text-align: left;
+            font-size: 1.35rem;
+            line-height: 2;
         }
         
-        .info p {
-            margin-bottom: 35px;
-            font-size: 1.2rem;
-        }
-        
-        .info a {
+        .contact-info a {
             color: #d4af37;
             text-decoration: none;
-        }
-        
-        .form input, .form textarea {
-            width: 100%;
-            background: #111;
-            border: 2px solid #222;
-            color: #ddd;
-            padding: 15px;
-            margin-bottom: 15px;
-            font-size: 1rem;
-        }
-        
-        .form button {
-            background: #9b1c2c;
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            width: 100%;
         }
     </style>
 </head>
@@ -163,24 +136,16 @@
 
     <section id="contact">
         <h2>CONTACTEZ-NOUS</h2>
-        <div class="contact-grid">
-            <div class="info">
-                <p><strong>20 Rue du Général Leclerc</strong><br>
-                76000 Rouen</p>
-                
-                <p><strong>Téléphone :</strong><br>
-                <a href="tel:0612345678">06.24.97.01.55</a></p>
-                
-                <p><strong>Instagram :</strong><br>
-                <a href="https://instagram.com/intenebris.tattoo" target="_blank">@intenebris.rouen</a></p>
-            </div>
+        <div class="contact-info">
+            <p><strong>Adresse :</strong><br>
+            12 Rue des Ombres<br>
+            75000 Paris</p>
             
-            <div class="form">
-                <input type="text" placeholder="Votre nom">
-                <input type="email" placeholder="Votre email">
-                <textarea placeholder="Votre message..." rows="6"></textarea>
-                <button>ENVOYER LE MESSAGE</button>
-            </div>
+            <p><strong>Téléphone :</strong><br>
+            <a href="tel:0612345678">06 12 34 56 78</a></p>
+            
+            <p><strong>Instagram :</strong><br>
+            <a href="https://instagram.com/intenebris.tattoo" target="_blank">@intenebris.tattoo</a></p>
         </div>
     </section>
 </body>
