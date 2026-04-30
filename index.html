@@ -3,53 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In Tenebris • Tattoo</title>
+    <title>In Tenebris</title>
     <style>
-        :root {
-            --noir: #0c0c0c;
-            --rouge: #8c1c28;
-            --gris: #222222;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
-            background: var(--noir);
-            color: #bbb;
-            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #ddd;
+            font-family: system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
         }
         
         header {
             height: 100vh;
-            background: linear-gradient(rgba(10,10,10,0.85), rgba(10,10,10,0.95)), url('https://picsum.photos/id/1015/2000/1200');
-            background-size: cover;
-            background-position: center;
+            background: url('https://picsum.photos/id/1015/2000/1200') center/cover;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,10,10,0.85);
+        }
+        
+        .content {
             text-align: center;
-            border-bottom: 3px solid var(--rouge);
+            position: relative;
+            z-index: 2;
         }
         
         h1 {
-            font-size: 5rem;
+            font-size: 6.5rem;
             font-weight: 900;
-            letter-spacing: 12px;
-            color: white;
+            letter-spacing: 15px;
+            color: #fff;
             text-transform: uppercase;
         }
         
         .tagline {
-            color: var(--rouge);
-            font-size: 1.5rem;
-            letter-spacing: 6px;
-            margin-top: 10px;
+            color: #9b1c2c;
+            font-size: 1.8rem;
+            letter-spacing: 8px;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <header>
-        <div>
+        <div class="content">
             <h1>IN TENEBRIS</h1>
             <p class="tagline">TATTOO STUDIO</p>
         </div>
