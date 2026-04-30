@@ -9,18 +9,6 @@
         
         body { margin: 0; background: #050505; color: #ccc; font-family: system-ui, sans-serif; }
         
-        header {
-            height: 100vh;
-            background: linear-gradient(rgba(5,5,5,0.8), rgba(5,5,5,0.9)), url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            position: relative;
-        }
-        
         nav {
             position: fixed;
             top: 0;
@@ -42,6 +30,17 @@
         
         nav a:hover { color: #d4af37; }
         
+        header {
+            height: 100vh;
+            background: linear-gradient(rgba(5,5,5,0.8), rgba(5,5,5,0.9)), url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
         h1 {
             font-family: 'UnifrakturCook', cursive;
             font-size: 5.5rem;
@@ -51,8 +50,28 @@
         
         .tagline { font-size: 1.3rem; color: #aaa; letter-spacing: 5px; }
         
-        section { padding: 100px 10%; text-align: center; }
-        h2 { color: #9b1c2c; font-size: 2.8rem; margin-bottom: 50px; }
+        section { padding: 120px 8% 80px; text-align: center; }
+        h2 { color: #9b1c2c; font-size: 3rem; margin-bottom: 60px; letter-spacing: 3px; }
+        
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 15px;
+        }
+        
+        .gallery img {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            border: 3px solid #222;
+            transition: all 0.4s;
+        }
+        
+        .gallery img:hover {
+            transform: scale(1.03);
+            border-color: #9b1c2c;
+            filter: brightness(1.1);
+        }
     </style>
 </head>
 <body>
@@ -71,11 +90,22 @@
 
     <section id="galerie">
         <h2>GALERIE</h2>
-        <p>La galerie arrive bientôt...</p>
+        <div class="gallery">
+            <img src="Photos/2026-02-22dfgdfg.jpg" alt="Tatouage">
+            <img src="Photos/2026-02-22dfgdfgd.jpg" alt="Tatouage">
+            <img src="Photos/2026-02-22xwcxwc.jpg" alt="Tatouage">
+            <img src="Photos/2026-03-17.jpg" alt="Tatouage">
+            <img src="Photos/dssd.jpg" alt="Tatouage">
+            <img src="Photos/qsdqsdsq.jpg" alt="Tatouage">
+            <img src="Photos/unnamed.jpg" alt="Tatouage">
+            <img src="Photos/unnameddsfdff.jpg" alt="Tatouage">
+            <img src="Photos/unnamedgfhfghfghf.jpg" alt="Tatouage">
+            <img src="Photos/zeazeaze.jpg" alt="Tatouage">
+        </div>
     </section>
 
     <section id="contact">
-        <h2>CONTACT</h2>
+        <h2>CONTACTEZ-NOUS</h2>
         <p>La section contact arrive bientôt...</p>
     </section>
 </body>
