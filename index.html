@@ -5,48 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>In Tenebris • Tattoo</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&family=Creepster&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap');
         
-        body {
-            margin: 0;
-            background: #050505;
-            color: #ccc;
-            font-family: system-ui, sans-serif;
-        }
+        body { margin: 0; background: #050505; color: #ccc; font-family: system-ui, sans-serif; }
         
         header {
             height: 100vh;
-            background: linear-gradient(rgba(5,5,5,0.75), rgba(5,5,5,0.85)), url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
+            background: linear-gradient(rgba(5,5,5,0.8), rgba(5,5,5,0.9)), url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
             background-size: cover;
             background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
+            position: relative;
         }
+        
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: rgba(5,5,5,0.95);
+            padding: 20px 0;
+            text-align: center;
+            z-index: 100;
+            border-bottom: 2px solid #9b1c2c;
+        }
+        
+        nav a {
+            color: #ccc;
+            text-decoration: none;
+            margin: 0 25px;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+        }
+        
+        nav a:hover { color: #d4af37; }
         
         h1 {
             font-family: 'UnifrakturCook', cursive;
             font-size: 5.5rem;
             color: #d4af37;
             text-shadow: 6px 6px 0 #000;
-            letter-spacing: 8px;
-            margin-bottom: 10px;
         }
         
-        .tagline {
-            font-size: 1.4rem;
-            color: #aaa;
-            letter-spacing: 5px;
-        }
+        .tagline { font-size: 1.3rem; color: #aaa; letter-spacing: 5px; }
+        
+        section { padding: 100px 10%; text-align: center; }
+        h2 { color: #9b1c2c; font-size: 2.8rem; margin-bottom: 50px; }
     </style>
 </head>
 <body>
-    <header>
+    <nav>
+        <a href="#accueil">Accueil</a>
+        <a href="#galerie">Galerie</a>
+        <a href="#contact">Contact</a>
+    </nav>
+
+    <header id="accueil">
         <div>
             <h1>IN TENEBRIS</h1>
             <p class="tagline">SALON DE TATOUAGE</p>
         </div>
     </header>
+
+    <section id="galerie">
+        <h2>GALERIE</h2>
+        <p>La galerie arrive bientôt...</p>
+    </section>
+
+    <section id="contact">
+        <h2>CONTACT</h2>
+        <p>La section contact arrive bientôt...</p>
+    </section>
 </body>
 </html>
