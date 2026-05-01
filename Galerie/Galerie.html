@@ -553,7 +553,10 @@
   </div>
 
 <script>
-// ── DATA ──────────────────────────────────────────────────────────────────
+    // ── DATA ──────────────────────────────────────────────────────────────────
+    // Remplace chaque entrée par { src: 'photos/ton-fichier.jpg', title: '...', tag: '...' }
+    // Les tags doivent correspondre aux data-filter des boutons
+
 const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
 const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
 
@@ -565,9 +568,10 @@ const titles = [
   'Crâne Féodal','Les Trois Nornes','Fenrir','Banshee','Léviathan',
   'Tour de Babel','Rune Primordiale','Ange Brisé','Hydre Sombre',
 ];
-
+    // Remplace chaque entrée par { src: 'photos/ton-fichier.jpg', title: '...', tag: '...' }
+    // Les tags doivent correspondre aux data-filter des boutons
 const allItems = Array.from({ length: 60 }, (_, i) => ({
-  src: null,                    // ← Remplace par 'photos/001.jpg' etc. quand tu auras les vraies images
+  src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfg.jpg",                    // ← Remplace par 'photos/001.jpg' etc. quand tu auras les vraies images
   title: titles[i % titles.length],
   tag: styles[i % styles.length],
   rune: runes[i % runes.length],
