@@ -20,7 +20,8 @@
       --goldlit:  #c9a84c;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 50; padding: 0; }
+    /* FIX 1 : margin: 50 → margin: 0 */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html { scroll-behavior: smooth; }
 
@@ -32,7 +33,6 @@
       overflow-x: hidden;
     }
 
-    /* ── GRAIN OVERLAY ── */
     body::before {
       content: '';
       position: fixed;
@@ -43,12 +43,10 @@
       opacity: 0.35;
     }
 
-    /* ── SCROLLBAR ── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
-    /* ── NAV ── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -70,11 +68,7 @@
       text-shadow: 0 0 20px rgba(201,168,76,0.4);
     }
 
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
 
     .nav-links a {
       font-family: 'Cinzel', serif;
@@ -83,7 +77,7 @@
       text-transform: uppercase;
       color: var(--silver);
       text-decoration: none;
-      transition: color 0.3s, text-shadow 0.3s;
+      transition: color 0.3s;
       position: relative;
     }
 
@@ -101,7 +95,6 @@
     .nav-links a:hover { color: var(--goldlit); }
     .nav-links a:hover::after { transform: scaleX(1); }
 
-    /* ── HERO ── */
     .hero {
       position: relative;
       min-height: 100vh;
@@ -124,7 +117,6 @@
         var(--black);
     }
 
-    /* Pentagram-inspired decorative lines */
     .hero-bg::before {
       content: '';
       position: absolute;
@@ -149,10 +141,7 @@
       font-size: clamp(4rem, 12vw, 10rem);
       line-height: 0.9;
       color: var(--bone);
-      text-shadow:
-        0 0 40px rgba(139,0,0,0.5),
-        0 0 80px rgba(139,0,0,0.2),
-        2px 2px 0 rgba(0,0,0,0.8);
+      text-shadow: 0 0 40px rgba(139,0,0,0.5), 0 0 80px rgba(139,0,0,0.2), 2px 2px 0 rgba(0,0,0,0.8);
       animation: fadeDown 1s 0.2s ease both;
       position: relative;
       z-index: 1;
@@ -231,22 +220,11 @@
     }
 
     .btn:hover::before { transform: scaleX(1); }
-
-    .btn-primary {
-      color: var(--bone);
-      border-color: var(--blood);
-    }
-
+    .btn-primary { color: var(--bone); border-color: var(--blood); }
     .btn-primary:hover { color: var(--black); }
-
-    .btn-secondary {
-      color: var(--silver);
-      border-color: rgba(168,168,168,0.3);
-    }
-
+    .btn-secondary { color: var(--silver); border-color: rgba(168,168,168,0.3); }
     .btn-secondary:hover { color: var(--black); }
 
-    /* ── SECTIONS GENERAL ── */
     section { padding: 7rem 2rem; position: relative; }
 
     .section-label {
@@ -269,21 +247,10 @@
 
     .container { max-width: 1200px; margin: 0 auto; }
 
-    /* ── ABOUT ── */
-    #about {
-      background: linear-gradient(to bottom, var(--black), var(--deep), var(--black));
-    }
+    #about { background: linear-gradient(to bottom, var(--black), var(--deep), var(--black)); }
 
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: center;
-    }
-
-    .about-visual {
-      position: relative;
-    }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+    .about-visual { position: relative; }
 
     .about-frame {
       width: 100%;
@@ -298,78 +265,33 @@
       content: '';
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 30%, rgba(139,0,0,0.2), transparent 60%),
-        linear-gradient(to bottom, transparent 40%, rgba(8,8,8,0.8));
+      background: radial-gradient(ellipse at 50% 30%, rgba(139,0,0,0.2), transparent 60%), linear-gradient(to bottom, transparent 40%, rgba(8,8,8,0.8));
     }
 
-    .about-frame-inner {
-      position: absolute;
-      inset: 12px;
-      border: 1px solid rgba(201,168,76,0.15);
-    }
+    .about-frame-inner { position: absolute; inset: 12px; border: 1px solid rgba(201,168,76,0.15); }
 
-    /* Skull SVG placeholder */
     .about-skull {
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       font-size: 8rem;
       opacity: 0.08;
     }
 
-    .about-corner {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      border-color: var(--goldlit);
-      border-style: solid;
-      opacity: 0.6;
-    }
-
+    .about-corner { position: absolute; width: 20px; height: 20px; border-color: var(--goldlit); border-style: solid; opacity: 0.6; }
     .about-corner.tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
     .about-corner.tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
     .about-corner.bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
     .about-corner.br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
     .about-text .section-title { margin-bottom: 2rem; }
+    .about-text p { color: var(--silver); line-height: 1.9; font-size: 1rem; margin-bottom: 1.5rem; font-style: italic; }
 
-    .about-text p {
-      color: var(--silver);
-      line-height: 1.9;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-      font-style: italic;
-    }
+    .about-stats { display: flex; gap: 3rem; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(139,0,0,0.2); }
+    .stat-num { font-family: 'Cinzel Decorative', serif; font-size: 2.5rem; color: var(--blood); line-height: 1; }
+    .stat-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); margin-top: 0.3rem; }
 
-    .about-stats {
-      display: flex;
-      gap: 3rem;
-      margin-top: 3rem;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(139,0,0,0.2);
-    }
-
-    .stat-num {
-      font-family: 'Cinzel Decorative', serif;
-      font-size: 2.5rem;
-      color: var(--blood);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-family: 'Cinzel', serif;
-      font-size: 0.6rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--silver);
-      margin-top: 0.3rem;
-    }
-
-    /* ── SERVICES ── */
     #services { background: var(--deep); }
-
     .services-header { text-align: center; margin-bottom: 5rem; }
 
     .services-grid {
@@ -380,13 +302,7 @@
       border: 1px solid rgba(139,0,0,0.2);
     }
 
-    .service-card {
-      background: var(--deep);
-      padding: 3rem 2rem;
-      position: relative;
-      overflow: hidden;
-      transition: background 0.4s;
-    }
+    .service-card { background: var(--deep); padding: 3rem 2rem; position: relative; overflow: hidden; transition: background 0.4s; }
 
     .service-card::before {
       content: '';
@@ -400,44 +316,12 @@
 
     .service-card:hover { background: rgba(139,0,0,0.05); }
     .service-card:hover::before { transform: scaleX(1); }
+    .service-icon { font-size: 2rem; margin-bottom: 1.5rem; display: block; }
+    .service-name { font-family: 'Cinzel Decorative', serif; font-size: 0.9rem; color: var(--goldlit); letter-spacing: 2px; margin-bottom: 1rem; }
+    .service-desc { color: var(--silver); font-style: italic; font-size: 0.9rem; line-height: 1.8; }
+    .service-price { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 3px; color: var(--blood); margin-top: 1.5rem; text-transform: uppercase; }
 
-    .service-icon {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-      display: block;
-      filter: grayscale(0.3);
-    }
-
-    .service-name {
-      font-family: 'Cinzel Decorative', serif;
-      font-size: 0.9rem;
-      color: var(--goldlit);
-      letter-spacing: 2px;
-      margin-bottom: 1rem;
-    }
-
-    .service-desc {
-      color: var(--silver);
-      font-style: italic;
-      font-size: 0.9rem;
-      line-height: 1.8;
-    }
-
-    .service-price {
-      font-family: 'Cinzel', serif;
-      font-size: 0.7rem;
-      letter-spacing: 3px;
-      color: var(--blood);
-      margin-top: 1.5rem;
-      text-transform: uppercase;
-    }
-
-    /* ── GALLERY PREVIEW ── */
-    #gallery-preview {
-      background: var(--black);
-      text-align: center;
-    }
-
+    #gallery-preview { background: var(--black); text-align: center; }
     .gallery-header { margin-bottom: 3rem; }
 
     .gallery-teaser {
@@ -448,25 +332,14 @@
       margin-bottom: 3rem;
     }
 
-    .gallery-cell {
-      background: var(--fog);
-      position: relative;
-      overflow: hidden;
-      cursor: pointer;
-    }
-
-    .gallery-cell:first-child {
-      grid-row: 1 / 3;
-      grid-column: 1 / 2;
-    }
+    .gallery-cell { background: var(--fog); position: relative; overflow: hidden; cursor: pointer; }
+    .gallery-cell:first-child { grid-row: 1 / 3; grid-column: 1 / 2; }
 
     .gallery-cell::before {
       content: '';
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse at 50% 50%, rgba(139,0,0,0.15), transparent 70%),
-        linear-gradient(45deg, rgba(139,0,0,0.08), transparent);
+      background: radial-gradient(ellipse at 50% 50%, rgba(139,0,0,0.15), transparent 70%), linear-gradient(45deg, rgba(139,0,0,0.08), transparent);
     }
 
     .gallery-cell::after {
@@ -487,59 +360,23 @@
     }
 
     .gallery-cell:hover::after { opacity: 1; }
-
-    /* Fake tattoo sketches using CSS */
     .gallery-cell:nth-child(1) { background: linear-gradient(135deg, #111 0%, #1a0a0a 50%, #0d0d0d 100%); }
     .gallery-cell:nth-child(2) { background: linear-gradient(225deg, #111 0%, #0d0d12 50%, #0d0d0d 100%); }
-    .gallery-cell:nth-child(3) { background: linear-gradient(45deg, #111 0%, #1a1208 50%, #0d0d0d 100%); }
+    .gallery-cell:nth-child(3) { background: linear-gradient(45deg,  #111 0%, #1a1208 50%, #0d0d0d 100%); }
     .gallery-cell:nth-child(4) { background: linear-gradient(315deg, #111 0%, #0d120d 50%, #0d0d0d 100%); }
     .gallery-cell:nth-child(5) { background: linear-gradient(135deg, #0d0d0d 0%, #120d0d 50%, #111 100%); }
     .gallery-cell:nth-child(6) { background: linear-gradient(225deg, #0d0d0d 0%, #0d0d12 50%, #111 100%); }
-    .gallery-cell:nth-child(7) { background: linear-gradient(45deg, #0d0d0d 0%, #120d08 50%, #111 100%); }
+    .gallery-cell:nth-child(7) { background: linear-gradient(45deg,  #0d0d0d 0%, #120d08 50%, #111 100%); }
 
-    .gallery-rune {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      opacity: 0.06;
-      color: var(--bone);
-    }
+    .gallery-rune { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 3rem; opacity: 0.06; color: var(--bone); }
+    .gallery-cta-text { font-style: italic; color: var(--silver); margin-bottom: 2rem; font-size: 1rem; }
 
-    .gallery-cta-text {
-      font-style: italic;
-      color: var(--silver);
-      margin-bottom: 2rem;
-      font-size: 1rem;
-    }
-
-    /* ── CONTACT ── */
-    #contact {
-      background: linear-gradient(to bottom, var(--black), var(--deep));
-    }
-
-    .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: start;
-    }
-
+    #contact { background: linear-gradient(to bottom, var(--black), var(--deep)); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start; }
     .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
 
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .form-field label {
-      font-family: 'Cinzel', serif;
-      font-size: 0.6rem;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--blood);
-    }
+    .form-field label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--blood); }
 
     .form-field input,
     .form-field textarea,
@@ -558,119 +395,37 @@
 
     .form-field input:focus,
     .form-field textarea:focus,
-    .form-field select:focus {
-      border-color: var(--blood);
-      background: rgba(139,0,0,0.05);
-    }
+    .form-field select:focus { border-color: var(--blood); background: rgba(139,0,0,0.05); }
 
     .form-field select option { background: var(--deep); }
-
     .form-field textarea { resize: vertical; min-height: 140px; }
 
     .contact-info .section-title { margin-bottom: 2rem; }
-
-    .contact-detail {
-      display: flex;
-      flex-direction: column;
-      gap: 1.8rem;
-      margin-top: 2rem;
-    }
-
-    .contact-item {
-      border-left: 2px solid rgba(139,0,0,0.4);
-      padding-left: 1.5rem;
-    }
-
-    .contact-item-label {
-      font-family: 'Cinzel', serif;
-      font-size: 0.6rem;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--blood);
-      margin-bottom: 0.3rem;
-    }
-
-    .contact-item-value {
-      color: var(--bone);
-      font-style: italic;
-      font-size: 1rem;
-    }
-
-    .contact-item-value a {
-      color: var(--bone);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
+    .contact-detail { display: flex; flex-direction: column; gap: 1.8rem; margin-top: 2rem; }
+    .contact-item { border-left: 2px solid rgba(139,0,0,0.4); padding-left: 1.5rem; }
+    .contact-item-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--blood); margin-bottom: 0.3rem; }
+    .contact-item-value { color: var(--bone); font-style: italic; font-size: 1rem; }
+    .contact-item-value a { color: var(--bone); text-decoration: none; transition: color 0.3s; }
     .contact-item-value a:hover { color: var(--goldlit); }
 
-    /* ── FOOTER ── */
-    footer {
-      background: var(--black);
-      border-top: 1px solid rgba(139,0,0,0.15);
-      padding: 3rem 2rem;
-      text-align: center;
-    }
-
-    .footer-logo {
-      font-family: 'UnifrakturMaguntia', cursive;
-      font-size: 3rem;
-      color: rgba(139,0,0,0.4);
-      margin-bottom: 1rem;
-    }
-
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 2rem;
-      list-style: none;
-      margin-bottom: 2rem;
-    }
-
-    .footer-links a {
-      font-family: 'Cinzel', serif;
-      font-size: 0.6rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--silver);
-      text-decoration: none;
-      opacity: 0.5;
-      transition: opacity 0.3s;
-    }
-
+    footer { background: var(--black); border-top: 1px solid rgba(139,0,0,0.15); padding: 3rem 2rem; text-align: center; }
+    .footer-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 3rem; color: rgba(139,0,0,0.4); margin-bottom: 1rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; }
+    .footer-links a { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); text-decoration: none; opacity: 0.5; transition: opacity 0.3s; }
     .footer-links a:hover { opacity: 1; color: var(--goldlit); }
+    .footer-copy { font-size: 0.7rem; color: rgba(168,168,168,0.3); letter-spacing: 2px; font-family: 'Cinzel', serif; margin-bottom: 0.4rem; }
+    .footer-address { font-size: 0.65rem; color: rgba(168,168,168,0.2); font-family: 'Cinzel', serif; letter-spacing: 1px; }
 
-    .footer-copy {
-      font-size: 0.7rem;
-      color: rgba(168,168,168,0.3);
-      letter-spacing: 2px;
-      font-family: 'Cinzel', serif;
-    }
+    .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
 
-    /* ── RUNIC SEPARATOR ── */
-    .rune-sep {
-      text-align: center;
-      color: rgba(139,0,0,0.3);
-      font-size: 1.2rem;
-      letter-spacing: 1rem;
-      margin: 1rem 0;
-    }
-
-    /* ── ANIMATIONS ── */
     @keyframes fadeDown {
       from { opacity: 0; transform: translateY(-20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Scroll reveal */
-    .reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.8s ease, transform 0.8s ease;
-    }
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
-    /* ── MOBILE ── */
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { gap: 1.2rem; }
@@ -686,18 +441,16 @@
 </head>
 <body>
 
-  <!-- NAV -->
   <nav>
     <a href="index.html" class="nav-logo">In Tenebris</a>
     <ul class="nav-links">
       <li><a href="#about">L'Atelier</a></li>
       <li><a href="#services">Services</a></li>
-      <li><a href="Galerie/">Galerie</a></li>
+      <li><a href="Galerie/Galerie.html">Galerie</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-bg"></div>
     <span class="hero-eyebrow">✦ Rouen · Normandie · Depuis 2018 ✦</span>
@@ -707,11 +460,11 @@
     <p class="hero-desc">L'art gravé dans la chair. Des créations uniques nées des abysses de l'imaginaire dark, metal & fantastique.</p>
     <div class="hero-cta">
       <a href="#contact" class="btn btn-primary">Prendre Rendez-vous</a>
-      <a href="Galerie/">Galerie</a>" class="btn btn-secondary">Voir la Galerie</a>
+      <!-- FIX 2 : balise <a> réparée, lien corrigé -->
+      <a href="Galerie/Galerie.html" class="btn btn-secondary">Voir la Galerie</a>
     </div>
   </section>
 
-  <!-- ABOUT -->
   <section id="about">
     <div class="container">
       <div class="about-grid">
@@ -733,25 +486,15 @@
           <p>Chaque tatouage est une œuvre unique, sculptée selon votre vision et enrichie par notre maîtrise du blackwork, du dotwork, de l'illustration néo-médiévale et du réalisme sombre.</p>
           <p>Votre peau est notre toile. L'éternité est notre ambition.</p>
           <div class="about-stats">
-            <div>
-              <div class="stat-num">7+</div>
-              <div class="stat-label">Années d'art</div>
-            </div>
-            <div>
-              <div class="stat-num">1200+</div>
-              <div class="stat-label">Tatouages réalisés</div>
-            </div>
-            <div>
-              <div class="stat-num">100%</div>
-              <div class="stat-label">Custom</div>
-            </div>
+            <div><div class="stat-num">7+</div><div class="stat-label">Années d'art</div></div>
+            <div><div class="stat-num">1200+</div><div class="stat-label">Tatouages réalisés</div></div>
+            <div><div class="stat-num">100%</div><div class="stat-label">Custom</div></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
   <section id="services">
     <div class="container">
       <div class="services-header reveal">
@@ -800,7 +543,6 @@
     </div>
   </section>
 
-  <!-- GALLERY PREVIEW -->
   <section id="gallery-preview">
     <div class="container">
       <div class="gallery-header reveal">
@@ -809,22 +551,21 @@
         <p class="gallery-cta-text">Un avant-goût de notre univers — la galerie complète vous attend.</p>
       </div>
       <div class="gallery-teaser reveal">
-        <!-- Remplace les divs par de vraies photos quand tu en auras -->
-        <div class="gallery-cell"><span class="gallery-rune">☩</span></div>
-        <div class="gallery-cell"><span class="gallery-rune">☠</span></div>
-        <div class="gallery-cell"><span class="gallery-rune">⚔</span></div>
-        <div class="gallery-cell"><span class="gallery-rune">🜏</span></div>
-        <div class="gallery-cell"><span class="gallery-rune">⛧</span></div>
-        <div class="gallery-cell"><span class="gallery-rune">🝯</span></div>
-        <div class="gallery-cell"><span class="gallery-rune">☽</span></div>
+        <!-- Chaque cellule redirige vers la galerie au clic -->
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☩</span></div>
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☠</span></div>
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">⚔</span></div>
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">🜏</span></div>
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">⛧</span></div>
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">🝯</span></div>
+        <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☽</span></div>
       </div>
-      <a href="Galerie/" class="btn btn-primary" style="display:inline-block; margin: 0 auto;">
+      <a href="Galerie/Galerie.html" class="btn btn-primary" style="display:inline-block; margin: 0 auto;">
         Voir toute la galerie (1000+ œuvres)
       </a>
     </div>
   </section>
 
-  <!-- CONTACT -->
   <section id="contact">
     <div class="container">
       <div class="contact-grid">
@@ -839,11 +580,11 @@
             </div>
             <div class="contact-item">
               <div class="contact-item-label">Téléphone</div>
-              <div class="contact-item-value"><a href="tel:+33600000000">06 24 97 01 55</a></div>
+              <div class="contact-item-value"><a href="tel:+33624970155">06 24 97 01 55</a></div>
             </div>
             <div class="contact-item">
               <div class="contact-item-label">Instagram</div>
-              <div class="contact-item-value"><a href="mailto:contact@In_Tenebris.fr">@grimm.tattoo.artist</a></div>
+              <div class="contact-item-value"><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">@grimm.tattoo.artist</a></div>
             </div>
             <div class="contact-item">
               <div class="contact-item-label">Horaires</div>
@@ -889,23 +630,21 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
   <footer>
     <div class="footer-logo">In Tenebris</div>
     <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ</div>
     <ul class="footer-links">
       <li><a href="#about">L'Atelier</a></li>
       <li><a href="#services">Services</a></li>
-      <li><a href="Galerie/">Galerie</a></li>
+      <li><a href="Galerie/Galerie.html">Galerie</a></li>
       <li><a href="#contact">Contact</a></li>
-      <li><a href="#">Instagram</a></li>
+      <li><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">Instagram</a></li>
     </ul>
-    <p class="footer-copy">© In Tenebris <br>· Tous droits réservés · </p>
-    <p> 20 Rue du Général Leclerc 76000 Rouen </p>
+    <p class="footer-copy">© In Tenebris · Tous droits réservés</p>
+    <p class="footer-address">20 Rue du Général Leclerc · 76000 Rouen</p>
   </footer>
 
   <script>
-    // Scroll reveal
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, i) => {
@@ -917,7 +656,6 @@
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
 
-    // Nav background on scroll
     const nav = document.querySelector('nav');
     window.addEventListener('scroll', () => {
       nav.style.background = window.scrollY > 80
