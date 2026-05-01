@@ -578,14 +578,14 @@ const allItems = Array.from({ length: 60 }, (_, i) => ({
   height: [240, 300, 350, 270, 320, 290][i % 6],
 }));
 
-  const allItems = Array.from({ length: 60 }, (_, i) => ({
-  src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfgd.jpg",                    // ← Remplace par 'photos/001.jpg' etc. quand tu auras les vraies images
-  title: 'Roi des Ombres'[i % titles.length],
-  tag: 'fantasy'[i % styles.length],
-  rune: '⚡'[i % runes.length],
-  height: [240, 300, 350, 270, 320, 290][i % 6],
-}));
-
+// Tu ajoutes les autres photos ici, une par une
+  {
+    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfgd.jpg",
+    title: "Roi des Ombres",
+    tag: "fantasy",
+    rune: '⚡'
+  };
+  
 let visible = 0;
 let currentFilter = 'all';
 let lightboxIndex = 0;
