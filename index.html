@@ -10,20 +10,18 @@
   <script defer src="https://cloud.umami.is/script.js" data-website-id="e7210334-7205-44e7-baca-1e2bd8e5ec40"></script>
   <style>
     :root {
-      --black:    #080808;
-      --deep:     #0d0d0d;
-      --crimson:  #8b0000;
-      --blood:    #c0000a;
-      --silver:   #a8a8a8;
-      --bone:     #d4c9b0;
-      --fog:      #1a1a1a;
-      --gold:     #7a6030;
-      --goldlit:  #c9a84c;
+      --black:   #080808;
+      --deep:    #0d0d0d;
+      --crimson: #8b0000;
+      --blood:   #c0000a;
+      --silver:  #a8a8a8;
+      --bone:    #d4c9b0;
+      --fog:     #1a1a1a;
+      --gold:    #7a6030;
+      --goldlit: #c9a84c;
     }
 
-    /* FIX 1 : margin: 50 → margin: 0 */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -48,6 +46,7 @@
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
+    /* ── NAV ── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -69,11 +68,11 @@
       text-shadow: 0 0 20px rgba(201,168,76,0.4);
     }
 
-    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
 
     .nav-links a {
       font-family: 'Cinzel', serif;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--silver);
@@ -96,6 +95,7 @@
     .nav-links a:hover { color: var(--goldlit); }
     .nav-links a:hover::after { transform: scaleX(1); }
 
+    /* ── HERO ── */
     .hero {
       position: relative;
       min-height: 100vh;
@@ -226,6 +226,7 @@
     .btn-secondary { color: var(--silver); border-color: rgba(168,168,168,0.3); }
     .btn-secondary:hover { color: var(--black); }
 
+    /* ── SECTIONS ── */
     section { padding: 7rem 2rem; position: relative; }
 
     .section-label {
@@ -248,6 +249,7 @@
 
     .container { max-width: 1200px; margin: 0 auto; }
 
+    /* ── ABOUT ── */
     #about { background: linear-gradient(to bottom, var(--black), var(--deep), var(--black)); }
 
     .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
@@ -292,6 +294,7 @@
     .stat-num { font-family: 'Cinzel Decorative', serif; font-size: 2.5rem; color: var(--blood); line-height: 1; }
     .stat-label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); margin-top: 0.3rem; }
 
+    /* ── SERVICES ── */
     #services { background: var(--deep); }
     .services-header { text-align: center; margin-bottom: 5rem; }
 
@@ -322,6 +325,7 @@
     .service-desc { color: var(--silver); font-style: italic; font-size: 0.9rem; line-height: 1.8; }
     .service-price { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 3px; color: var(--blood); margin-top: 1.5rem; text-transform: uppercase; }
 
+    /* ── GALLERY PREVIEW ── */
     #gallery-preview { background: var(--black); text-align: center; }
     .gallery-header { margin-bottom: 3rem; }
 
@@ -372,11 +376,70 @@
     .gallery-rune { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 3rem; opacity: 0.06; color: var(--bone); }
     .gallery-cta-text { font-style: italic; color: var(--silver); margin-bottom: 2rem; font-size: 1rem; }
 
+    /* ── AVIS ── */
+    #avis { background: var(--deep); }
+    .avis-header { text-align: center; margin-bottom: 4rem; }
+
+    .avis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .avis-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(139,0,0,0.2);
+      padding: 2rem;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+
+    .avis-card:hover { border-color: rgba(139,0,0,0.5); }
+
+    .avis-stars {
+      color: var(--goldlit);
+      font-size: 0.9rem;
+      letter-spacing: 3px;
+      margin-bottom: 1rem;
+    }
+
+    .avis-text {
+      font-style: italic;
+      color: var(--silver);
+      font-size: 0.92rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    .avis-author {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    .avis-date {
+      font-size: 0.75rem;
+      color: rgba(168,168,168,0.3);
+      margin-top: 0.2rem;
+    }
+
+    .avis-quote {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      font-size: 3rem;
+      color: rgba(139,0,0,0.08);
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+
+    /* ── CONTACT ── */
     #contact { background: linear-gradient(to bottom, var(--black), var(--deep)); }
     .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start; }
     .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
     .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
-
     .form-field label { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 4px; text-transform: uppercase; color: var(--blood); }
 
     .form-field input,
@@ -409,16 +472,52 @@
     .contact-item-value a { color: var(--bone); text-decoration: none; transition: color 0.3s; }
     .contact-item-value a:hover { color: var(--goldlit); }
 
+    /* ── FOOTER ── */
     footer { background: var(--black); border-top: 1px solid rgba(139,0,0,0.15); padding: 3rem 2rem; text-align: center; }
     .footer-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 3rem; color: rgba(139,0,0,0.4); margin-bottom: 1rem; }
-    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; flex-wrap: wrap; }
     .footer-links a { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); text-decoration: none; opacity: 0.5; transition: opacity 0.3s; }
     .footer-links a:hover { opacity: 1; color: var(--goldlit); }
     .footer-copy { font-size: 0.7rem; color: rgba(168,168,168,0.3); letter-spacing: 2px; font-family: 'Cinzel', serif; margin-bottom: 0.4rem; }
     .footer-address { font-size: 0.65rem; color: rgba(168,168,168,0.2); font-family: 'Cinzel', serif; letter-spacing: 1px; }
 
+    /* ── RUNE SEP ── */
     .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
 
+    /* ── SCROLL TO TOP (bouton flottant) ── */
+    #scrollTop {
+      position: fixed;
+      bottom: 2.5rem;
+      right: 2rem;
+      z-index: 200;
+      width: 44px;
+      height: 44px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(139,0,0,0.5);
+      color: var(--blood);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s, border-color 0.3s, color 0.3s;
+      pointer-events: none;
+    }
+
+    #scrollTop.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #scrollTop:hover {
+      border-color: var(--goldlit);
+      color: var(--goldlit);
+    }
+
+    /* ── ANIMATIONS ── */
     @keyframes fadeDown {
       from { opacity: 0; transform: translateY(-20px); }
       to   { opacity: 1; transform: translateY(0); }
@@ -427,13 +526,19 @@
     .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease, transform 0.8s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      .nav-links { gap: 1rem; }
+      .nav-links a { font-size: 0.58rem; letter-spacing: 1.5px; }
+    }
+
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
-      .nav-links { gap: 1.2rem; }
-      .nav-links a { font-size: 0.6rem; letter-spacing: 1px; }
+      .nav-links { gap: 0.8rem; }
+      .nav-links a { font-size: 0.55rem; letter-spacing: 1px; }
       .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 3rem; }
       .about-visual { display: none; }
-      .services-grid { grid-template-columns: 1fr; }
+      .services-grid, .avis-grid { grid-template-columns: 1fr; }
       .gallery-teaser { grid-template-columns: repeat(2,1fr); grid-template-rows: repeat(4, 160px); }
       .gallery-cell:first-child { grid-row: 1 / 2; grid-column: 1 / 2; }
       .hero-cta { flex-direction: column; align-items: center; }
@@ -448,9 +553,13 @@
       <li><a href="#about">L'Atelier</a></li>
       <li><a href="#services">Services</a></li>
       <li><a href="Galerie/Galerie.html">Galerie</a></li>
+      <li><a href="Artistes.html">Artistes</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- Bouton retour en haut -->
+  <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
 
   <section class="hero">
     <div class="hero-bg"></div>
@@ -461,7 +570,6 @@
     <p class="hero-desc">L'art gravé dans la chair. Des créations uniques nées des abysses de l'imaginaire dark, metal & fantastique.</p>
     <div class="hero-cta">
       <a href="#contact" class="btn btn-primary">Prendre Rendez-vous</a>
-      <!-- FIX 2 : balise <a> réparée, lien corrigé -->
       <a href="Galerie/Galerie.html" class="btn btn-secondary">Voir la Galerie</a>
     </div>
   </section>
@@ -552,7 +660,6 @@
         <p class="gallery-cta-text">Un avant-goût de notre univers — la galerie complète vous attend.</p>
       </div>
       <div class="gallery-teaser reveal">
-        <!-- Chaque cellule redirige vers la galerie au clic -->
         <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☩</span></div>
         <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☠</span></div>
         <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">⚔</span></div>
@@ -564,6 +671,29 @@
       <a href="Galerie/Galerie.html" class="btn btn-primary" style="display:inline-block; margin: 0 auto;">
         Voir toute la galerie (1000+ œuvres)
       </a>
+    </div>
+  </section>
+
+  <!-- ── AVIS GOOGLE ──────────────────────────────────────────────────────── -->
+  <!--
+    COMMENT AJOUTER UN AVIS :
+    Dans le tableau "avis" ci-dessous (dans le <script>), copie-colle un nouveau bloc :
+    {
+      auteur: "Prénom N.",
+      note: 5,           // nombre d'étoiles (1 à 5)
+      texte: "Texte de l'avis...",
+      date: "avril 2025"
+    },
+    Sauvegarde. C'est tout !
+  -->
+  <section id="avis">
+    <div class="container">
+      <div class="avis-header reveal">
+        <span class="section-label">✦ Ce qu'ils disent ✦</span>
+        <h2 class="section-title">Avis</h2>
+        <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ</div>
+      </div>
+      <div class="avis-grid reveal" id="avisGrid"></div>
     </div>
   </section>
 
@@ -638,6 +768,7 @@
       <li><a href="#about">L'Atelier</a></li>
       <li><a href="#services">Services</a></li>
       <li><a href="Galerie/Galerie.html">Galerie</a></li>
+      <li><a href="Artistes.html">Artistes</a></li>
       <li><a href="#contact">Contact</a></li>
       <li><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">Instagram</a></li>
     </ul>
@@ -646,6 +777,58 @@
   </footer>
 
   <script>
+    // ════════════════════════════════════════════════════════════════════════
+    // AVIS GOOGLE — Comment ajouter un avis :
+    //   1. Copie un bloc { auteur, note, texte, date }
+    //   2. Colle-le dans le tableau ci-dessous (avant le dernier "]")
+    //   3. Sauvegarde → l'avis apparaît automatiquement
+    // ════════════════════════════════════════════════════════════════════════
+    const avis = [
+      {
+        auteur: "Marie L.",
+        note: 5,
+        texte: "Un travail absolument magnifique, l'artiste a su retranscrire exactement ma vision. L'ambiance du salon est à l'image du tatouage : sombre et envoûtante.",
+        date: "mars 2025"
+      },
+      {
+        auteur: "Thomas R.",
+        note: 5,
+        texte: "Je cherchais quelqu'un capable de faire du blackwork complexe — c'est exactement ce que j'ai trouvé. Précision chirurgicale, résultat époustouflant.",
+        date: "janvier 2025"
+      },
+      {
+        auteur: "Lucie V.",
+        note: 5,
+        texte: "Accueil chaleureux malgré l'ambiance dark du lieu, ce qui est rassurant pour un premier tatouage. Je recommande les yeux fermés.",
+        date: "février 2025"
+      },
+      // ← Ajoute tes avis ici, ex :
+      // {
+      //   auteur: "Prénom N.",
+      //   note: 5,
+      //   texte: "Texte de l'avis...",
+      //   date: "avril 2025"
+      // },
+    ];
+
+    // Rendu des avis
+    function renderAvis() {
+      const grid = document.getElementById('avisGrid');
+      avis.forEach(a => {
+        const stars = '★'.repeat(a.note) + '☆'.repeat(5 - a.note);
+        grid.innerHTML += `
+          <div class="avis-card">
+            <div class="avis-quote">"</div>
+            <div class="avis-stars">${stars}</div>
+            <p class="avis-text">${a.texte}</p>
+            <div class="avis-author">${a.auteur}</div>
+            <div class="avis-date">${a.date}</div>
+          </div>`;
+      });
+    }
+    renderAvis();
+
+    // Scroll reveal
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, i) => {
@@ -657,15 +840,19 @@
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
 
+    // Nav scroll
     const nav = document.querySelector('nav');
+    const scrollTopBtn = document.getElementById('scrollTop');
+
     window.addEventListener('scroll', () => {
-      nav.style.background = window.scrollY > 80
-        ? 'rgba(8,8,8,0.97)'
-        : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
-      nav.style.borderBottomColor = window.scrollY > 80
-        ? 'rgba(139,0,0,0.3)'
-        : 'rgba(139,0,0,0.2)';
+      const y = window.scrollY;
+      nav.style.background = y > 80 ? 'rgba(8,8,8,0.97)' : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
+      nav.style.borderBottomColor = y > 80 ? 'rgba(139,0,0,0.3)' : 'rgba(139,0,0,0.2)';
+      // Bouton retour en haut
+      scrollTopBtn.classList.toggle('visible', y > 400);
     });
+
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   </script>
 </body>
 </html>
