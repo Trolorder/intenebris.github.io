@@ -552,166 +552,188 @@
     </div>
   </div>
 
-  <script>
-    // ── DATA ──────────────────────────────────────────────────────────────────
-    // Remplace chaque entrée par { src: 'photos/ton-fichier.jpg', title: '...', tag: '...' }
-    // Les tags doivent correspondre aux data-filter des boutons
-    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-    const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    const titles = [
-      'Le Voile de l\'Oubli','Corvus Noir','Séraphin Déchu','L\'Arbre des Âmes',
-      'Roi des Ombres','Lune Sanglante','Armure Runique','Mère des Serpents',
-      'Forêt Maudite','Chant du Chaos','Basilic','Portail d\'Hécate',
-      'Cerf Spectral','Le Dernier Chevalier','Danse Macabre','Oeil de la Nuit',
-      'Crâne Féodal','Les Trois Nornes','Fenrir','Banshee','Léviathan',
-      'Tour de Babel','Rune Primordiale','Ange Brisé','Hydre Sombre',
-    ];
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
+const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
 
-    // Génère des données placeholder — remplace par vraies photos
-    const allItems = Array.from({ length: 60 }, (_, i) => ({
-      src: null, // mettre 'photos/001.jpg' etc.
-      title: titles[i % titles.length],
-      tag: styles[i % styles.length],
-      rune: runes[i % runes.length],
-      height: [220, 280, 340, 300, 260, 320][i % 6],
-    }));
+const titles = [
+  'Le Voile de l\'Oubli','Corvus Noir','Séraphin Déchu','L\'Arbre des Âmes',
+  'Roi des Ombres','Lune Sanglante','Armure Runique','Mère des Serpents',
+  'Forêt Maudite','Chant du Chaos','Basilic','Portail d\'Hécate',
+  'Cerf Spectral','Le Dernier Chevalier','Danse Macabre','Oeil de la Nuit',
+  'Crâne Féodal','Les Trois Nornes','Fenrir','Banshee','Léviathan',
+  'Tour de Babel','Rune Primordiale','Ange Brisé','Hydre Sombre',
+];
 
-    let visible = 0;
-    let currentFilter = 'all';
-    let lightboxIndex = 0;
-    const BATCH = 21;
+const allItems = Array.from({ length: 60 }, (_, i) => ({
+  src: null,                    // ← Remplace par 'photos/001.jpg' etc. quand tu auras les vraies images
+  title: titles[i % titles.length],
+  tag: styles[i % styles.length],
+  rune: runes[i % runes.length],
+  height: [240, 300, 350, 270, 320, 290][i % 6],
+}));
 
-    function getFiltered() {
-      return currentFilter === 'all'
-        ? allItems
-        : allItems.filter(it => it.tag === currentFilter);
-    }
+let visible = 0;
+let currentFilter = 'all';
+let lightboxIndex = 0;
+const BATCH = 21;
 
-    function tagLabel(tag) {
-      const map = {
-        blackwork: 'Blackwork', fantasy: 'Dark Fantasy',
-        blackmetal: 'Black Metal', dotwork: 'Dotwork',
-        realism: 'Réalisme', coverup: 'Cover-up',
-      };
-      return map[tag] || tag;
-    }
+const galleryGrid = document.getElementById('galleryGrid');
+const countNum = document.getElementById('count-num');
+const loadMoreBtn = document.getElementById('loadMoreBtn');
 
-    function renderItem(item, globalIdx) {
-      const div = document.createElement('div');
-      div.className = 'gallery-item';
-      div.dataset.tag = item.tag;
-      div.dataset.idx = globalIdx;
-      div.style.animationDelay = ((globalIdx % BATCH) * 0.03) + 's';
+// ── Helpers ───────────────────────────────────────────────────────────────
+function getFiltered() {
+  return currentFilter === 'all' 
+    ? allItems 
+    : allItems.filter(item => item.tag === currentFilter);
+}
 
-      if (item.src) {
-        div.innerHTML = `
-          <img src="${item.src}" alt="${item.title}" loading="lazy"/>
-          <div class="gallery-item-overlay">
-            <span class="overlay-tag">${tagLabel(item.tag)}</span>
-            <span class="overlay-title">${item.title}</span>
-            <span class="overlay-zoom">⊕</span>
-          </div>`;
-      } else {
-        div.innerHTML = `
-          <div class="gallery-placeholder" style="height:${item.height}px">
-            <span class="placeholder-rune">${item.rune}</span>
-            <div class="gallery-item-overlay">
-              <span class="overlay-tag">${tagLabel(item.tag)}</span>
-              <span class="overlay-title">${item.title}</span>
-              <span class="overlay-zoom">⊕</span>
-            </div>
-          </div>`;
-      }
+function tagLabel(tag) {
+  const map = {
+    blackwork: 'Blackwork',
+    fantasy: 'Dark Fantasy',
+    blackmetal: 'Black Metal',
+    dotwork: 'Dotwork',
+    realism: 'Réalisme',
+    coverup: 'Cover-up'
+  };
+  return map[tag] || tag;
+}
 
-      div.addEventListener('click', () => openLightbox(globalIdx));
-      return div;
-    }
+// ── Render Item ───────────────────────────────────────────────────────────
+function renderItem(item, globalIdx) {
+  const div = document.createElement('div');
+  div.className = 'gallery-item';
+  div.dataset.tag = item.tag;
+  div.dataset.idx = globalIdx;
 
-    function renderBatch() {
-      const grid = document.getElementById('galleryGrid');
-      const filtered = getFiltered();
-      const end = Math.min(visible + BATCH, filtered.length);
+  if (item.src) {
+    div.innerHTML = `
+      <img src="${item.src}" alt="${item.title}" loading="lazy"/>
+      <div class="gallery-item-overlay">
+        <span class="overlay-tag">${tagLabel(item.tag)}</span>
+        <span class="overlay-title">${item.title}</span>
+        <span class="overlay-zoom">⊕</span>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="gallery-placeholder" style="height:${item.height}px">
+        <span class="placeholder-rune">${item.rune}</span>
+        <div class="gallery-item-overlay">
+          <span class="overlay-tag">${tagLabel(item.tag)}</span>
+          <span class="overlay-title">${item.title}</span>
+          <span class="overlay-zoom">⊕</span>
+        </div>
+      </div>`;
+  }
 
-      for (let i = visible; i < end; i++) {
-        grid.appendChild(renderItem(filtered[i], i));
-      }
+  div.addEventListener('click', () => openLightbox(globalIdx));
+  return div;
+}
 
-      visible = end;
-      document.getElementById('count-num').textContent = visible;
-      document.getElementById('loadMoreBtn').style.display =
-        visible >= filtered.length ? 'none' : 'inline-block';
-    }
+// ── Render Batch ──────────────────────────────────────────────────────────
+function renderBatch() {
+  const filtered = getFiltered();
+  const end = Math.min(visible + BATCH, filtered.length);
 
-    function loadMore() { renderBatch(); }
+  const fragment = document.createDocumentFragment();
 
-    // ── FILTERS ──
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentFilter = btn.dataset.filter;
-        visible = 0;
-        document.getElementById('galleryGrid').innerHTML = '';
-        renderBatch();
-      });
-    });
+  for (let i = visible; i < end; i++) {
+    fragment.appendChild(renderItem(filtered[i], i));
+  }
 
-    // ── LIGHTBOX ──
-    function openLightbox(idx) {
-      lightboxIndex = idx;
-      updateLightbox();
-      document.getElementById('lightbox').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
+  galleryGrid.appendChild(fragment);
+  visible = end;
 
-    function closeLightbox() {
-      document.getElementById('lightbox').classList.remove('open');
-      document.body.style.overflow = '';
-    }
+  // Mise à jour du compteur (nombre affiché / total filtré)
+  countNum.textContent = `${visible} / ${filtered.length}`;
 
-    function updateLightbox() {
-      const filtered = getFiltered();
-      const item = filtered[lightboxIndex];
-      const img = document.getElementById('lightboxImg');
-      const cap = document.getElementById('lightboxCaption');
+  loadMoreBtn.style.display = visible >= filtered.length ? 'none' : 'inline-block';
+}
 
-      if (item.src) {
-        img.src = item.src;
-      } else {
-        // Placeholder — juste afficher le rune dans le lightbox
-        img.src = 'data:image/svg+xml,' + encodeURIComponent(
-          `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='500'>
-            <rect width='600' height='500' fill='%230d0d0d'/>
-            <text x='300' y='270' font-size='120' text-anchor='middle' fill='%238b0000' opacity='0.4'>${item.rune}</text>
-            <text x='300' y='350' font-size='16' text-anchor='middle' fill='%23d4c9b0' font-family='Georgia' opacity='0.6'>${item.title}</text>
-          </svg>`
-        );
-      }
+function loadMore() {
+  renderBatch();
+}
 
-      cap.textContent = `${item.title} — ${tagLabel(item.tag)}`;
-    }
+// ── Filters ───────────────────────────────────────────────────────────────
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-    function navigateLightbox(dir) {
-      const filtered = getFiltered();
-      lightboxIndex = (lightboxIndex + dir + filtered.length) % filtered.length;
-      updateLightbox();
-    }
+    currentFilter = btn.dataset.filter;
+    visible = 0;
+    galleryGrid.innerHTML = '';
 
-    // Keyboard nav
-    document.addEventListener('keydown', e => {
-      if (!document.getElementById('lightbox').classList.contains('open')) return;
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowRight') navigateLightbox(1);
-      if (e.key === 'ArrowLeft')  navigateLightbox(-1);
-    });
-
-    // Click outside image to close
-    document.getElementById('lightbox').addEventListener('click', e => {
-      if (e.target === document.getElementById('lightbox')) closeLightbox();
-    });
-
-    // ── INIT ──
     renderBatch();
-  </script>
+  });
+});
+
+// ── Lightbox ──────────────────────────────────────────────────────────────
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+
+function updateLightbox() {
+  const filtered = getFiltered();
+  const item = filtered[lightboxIndex];
+
+  if (item.src) {
+    // Préchargement
+    const preload = new Image();
+    preload.src = item.src;
+    lightboxImg.src = item.src;
+  } else {
+    // Placeholder stylé
+    lightboxImg.src = `data:image/svg+xml,${encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+        <rect width="800" height="600" fill="#0d0d0d"/>
+        <text x="400" y="320" font-size="180" text-anchor="middle" fill="#8b0000" opacity="0.35">${item.rune}</text>
+        <text x="400" y="420" font-size="22" text-anchor="middle" fill="#d4c9b0" font-family="Georgia" opacity="0.7">${item.title}</text>
+      </svg>
+    `)}`;
+  }
+
+  lightboxCaption.textContent = `${item.title} — ${tagLabel(item.tag)}`;
+}
+
+function openLightbox(idx) {
+  const filtered = getFiltered();
+  lightboxIndex = Math.max(0, Math.min(idx, filtered.length - 1));
+  
+  updateLightbox();
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function navigateLightbox(dir) {
+  const filtered = getFiltered();
+  lightboxIndex = (lightboxIndex + dir + filtered.length) % filtered.length;
+  updateLightbox();
+}
+
+// ── Event Listeners Lightbox ─────────────────────────────────────────────
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === lightbox) closeLightbox();
+});
+
+document.addEventListener('keydown', e => {
+  if (!lightbox.classList.contains('open')) return;
+  
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') navigateLightbox(1);
+  if (e.key === 'ArrowLeft') navigateLightbox(-1);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────
+renderBatch();
+</script>
 </body>
 </html>
