@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Galerie — ABYSSAL INK</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black:    #080808;
+      --deep:     #0d0d0d;
+      --crimson:  #8b0000;
+      --blood:    #c0000a;
+      --silver:   #a8a8a8;
+      --bone:     #d4c9b0;
+      --fog:      #1a1a1a;
+      --goldlit:  #c9a84c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--bone);
+      font-family: 'IM Fell English', Georgia, serif;
+      cursor: crosshair;
+      overflow-x: hidden;
+    }
+
+    /* Grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(8,8,8,0.97);
+      border-bottom: 1px solid rgba(139,0,0,0.25);
+    }
+
+    .nav-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 1.8rem;
+      color: var(--goldlit);
+      letter-spacing: 2px;
+      text-decoration: none;
+      text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.72rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 1px;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--goldlit); }
+    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a.active { color: var(--goldlit); }
+
+    /* ── HERO BANNER ── */
+    .gallery-hero {
+      padding: 10rem 2rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(139,0,0,0.1), transparent 70%);
+    }
+
+    .gallery-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--blood);
+      margin-bottom: 1rem;
+    }
+
+    .gallery-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      color: var(--bone);
+      text-shadow: 0 0 40px rgba(139,0,0,0.4);
+      line-height: 0.9;
+    }
+
+    .gallery-subtitle {
+      font-style: italic;
+      color: var(--silver);
+      margin-top: 1.2rem;
+      font-size: 1rem;
+    }
+
+    .divider {
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--crimson), transparent);
+      margin: 1.5rem auto;
+      position: relative;
+    }
+
+    .divider::before, .divider::after {
+      content: '✦';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--blood);
+      font-size: 0.6rem;
+    }
+    .divider::before { left: -15px; }
+    .divider::after  { right: -15px; }
+
+    /* ── FILTERS ── */
+    .filter-bar {
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      position: sticky;
+      top: 65px;
+      z-index: 50;
+      background: rgba(8,8,8,0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(139,0,0,0.15);
+    }
+
+    .filter-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.5rem 1.4rem;
+      cursor: crosshair;
+      transition: all 0.25s;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--blood);
+      color: var(--bone);
+    }
+
+    .filter-btn.active {
+      background: var(--blood);
+      border-color: var(--blood);
+      color: var(--bone);
+    }
+
+    /* ── GALLERY GRID ── */
+    .gallery-section {
+      padding: 3rem 1.5rem 6rem;
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .gallery-count {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: rgba(168,168,168,0.4);
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .gallery-count span { color: var(--blood); }
+
+    /* Masonry-style grid */
+    .gallery-grid {
+      columns: 4;
+      column-gap: 3px;
+    }
+
+    @media (max-width: 1200px) { .gallery-grid { columns: 3; } }
+    @media (max-width: 768px)  { .gallery-grid { columns: 2; } }
+    @media (max-width: 480px)  { .gallery-grid { columns: 1; } }
+
+    .gallery-item {
+      break-inside: avoid;
+      margin-bottom: 3px;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      display: block;
+      filter: grayscale(0.1) contrast(1.05);
+      transition: transform 0.5s ease, filter 0.5s ease;
+    }
+
+    .gallery-item:hover img {
+      transform: scale(1.04);
+      filter: grayscale(0) contrast(1.1);
+    }
+
+    /* Placeholder when no real image */
+    .gallery-placeholder {
+      width: 100%;
+      background: var(--fog);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(139,0,0,0.08), transparent 60%);
+    }
+
+    .placeholder-rune {
+      font-size: 4rem;
+      opacity: 0.07;
+      color: var(--bone);
+      user-select: none;
+    }
+
+    .gallery-item-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8,8,8,0.75);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+      gap: 0.5rem;
+    }
+
+    .gallery-item:hover .gallery-item-overlay { opacity: 1; }
+
+    .overlay-tag {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    .overlay-title {
+      font-family: 'Cinzel Decorative', serif;
+      font-size: 0.8rem;
+      color: var(--bone);
+      text-align: center;
+      padding: 0 1rem;
+    }
+
+    .overlay-zoom {
+      font-size: 1.2rem;
+      color: var(--goldlit);
+      margin-top: 0.5rem;
+    }
+
+    /* ── HIDDEN items (for filter) ── */
+    .gallery-item.hidden { display: none; }
+
+    /* ── LOAD MORE ── */
+    .load-more-wrap {
+      text-align: center;
+      margin-top: 4rem;
+    }
+
+    .btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: 1rem 2.5rem;
+      border: 1px solid;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+      z-index: -1;
+    }
+
+    .btn:hover::before { transform: scaleX(1); }
+
+    .btn-primary {
+      color: var(--bone);
+      border-color: var(--blood);
+    }
+
+    .btn-primary:hover { color: var(--black); }
+
+    .btn-ghost {
+      color: var(--silver);
+      border-color: rgba(168,168,168,0.3);
+    }
+
+    .btn-ghost:hover { color: var(--black); }
+
+    /* ── LIGHTBOX ── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .lightbox.open { display: flex; }
+
+    .lightbox-inner {
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+    }
+
+    .lightbox-inner img {
+      max-width: 90vw;
+      max-height: 85vh;
+      display: block;
+      border: 1px solid rgba(139,0,0,0.3);
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      color: var(--silver);
+      cursor: pointer;
+      background: none;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.5rem 1rem;
+      transition: all 0.3s;
+    }
+
+    .lightbox-close:hover {
+      color: var(--bone);
+      border-color: var(--blood);
+    }
+
+    .lightbox-caption {
+      text-align: center;
+      margin-top: 1rem;
+      font-style: italic;
+      color: var(--silver);
+      font-size: 0.85rem;
+    }
+
+    .lightbox-nav {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.5rem;
+      color: var(--silver);
+      cursor: pointer;
+      background: rgba(8,8,8,0.7);
+      border: 1px solid rgba(139,0,0,0.2);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s;
+    }
+
+    .lightbox-nav:hover { color: var(--goldlit); border-color: var(--goldlit); }
+    .lightbox-prev { left: 1.5rem; }
+    .lightbox-next { right: 1.5rem; }
+
+    /* ── RUNE SEP ── */
+    .rune-sep {
+      text-align: center;
+      color: rgba(139,0,0,0.25);
+      font-size: 1rem;
+      letter-spacing: 1.2rem;
+      margin: 1.5rem 0;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid rgba(139,0,0,0.15);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 2.5rem;
+      color: rgba(139,0,0,0.35);
+      margin-bottom: 1rem;
+    }
+
+    .footer-copy {
+      font-size: 0.65rem;
+      color: rgba(168,168,168,0.25);
+      letter-spacing: 2px;
+      font-family: 'Cinzel', serif;
+    }
+
+    /* Fade-in items */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .gallery-item {
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.2rem; }
+      .nav-links a { font-size: 0.6rem; letter-spacing: 1px; }
+      .filter-bar { padding: 1rem; gap: 0.4rem; }
+      .filter-btn { font-size: 0.55rem; padding: 0.4rem 0.9rem; letter-spacing: 1px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-logo">Abyssal Ink</a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">L'Atelier</a></li>
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="gallery.html" class="active">Galerie</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="gallery-hero">
+    <p class="gallery-eyebrow">✦ Plus de 1000 œuvres ✦</p>
+    <h1 class="gallery-title">Galerie</h1>
+    <div class="divider"></div>
+    <p class="gallery-subtitle">L'archive de nos ténèbres gravées dans la chair</p>
+    <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ</div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">Tout voir</button>
+    <button class="filter-btn" data-filter="blackwork">Blackwork</button>
+    <button class="filter-btn" data-filter="fantasy">Dark Fantasy</button>
+    <button class="filter-btn" data-filter="blackmetal">Black Metal</button>
+    <button class="filter-btn" data-filter="dotwork">Dotwork</button>
+    <button class="filter-btn" data-filter="realism">Réalisme</button>
+    <button class="filter-btn" data-filter="coverup">Cover-up</button>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="gallery-section">
+    <p class="gallery-count" id="count-display">Affichage de <span id="count-num">42</span> œuvres</p>
+
+    <div class="gallery-grid" id="galleryGrid">
+      <!-- Les items sont générés par JS — remplace les placeholders par de vraies <img> -->
+    </div>
+
+    <div class="load-more-wrap">
+      <button class="btn btn-primary" id="loadMoreBtn" onclick="loadMore()">
+        Charger plus d'œuvres
+      </button>
+      <p style="margin-top:1.5rem; font-style:italic; color: rgba(168,168,168,0.4); font-size:0.8rem;">
+        — ou glissez vos photos dans le dossier <code style="color:var(--blood)">photos/</code> —
+      </p>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Abyssal Ink</div>
+    <p class="footer-copy">© 2025 Abyssal Ink · Galerie · Rouen</p>
+  </footer>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">✕ Fermer</button>
+    <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">&#8592;</button>
+    <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">&#8594;</button>
+    <div class="lightbox-inner">
+      <img id="lightboxImg" src="" alt=""/>
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </div>
+  </div>
+
+  <script>
+    // ── DATA ──────────────────────────────────────────────────────────────────
+    // Remplace chaque entrée par { src: 'photos/ton-fichier.jpg', title: '...', tag: '...' }
+    // Les tags doivent correspondre aux data-filter des boutons
+    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
+    const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
+    const titles = [
+      'Le Voile de l\'Oubli','Corvus Noir','Séraphin Déchu','L\'Arbre des Âmes',
+      'Roi des Ombres','Lune Sanglante','Armure Runique','Mère des Serpents',
+      'Forêt Maudite','Chant du Chaos','Basilic','Portail d\'Hécate',
+      'Cerf Spectral','Le Dernier Chevalier','Danse Macabre','Oeil de la Nuit',
+      'Crâne Féodal','Les Trois Nornes','Fenrir','Banshee','Léviathan',
+      'Tour de Babel','Rune Primordiale','Ange Brisé','Hydre Sombre',
+    ];
+
+    // Génère des données placeholder — remplace par vraies photos
+    const allItems = Array.from({ length: 60 }, (_, i) => ({
+      src: null, // mettre 'photos/001.jpg' etc.
+      title: titles[i % titles.length],
+      tag: styles[i % styles.length],
+      rune: runes[i % runes.length],
+      height: [220, 280, 340, 300, 260, 320][i % 6],
+    }));
+
+    let visible = 0;
+    let currentFilter = 'all';
+    let lightboxIndex = 0;
+    const BATCH = 21;
+
+    function getFiltered() {
+      return currentFilter === 'all'
+        ? allItems
+        : allItems.filter(it => it.tag === currentFilter);
+    }
+
+    function tagLabel(tag) {
+      const map = {
+        blackwork: 'Blackwork', fantasy: 'Dark Fantasy',
+        blackmetal: 'Black Metal', dotwork: 'Dotwork',
+        realism: 'Réalisme', coverup: 'Cover-up',
+      };
+      return map[tag] || tag;
+    }
+
+    function renderItem(item, globalIdx) {
+      const div = document.createElement('div');
+      div.className = 'gallery-item';
+      div.dataset.tag = item.tag;
+      div.dataset.idx = globalIdx;
+      div.style.animationDelay = ((globalIdx % BATCH) * 0.03) + 's';
+
+      if (item.src) {
+        div.innerHTML = `
+          <img src="${item.src}" alt="${item.title}" loading="lazy"/>
+          <div class="gallery-item-overlay">
+            <span class="overlay-tag">${tagLabel(item.tag)}</span>
+            <span class="overlay-title">${item.title}</span>
+            <span class="overlay-zoom">⊕</span>
+          </div>`;
+      } else {
+        div.innerHTML = `
+          <div class="gallery-placeholder" style="height:${item.height}px">
+            <span class="placeholder-rune">${item.rune}</span>
+            <div class="gallery-item-overlay">
+              <span class="overlay-tag">${tagLabel(item.tag)}</span>
+              <span class="overlay-title">${item.title}</span>
+              <span class="overlay-zoom">⊕</span>
+            </div>
+          </div>`;
+      }
+
+      div.addEventListener('click', () => openLightbox(globalIdx));
+      return div;
+    }
+
+    function renderBatch() {
+      const grid = document.getElementById('galleryGrid');
+      const filtered = getFiltered();
+      const end = Math.min(visible + BATCH, filtered.length);
+
+      for (let i = visible; i < end; i++) {
+        grid.appendChild(renderItem(filtered[i], i));
+      }
+
+      visible = end;
+      document.getElementById('count-num').textContent = visible;
+      document.getElementById('loadMoreBtn').style.display =
+        visible >= filtered.length ? 'none' : 'inline-block';
+    }
+
+    function loadMore() { renderBatch(); }
+
+    // ── FILTERS ──
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        visible = 0;
+        document.getElementById('galleryGrid').innerHTML = '';
+        renderBatch();
+      });
+    });
+
+    // ── LIGHTBOX ──
+    function openLightbox(idx) {
+      lightboxIndex = idx;
+      updateLightbox();
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function updateLightbox() {
+      const filtered = getFiltered();
+      const item = filtered[lightboxIndex];
+      const img = document.getElementById('lightboxImg');
+      const cap = document.getElementById('lightboxCaption');
+
+      if (item.src) {
+        img.src = item.src;
+      } else {
+        // Placeholder — juste afficher le rune dans le lightbox
+        img.src = 'data:image/svg+xml,' + encodeURIComponent(
+          `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='500'>
+            <rect width='600' height='500' fill='%230d0d0d'/>
+            <text x='300' y='270' font-size='120' text-anchor='middle' fill='%238b0000' opacity='0.4'>${item.rune}</text>
+            <text x='300' y='350' font-size='16' text-anchor='middle' fill='%23d4c9b0' font-family='Georgia' opacity='0.6'>${item.title}</text>
+          </svg>`
+        );
+      }
+
+      cap.textContent = `${item.title} — ${tagLabel(item.tag)}`;
+    }
+
+    function navigateLightbox(dir) {
+      const filtered = getFiltered();
+      lightboxIndex = (lightboxIndex + dir + filtered.length) % filtered.length;
+      updateLightbox();
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('lightbox').classList.contains('open')) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') navigateLightbox(1);
+      if (e.key === 'ArrowLeft')  navigateLightbox(-1);
+    });
+
+    // Click outside image to close
+    document.getElementById('lightbox').addEventListener('click', e => {
+      if (e.target === document.getElementById('lightbox')) closeLightbox();
+    });
+
+    // ── INIT ──
+    renderBatch();
+  </script>
+</body>
+</html>
