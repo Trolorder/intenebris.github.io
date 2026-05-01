@@ -569,7 +569,7 @@
 
     // Génère des données placeholder — remplace par vraies photos
     const allItems = Array.from({ length: 60 }, (_, i) => ({
-      src= null // mettre 'photos/001.jpg' etc.
+      src: null // mettre 'photos/001.jpg' etc.
       title: titles[i % titles.length],
       tag: styles[i % styles.length],
       rune: runes[i % runes.length],
@@ -679,7 +679,7 @@
         img.src = item.src;
       } else {
         // Placeholder — juste afficher le rune dans le lightbox
-        img.src = 'data:image/svg+xml,' + encodeURIComponent(
+        img.src = 'https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfg.jpg,' + encodeURIComponent(
           `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='500'>
             <rect width='600' height='500' fill='%230d0d0d'/>
             <text x='300' y='270' font-size='120' text-anchor='middle' fill='%238b0000' opacity='0.4'>${item.rune}</text>
