@@ -444,26 +444,15 @@
     }
 
     /* ── FOOTER ── */
-    footer {
-      background: var(--black);
-      border-top: 1px solid rgba(139,0,0,0.15);
-      padding: 3rem 2rem;
-      text-align: center;
-    }
+    footer { background: var(--black); border-top: 1px solid rgba(139,0,0,0.15); padding: 3rem 2rem; text-align: center; }
+    .footer-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 3rem; color: rgba(139,0,0,0.4); margin-bottom: 1rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; }
+    .footer-links a { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); text-decoration: none; opacity: 0.5; transition: opacity 0.3s; }
+    .footer-links a:hover { opacity: 1; color: var(--goldlit); }
+    .footer-copy { font-size: 0.7rem; color: rgba(168,168,168,0.3); letter-spacing: 2px; font-family: 'Cinzel', serif; margin-bottom: 0.4rem; }
+    .footer-address { font-size: 0.65rem; color: rgba(168,168,168,0.2); font-family: 'Cinzel', serif; letter-spacing: 1px; }
 
-    .footer-logo {
-      font-family: 'UnifrakturMaguntia', cursive;
-      font-size: 2.5rem;
-      color: rgba(139,0,0,0.35);
-      margin-bottom: 1rem;
-    }
-
-    .footer-copy {
-      font-size: 0.65rem;
-      color: rgba(168,168,168,0.25);
-      letter-spacing: 2px;
-      font-family: 'Cinzel', serif;
-    }
+    .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
 
     /* Fade-in items */
     @keyframes fadeUp {
