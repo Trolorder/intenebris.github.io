@@ -100,21 +100,21 @@
     .nav-links a.active { color: var(--goldlit); }
 
     /* ── HERO BANNER ── */
-    .gallery-hero {
+    .gery-hero {
       padding: 10rem 2rem 4rem;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
 
-    .gallery-hero::before {
+    .gery-hero::before {
       content: '';
       position: absolute;
       inset: 0;
       background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(139,0,0,0.1), transparent 70%);
     }
 
-    .gallery-eyebrow {
+    .gery-eyebrow {
       font-family: 'Cinzel', serif;
       font-size: 0.6rem;
       letter-spacing: 8px;
@@ -123,7 +123,7 @@
       margin-bottom: 1rem;
     }
 
-    .gallery-title {
+    .gery-title {
       font-family: 'UnifrakturMaguntia', cursive;
       font-size: clamp(3.5rem, 10vw, 8rem);
       color: var(--bone);
@@ -131,7 +131,7 @@
       line-height: 0.9;
     }
 
-    .gallery-subtitle {
+    .gery-subtitle {
       font-style: italic;
       color: var(--silver);
       margin-top: 1.2rem;
@@ -182,7 +182,7 @@
       border: 1px solid rgba(168,168,168,0.2);
       padding: 0.5rem 1.4rem;
       cursor: crosshair;
-      transition: all 0.25s;
+      transition:  0.25s;
     }
 
     .filter-btn:hover {
@@ -569,7 +569,7 @@
 
     // Génère des données placeholder — remplace par vraies photos
     const allItems = Array.from({ length: 60 }, (_, i) => ({
-      src: null, // mettre 'photos/001.jpg' etc.
+      <img src="Photos/2026-02-22dfgdfg.jpg" alt="Tatouage">, // mettre 'photos/001.jpg' etc.
       title: titles[i % titles.length],
       tag: styles[i % styles.length],
       rune: runes[i % runes.length],
@@ -647,11 +647,11 @@
     // ── FILTERS ──
     document.querySelectorAll('.filter-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentFilter = btn.dataset.filter;
         visible = 0;
-        document.getElementById('galleryGrid').innerHTML = '';
+        document.getElementById('geryGrid').innerHTML = '';
         renderBatch();
       });
     });
