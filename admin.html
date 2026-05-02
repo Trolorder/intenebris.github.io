@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — In Tenebris</title>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       POLICES — les mêmes que sur le site principal
+  ═══════════════════════════════════════════════════════════════════ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ═══════════════════════════════════════════════════════════════════
+       VARIABLES CSS — couleurs du site
+       Pour changer une couleur sur tout le panneau, modifie-la ici.
+    ═══════════════════════════════════════════════════════════════════ */
+    :root {
+      --black:   #080808;   /* fond principal */
+      --deep:    #0d0d0d;   /* fond secondaire */
+      --crimson: #8b0000;   /* rouge sombre */
+      --blood:   #c0000a;   /* rouge vif */
+      --silver:  #a8a8a8;   /* texte secondaire */
+      --bone:    #d4c9b0;   /* texte principal */
+      --fog:     #1a1a1a;   /* cartes / zones grises */
+      --goldlit: #c9a84c;   /* or / accent */
+      --success: #2d6a2d;   /* vert succès */
+      --error:   #6a1f1f;   /* rouge erreur */
+    }
+
+    /* Reset global — évite les marges et paddings par défaut du navigateur */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--black);
+      color: var(--bone);
+      font-family: 'IM Fell English', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────
+       Pour utiliser ta propre image de curseur :
+       1. Dépose ton fichier cursor.png à la RACINE de ton repo GitHub
+       2. Remplace "crosshair" ci-dessous par :
+          url('cursor.png') 16 16, crosshair
+       Le "16 16" = point de clic de l'image (centre d'une image 32x32)
+    ─────────────────────────────────────────────────────────────────── */
+    body { cursor: crosshair; }
+
+    /* Barre de grain filmique en fond (effet photo argentique) */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; /* ne bloque pas les clics */
+      z-index: 999;
+      opacity: 0.3;
+    }
+
+    /* ─── BARRE DE NAVIGATION ADMIN ────────────────────────────────── */
+    .admin-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,8,8,0.97);
+      border-bottom: 1px solid rgba(139,0,0,0.4);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-nav-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 1.6rem;
+      color: var(--goldlit);
+      text-shadow: 0 0 15px rgba(201,168,76,0.4);
+    }
+
+    .admin-nav-info {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    /* Bouton de déconnexion */
+    #btnLogout {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    #btnLogout:hover {
+      border-color: var(--blood);
+      color: var(--bone);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ÉCRAN DE CONNEXION
+       Affiché au chargement, caché après connexion réussie
+    ═══════════════════════════════════════════════════════════════════ */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-box {
+      max-width: 520px;
+      width: 100%;
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.3);
+      padding: 3rem;
+      position: relative;
+    }
+
+    /* Coins décoratifs de la boîte de connexion */
+    .login-box::before,
+    .login-box::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: var(--goldlit);
+      border-style: solid;
+      opacity: 0.4;
+    }
+    .login-box::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .login-box::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    .login-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 2.5rem;
+      color: var(--bone);
+      text-shadow: 0 0 20px rgba(139,0,0,0.4);
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .login-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blood);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    /* Séparateur décoratif */
+    .divider-small {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--crimson), transparent);
+      margin: 1.5rem 0;
+    }
+
+    /* Bloc d'explication pour le token GitHub */
+    .login-info {
+      background: rgba(139,0,0,0.08);
+      border-left: 2px solid rgba(139,0,0,0.4);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--silver);
+      font-style: italic;
+      line-height: 1.7;
+    }
+
+    .login-info a {
+      color: var(--goldlit);
+      text-decoration: none;
+    }
+
+    .login-info strong {
+      color: var(--bone);
+      font-style: normal;
+    }
+
+    /* Champs de saisie */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(139,0,0,0.3);
+      border-bottom-color: rgba(139,0,0,0.6);
+      color: var(--bone);
+      font-family: 'IM Fell English', serif;
+      font-size: 0.95rem;
+      padding: 0.8rem 1rem;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+      width: 100%;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--blood);
+      background: rgba(139,0,0,0.05);
+    }
+
+    .form-group select option { background: var(--deep); }
+
+    /* Bouton principal (rouge sang avec animation) */
+    .btn-primary {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--bone);
+      background: transparent;
+      border: 1px solid var(--blood);
+      padding: 0.9rem 2rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s;
+      width: 100%;
+    }
+
+    /* Animation de remplissage au survol */
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+      z-index: 0;
+    }
+
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-primary:hover { color: var(--black); }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary:disabled::before { transform: scaleX(0) !important; }
+
+    /* Bouton secondaire (discret) */
+    .btn-secondary {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.6rem 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover { border-color: var(--blood); color: var(--bone); }
+
+    /* Bouton danger (rouge pour supprimer) */
+    .btn-danger {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(192,0,10,0.7);
+      background: transparent;
+      border: 1px solid rgba(192,0,10,0.3);
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-danger:hover { border-color: var(--blood); color: var(--blood); background: rgba(192,0,10,0.1); }
+
+    /* Message d'erreur sous le formulaire de connexion */
+    #loginError {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: rgba(192,0,10,0.1);
+      border: 1px solid rgba(192,0,10,0.3);
+      color: #e05050;
+      font-style: italic;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PANNEAU ADMIN PRINCIPAL
+       Caché au chargement, affiché après connexion
+    ═══════════════════════════════════════════════════════════════════ */
+    #adminPanel {
+      display: none; /* sera changé en "block" par JavaScript après connexion */
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Titre de section */
+    .section-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 2rem;
+      color: var(--bone);
+      text-shadow: 0 0 20px rgba(139,0,0,0.3);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--blood);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    /* ─── ZONE DE DÉPÔT DE PHOTOS ──────────────────────────────────── */
+    #dropZone {
+      border: 2px dashed rgba(139,0,0,0.4);
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 2rem 0;
+      background: rgba(139,0,0,0.03);
+      position: relative;
+    }
+
+    /* Quand on survole ou glisse un fichier dessus */
+    #dropZone:hover,
+    #dropZone.dragover {
+      border-color: var(--blood);
+      background: rgba(139,0,0,0.08);
+    }
+
+    #dropZone .drop-icon { font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.4; }
+
+    #dropZone .drop-text {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+
+    #dropZone .drop-subtext {
+      font-size: 0.8rem;
+      color: rgba(168,168,168,0.4);
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    /* Input file caché (déclenché par clic sur la zone) */
+    #fileInput { display: none; }
+
+    /* ─── LISTE DES PHOTOS EN ATTENTE D'UPLOAD ──────────────────────── */
+    #pendingList {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Carte pour chaque photo en attente */
+    .pending-card {
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.2);
+      display: grid;
+      /* Disposition : aperçu | formulaire | bouton suppr */
+      grid-template-columns: 120px 1fr auto;
+      gap: 1.5rem;
+      padding: 1.2rem;
+      align-items: start;
+    }
+
+    .pending-preview {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      display: block;
+      border: 1px solid rgba(139,0,0,0.2);
+    }
+
+    .pending-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.8rem;
+    }
+
+    .pending-filename {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      color: rgba(168,168,168,0.5);
+      margin-bottom: 0.8rem;
+      grid-column: 1 / -1; /* occupe toute la largeur */
+      word-break: break-all;
+    }
+
+    /* Barre de progression pour l'upload */
+    .progress-bar-wrap {
+      grid-column: 1 / -1;
+      height: 2px;
+      background: rgba(139,0,0,0.15);
+      margin-top: 0.5rem;
+      display: none; /* caché par défaut, visible pendant l'upload */
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--blood);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* Badge de statut (Succès / Erreur) */
+    .status-badge {
+      display: none;
+      grid-column: 1 / -1;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      padding: 0.4rem 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .status-badge.success {
+      background: rgba(45,106,45,0.2);
+      border: 1px solid rgba(45,106,45,0.4);
+      color: #6dbe6d;
+    }
+
+    .status-badge.error {
+      background: rgba(192,0,10,0.1);
+      border: 1px solid rgba(192,0,10,0.3);
+      color: #e05050;
+    }
+
+    /* ─── BOUTON "PUBLIER TOUT" ─────────────────────────────────────── */
+    #publishAllWrap {
+      display: none; /* visible uniquement quand il y a des fichiers en attente */
+      margin: 1rem 0 3rem;
+      text-align: center;
+    }
+
+    /* ─── GALERIE EXISTANTE ─────────────────────────────────────────── */
+    .existing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 1.5rem;
+    }
+
+    #existingGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 4px;
+    }
+
+    .existing-card {
+      position: relative;
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .existing-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(0.2);
+      transition: filter 0.3s;
+    }
+
+    .existing-card:hover img { filter: grayscale(0); }
+
+    .existing-card-info {
+      padding: 0.6rem;
+      background: rgba(8,8,8,0.9);
+    }
+
+    .existing-card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 1px;
+      color: var(--bone);
+      margin-bottom: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .existing-card-tag {
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    /* Overlay de suppression au survol */
+    .existing-card-overlay {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .existing-card:hover .existing-card-overlay { opacity: 1; }
+
+    /* Indicateur de chargement de la galerie existante */
+    #existingLoading {
+      text-align: center;
+      padding: 3rem;
+      font-style: italic;
+      color: rgba(168,168,168,0.4);
+      font-size: 0.9rem;
+    }
+
+    /* Message de notification globale (succès / erreur) */
+    #globalNotif {
+      display: none;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      z-index: 500;
+      max-width: 340px;
+      animation: slideIn 0.3s ease;
+    }
+
+    #globalNotif.success {
+      background: rgba(45,106,45,0.9);
+      border: 1px solid rgba(45,106,45,0.6);
+      color: #adf0ad;
+    }
+
+    #globalNotif.error {
+      background: rgba(100,10,10,0.95);
+      border: 1px solid rgba(192,0,10,0.5);
+      color: #f0a0a0;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Séparateur horizontal */
+    hr.dark-sep {
+      border: none;
+      border-top: 1px solid rgba(139,0,0,0.2);
+      margin: 3rem 0;
+    }
+
+    /* Responsive mobile */
+    @media (max-width: 600px) {
+      .pending-card { grid-template-columns: 80px 1fr; }
+      .pending-preview { width: 80px; height: 80px; }
+      .pending-fields { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       ÉCRAN DE CONNEXION
+       Visible au démarrage. Disparaît après connexion avec le token GitHub.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div id="loginScreen">
+    <div class="login-box">
+
+      <h1 class="login-title">In Tenebris</h1>
+      <p class="login-subtitle">✦ Portail Administrateur ✦</p>
+      <div class="divider-small"></div>
+
+      <!-- Explication du token GitHub — important pour le noob friendly -->
+      <div class="login-info">
+        <strong>Comment obtenir ton token GitHub :</strong><br>
+        1. Va sur GitHub → ton profil → <em>Settings</em><br>
+        2. <em>Developer settings</em> → <em>Personal access tokens</em> → <em>Fine-grained tokens</em><br>
+        3. Clique <em>Generate new token</em><br>
+        4. Choisis uniquement ce repo, permission <em>Contents → Read and Write</em><br>
+        5. Copie le token (commence par <em>github_pat_…</em>)<br><br>
+        ⚠️ <strong>Ne partage ce token avec personne.</strong>
+        Il est stocké uniquement dans ta session de navigateur et disparaît à la fermeture.
+      </div>
+
+      <div class="form-group">
+        <label for="tokenInput">Token GitHub</label>
+        <input
+          type="password"
+          id="tokenInput"
+          placeholder="github_pat_xxxxxxxxxxxx"
+          autocomplete="off"
+        />
+      </div>
+
+      <button class="btn-primary" onclick="login()">
+        <span>Accéder au Portail</span>
+      </button>
+
+      <!-- Message d'erreur si le token est invalide -->
+      <div id="loginError">Token invalide ou accès refusé. Vérifie les permissions du token.</div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       PANNEAU ADMIN PRINCIPAL
+       Caché jusqu'à connexion réussie.
+  ═══════════════════════════════════════════════════════════════════ -->
+  <div id="adminPanel">
+
+    <!-- Barre de navigation -->
+    <div class="admin-nav">
+      <div class="admin-nav-logo">In Tenebris</div>
+      <div class="admin-nav-info">✦ Panneau Admin ✦</div>
+      <button id="btnLogout" onclick="logout()">✕ Déconnexion</button>
+    </div>
+
+    <div style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
+
+      <!-- ─── SECTION 1 : AJOUTER DES PHOTOS ──────────────────────── -->
+      <span class="section-label">✦ Publier de nouvelles photos</span>
+      <h2 class="section-title">Ajouter à la Galerie</h2>
+
+      <!-- Zone de dépôt -->
+      <!-- Clique dessus ou glisse tes images directement -->
+      <div id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon">☩</div>
+        <div class="drop-text">Glisse tes photos ici ou clique pour sélectionner</div>
+        <div class="drop-subtext">JPG, PNG, WEBP — plusieurs fichiers acceptés</div>
+      </div>
+
+      <!-- Input file invisible, déclenché par le clic sur la zone -->
+      <input
+        type="file"
+        id="fileInput"
+        multiple
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        onchange="handleFiles(this.files)"
+      />
+
+      <!-- Liste des photos sélectionnées, en attente d'upload -->
+      <div id="pendingList"></div>
+
+      <!-- Bouton "Tout publier" — visible seulement quand des fichiers sont en attente -->
+      <div id="publishAllWrap">
+        <button class="btn-primary" id="btnPublishAll" onclick="publishAll()">
+          <span id="publishAllText">✦ Publier toutes les photos ✦</span>
+        </button>
+      </div>
+
+      <hr class="dark-sep"/>
+
+      <!-- ─── SECTION 2 : GALERIE EXISTANTE ───────────────────────── -->
+      <div class="existing-header">
+        <div>
+          <span class="section-label">✦ Photos actuellement en ligne</span>
+          <h2 class="section-title">Galerie existante</h2>
+        </div>
+        <!-- Bouton pour rafraîchir la liste -->
+        <button class="btn-secondary" onclick="loadExisting()">↺ Rafraîchir</button>
+      </div>
+
+      <!-- Zone de chargement et grille des photos existantes -->
+      <div id="existingLoading">Chargement de la galerie…</div>
+      <div id="existingGrid"></div>
+
+    </div>
+  </div>
+
+  <!-- Notification globale (succès / erreur en bas à droite) -->
+  <div id="globalNotif"></div>
+
+  <script>
+    // ═════════════════════════════════════════════════════════════════════
+    //  CONFIGURATION — modifie ces 2 lignes si tu changes de compte/repo
+    // ═════════════════════════════════════════════════════════════════════
+    const GITHUB_OWNER = 'Trolorder';
+    const GITHUB_REPO  = 'intenebris.github.io';
+
+    // Chemin du dossier photos dans le repo
+    const PHOTOS_PATH  = 'Photos';
+    // Nom du fichier de métadonnées (titre, style, rune de chaque photo)
+    const META_PATH    = 'photos-meta.json';
+
+    // URL de base pour les images brutes GitHub (sans passer par l'API)
+    const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/`;
+
+    // ─── ÉTAT DE L'APPLICATION ─────────────────────────────────────────
+    let pendingFiles = []; // tableau des fichiers sélectionnés, pas encore uploadés
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  CONNEXION / DÉCONNEXION
+    // ═════════════════════════════════════════════════════════════════════
+
+    // Appelé au clic sur "Accéder au Portail"
+    async function login() {
+      const token = document.getElementById('tokenInput').value.trim();
+
+      if (!token) {
+        showLoginError('Merci d\'entrer ton token GitHub.');
+        return;
+      }
+
+      // On vérifie le token en faisant un appel réel à l'API GitHub
+      // Si ça marche → on a accès au repo → connexion OK
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!res.ok) {
+          showLoginError('Token invalide ou dépôt introuvable. Vérifie les permissions.');
+          return;
+        }
+
+        // Token OK — on le stocke en sessionStorage
+        // sessionStorage = disparaît à la fermeture du navigateur (plus sûr que localStorage)
+        sessionStorage.setItem('gh_token', token);
+
+        // Cache l'écran de login, affiche le panneau admin
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminPanel').style.display  = 'block';
+
+        // Charge la galerie existante
+        loadExisting();
+
+      } catch (err) {
+        showLoginError('Erreur réseau. Vérifie ta connexion Internet.');
+      }
+    }
+
+    // Déconnexion : efface le token et recharge la page
+    function logout() {
+      sessionStorage.removeItem('gh_token');
+      location.reload();
+    }
+
+    // Affiche un message d'erreur sous le formulaire de connexion
+    function showLoginError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.style.display = 'block';
+    }
+
+    // Reconnexion automatique si un token est déjà en session
+    (function autoLogin() {
+      const token = sessionStorage.getItem('gh_token');
+      if (token) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminPanel').style.display  = 'block';
+        loadExisting();
+      }
+    })();
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  GESTION DU GLISSER-DÉPOSER
+    // ═════════════════════════════════════════════════════════════════════
+
+    const dropZone = document.getElementById('dropZone');
+
+    // Empêche le comportement par défaut du navigateur (ouvrir le fichier)
+    dropZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      handleFiles(e.dataTransfer.files); // fichiers déposés
+    });
+
+    // ─── TRAITEMENT DES FICHIERS SÉLECTIONNÉS ──────────────────────────
+    // Appelé soit par le drag & drop, soit par le clic sur l'input file
+    function handleFiles(fileList) {
+      const files = Array.from(fileList).filter(f => f.type.startsWith('image/'));
+
+      if (files.length === 0) {
+        notify('Aucune image reconnue dans ta sélection.', 'error');
+        return;
+      }
+
+      // Ajoute chaque fichier à la liste d'attente et crée sa carte
+      files.forEach(file => {
+        // Évite les doublons si le même fichier est ajouté deux fois
+        if (pendingFiles.find(f => f.name === file.name)) return;
+
+        pendingFiles.push(file);
+        addPendingCard(file);
+      });
+
+      // Affiche le bouton "Publier tout" s'il y a des fichiers en attente
+      document.getElementById('publishAllWrap').style.display =
+        pendingFiles.length > 0 ? 'block' : 'none';
+    }
+
+    // ─── CRÉATION D'UNE CARTE POUR UN FICHIER EN ATTENTE ───────────────
+    function addPendingCard(file) {
+      const list = document.getElementById('pendingList');
+      const id   = 'pending_' + file.name.replace(/[^a-z0-9]/gi, '_');
+
+      // Aperçu de l'image (lecture locale, pas encore uploadée)
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.getElementById(id + '_img');
+        if (img) img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Carte HTML avec champs de métadonnées
+      const card = document.createElement('div');
+      card.className = 'pending-card';
+      card.id = id;
+      card.innerHTML = `
+        <!-- Aperçu de l'image -->
+        <img id="${id}_img" class="pending-preview" src="" alt="aperçu"/>
+
+        <!-- Champs de métadonnées -->
+        <div class="pending-fields">
+          <div class="pending-filename">${file.name}</div>
+
+          <!-- Titre affiché au survol dans la galerie -->
+          <div class="form-group">
+            <label>Titre</label>
+            <input
+              type="text"
+              id="${id}_title"
+              placeholder="Ex: Cerf Spectral"
+              value="${file.name.replace(/\.[^.]+$/, '')}"
+            />
+          </div>
+
+          <!-- Style / catégorie pour les filtres de la galerie -->
+          <div class="form-group">
+            <label>Style</label>
+            <select id="${id}_tag">
+              <!-- Ces options correspondent aux filtres de Galerie.html -->
+              <option value="blackwork">Blackwork</option>
+              <option value="fantasy">Dark Fantasy</option>
+              <option value="blackmetal">Black Metal</option>
+              <option value="dotwork">Dotwork</option>
+              <option value="realism">Réalisme</option>
+              <option value="coverup">Cover-up</option>
+            </select>
+          </div>
+
+          <!-- Rune affichée si l'image ne charge pas -->
+          <div class="form-group">
+            <label>Rune (fallback)</label>
+            <select id="${id}_rune">
+              <option value="☠">☠ Crâne</option>
+              <option value="⚔">⚔ Épées</option>
+              <option value="☩">☩ Croix</option>
+              <option value="🜏">🜏 Alchimie</option>
+              <option value="⛧">⛧ Étoile</option>
+              <option value="☽">☽ Lune</option>
+              <option value="⚡">⚡ Foudre</option>
+              <option value="✝">✝ Croix latine</option>
+              <option value="🔱">🔱 Trident</option>
+            </select>
+          </div>
+
+          <!-- Barre de progression (visible pendant l'upload) -->
+          <div class="progress-bar-wrap" id="${id}_progress">
+            <div class="progress-bar" id="${id}_bar"></div>
+          </div>
+
+          <!-- Badge de statut après upload -->
+          <div class="status-badge" id="${id}_status"></div>
+        </div>
+
+        <!-- Bouton supprimer cette photo de la liste d'attente -->
+        <button class="btn-danger" onclick="removePending('${id}', '${file.name}')">✕</button>
+      `;
+
+      list.appendChild(card);
+    }
+
+    // Retire un fichier de la liste d'attente sans l'uploader
+    function removePending(cardId, fileName) {
+      pendingFiles = pendingFiles.filter(f => f.name !== fileName);
+      const card = document.getElementById(cardId);
+      if (card) card.remove();
+
+      document.getElementById('publishAllWrap').style.display =
+        pendingFiles.length > 0 ? 'block' : 'none';
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  PUBLICATION DES PHOTOS SUR GITHUB
+    // ═════════════════════════════════════════════════════════════════════
+
+    // Lance l'upload de tous les fichiers en attente
+    async function publishAll() {
+      if (pendingFiles.length === 0) return;
+
+      const btn = document.getElementById('btnPublishAll');
+      const txt = document.getElementById('publishAllText');
+      btn.disabled = true;
+      txt.textContent = 'Publication en cours…';
+
+      let successCount = 0;
+      let errorCount   = 0;
+
+      // Upload chaque fichier l'un après l'autre (évite de surcharger l'API)
+      for (const file of [...pendingFiles]) {
+        const id = 'pending_' + file.name.replace(/[^a-z0-9]/gi, '_');
+
+        // Récupère les valeurs des champs pour ce fichier
+        const title = document.getElementById(id + '_title')?.value.trim() || file.name;
+        const tag   = document.getElementById(id + '_tag')?.value   || 'blackwork';
+        const rune  = document.getElementById(id + '_rune')?.value  || '☠';
+
+        // Affiche la barre de progression
+        const progressWrap = document.getElementById(id + '_progress');
+        const progressBar  = document.getElementById(id + '_bar');
+        const statusBadge  = document.getElementById(id + '_status');
+
+        if (progressWrap) progressWrap.style.display = 'block';
+        if (progressBar)  progressBar.style.width = '30%';
+
+        try {
+          // 1. Convertit l'image en base64
+          const base64 = await fileToBase64(file);
+          if (progressBar) progressBar.style.width = '60%';
+
+          // 2. Upload l'image dans Photos/ sur GitHub
+          await githubPutFile(
+            `${PHOTOS_PATH}/${file.name}`,
+            base64,
+            `✦ Ajout photo : ${file.name}`
+          );
+          if (progressBar) progressBar.style.width = '85%';
+
+          // 3. Met à jour le fichier de métadonnées
+          await updateMeta(file.name, { title, tag, rune });
+          if (progressBar) progressBar.style.width = '100%';
+
+          // Succès — affiche le badge vert et retire de la liste d'attente
+          if (statusBadge) {
+            statusBadge.textContent = '✦ Publié avec succès';
+            statusBadge.className = 'status-badge success';
+            statusBadge.style.display = 'block';
+          }
+
+          // Retire le fichier de pendingFiles
+          pendingFiles = pendingFiles.filter(f => f.name !== file.name);
+          successCount++;
+
+          // Retire la carte après 2 secondes
+          setTimeout(() => {
+            const card = document.getElementById(id);
+            if (card) card.remove();
+          }, 2000);
+
+        } catch (err) {
+          console.error('Erreur upload :', file.name, err);
+
+          if (statusBadge) {
+            statusBadge.textContent = '✕ Erreur : ' + err.message;
+            statusBadge.className = 'status-badge error';
+            statusBadge.style.display = 'block';
+          }
+
+          if (progressBar) progressBar.style.background = 'var(--blood)';
+          errorCount++;
+        }
+      }
+
+      // Résumé après tous les uploads
+      btn.disabled = false;
+      txt.textContent = '✦ Publier toutes les photos ✦';
+
+      if (successCount > 0) {
+        notify(`${successCount} photo(s) publiée(s) avec succès !`, 'success');
+        loadExisting(); // rafraîchit la galerie existante
+      }
+
+      if (errorCount > 0) {
+        notify(`${errorCount} photo(s) n'ont pas pu être uploadées.`, 'error');
+      }
+
+      // Cache le bouton s'il n'y a plus de fichiers en attente
+      document.getElementById('publishAllWrap').style.display =
+        pendingFiles.length > 0 ? 'block' : 'none';
+    }
+
+    // ─── CONVERSION IMAGE → BASE64 ──────────────────────────────────────
+    // GitHub API requiert le contenu en base64 pour les fichiers binaires
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        // readAsDataURL donne : "data:image/jpeg;base64,/9j/4AAQ..."
+        // On retire le préfixe "data:...;base64," pour n'avoir que le base64 pur
+        reader.onload  = e => resolve(e.target.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ─── APPEL API GITHUB — CRÉER OU METTRE À JOUR UN FICHIER ──────────
+    async function githubPutFile(path, base64Content, commitMessage) {
+      const token = sessionStorage.getItem('gh_token');
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+
+      // On cherche d'abord si le fichier existe déjà (pour récupérer son SHA)
+      // Le SHA est obligatoire pour modifier un fichier existant sur GitHub
+      let sha;
+      try {
+        const check = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (check.ok) {
+          const data = await check.json();
+          sha = data.sha; // fichier existant → on garde son SHA
+        }
+      } catch {} // fichier n'existe pas → SHA restera undefined → création
+
+      // Prépare le corps de la requête
+      const body = {
+        message: commitMessage,  // message de commit visible sur GitHub
+        content: base64Content,  // contenu du fichier en base64
+      };
+      if (sha) body.sha = sha;   // nécessaire pour une mise à jour
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Erreur ${res.status}`);
+      }
+
+      return res.json();
+    }
+
+    // ─── MISE À JOUR DU FICHIER DE MÉTADONNÉES ──────────────────────────
+    // photos-meta.json contient le titre, le tag et la rune de chaque photo
+    async function updateMeta(filename, { title, tag, rune }) {
+      const token = sessionStorage.getItem('gh_token');
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${META_PATH}`;
+
+      // 1. Lit le fichier meta actuel (s'il existe)
+      let currentMeta = {};
+      let sha;
+
+      try {
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          sha = data.sha;
+          // Le contenu arrive en base64 sur plusieurs lignes → on nettoie et décode
+          const decoded = atob(data.content.replace(/\n/g, ''));
+          currentMeta = JSON.parse(decoded);
+        }
+      } catch {} // fichier inexistant ou JSON invalide → on repart de zéro
+
+      // 2. Ajoute / modifie l'entrée pour ce fichier
+      currentMeta[filename] = { title, tag, rune };
+
+      // 3. Ré-encode en base64 pour GitHub
+      // encodeURIComponent + unescape = gestion des caractères UTF-8 (accents, runes…)
+      const jsonStr = JSON.stringify(currentMeta, null, 2);
+      const base64  = btoa(unescape(encodeURIComponent(jsonStr)));
+
+      // 4. Envoie le fichier mis à jour
+      await githubPutFile(META_PATH, base64, `✦ Metadata : ${filename}`);
+    }
+
+    // ─── SUPPRESSION D'UNE PHOTO ────────────────────────────────────────
+    async function deletePhoto(filename) {
+      if (!confirm(`Supprimer définitivement "${filename}" de la galerie ?`)) return;
+
+      const token = sessionStorage.getItem('gh_token');
+      const path  = `${PHOTOS_PATH}/${filename}`;
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+
+      try {
+        // Pour supprimer un fichier GitHub a besoin de son SHA
+        const check = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!check.ok) throw new Error('Fichier introuvable');
+
+        const { sha } = await check.json();
+
+        // Requête DELETE avec le SHA
+        const res = await fetch(url, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: `✦ Suppression : ${filename}`,
+            sha,
+          }),
+        });
+
+        if (!res.ok) throw new Error(`Erreur ${res.status}`);
+
+        // Retire aussi l'entrée dans photos-meta.json
+        await removeFromMeta(filename);
+
+        notify(`"${filename}" supprimée de la galerie.`, 'success');
+        loadExisting();
+
+      } catch (err) {
+        notify('Erreur lors de la suppression : ' + err.message, 'error');
+      }
+    }
+
+    // Retire une entrée de photos-meta.json (après suppression d'une photo)
+    async function removeFromMeta(filename) {
+      const token = sessionStorage.getItem('gh_token');
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${META_PATH}`;
+
+      try {
+        const res = await fetch(url, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+
+        const data      = await res.json();
+        const sha       = data.sha;
+        const decoded   = atob(data.content.replace(/\n/g, ''));
+        const meta      = JSON.parse(decoded);
+
+        delete meta[filename]; // retire l'entrée
+
+        const base64 = btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
+        await githubPutFile(META_PATH, base64, `✦ Suppression metadata : ${filename}`);
+
+      } catch {} // si ça échoue ce n'est pas bloquant
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  CHARGEMENT DE LA GALERIE EXISTANTE
+    //  Fetch la liste des photos sur GitHub et affiche les cartes
+    // ═════════════════════════════════════════════════════════════════════
+    async function loadExisting() {
+      const grid    = document.getElementById('existingGrid');
+      const loading = document.getElementById('existingLoading');
+
+      grid.innerHTML    = '';
+      loading.style.display = 'block';
+      loading.textContent   = 'Chargement de la galerie…';
+
+      try {
+        const token = sessionStorage.getItem('gh_token');
+
+        // 1. Récupère les métadonnées
+        let meta = {};
+        try {
+          const metaRes = await fetch(
+            `${RAW_BASE}${META_PATH}?t=${Date.now()}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          if (metaRes.ok) meta = await metaRes.json();
+        } catch {}
+
+        // 2. Récupère la liste des fichiers dans Photos/
+        const filesRes = await fetch(
+          `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PHOTOS_PATH}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!filesRes.ok) throw new Error('Impossible de lire le dossier Photos/');
+
+        const files  = await filesRes.json();
+        const images = files.filter(
+          f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
+        );
+
+        loading.style.display = 'none';
+
+        if (images.length === 0) {
+          grid.innerHTML = '<p style="color:rgba(168,168,168,0.4); font-style:italic;">Aucune photo dans la galerie.</p>';
+          return;
+        }
+
+        // 3. Crée une carte pour chaque image
+        images.forEach(file => {
+          const m    = meta[file.name] || {};
+          const src  = `${RAW_BASE}${PHOTOS_PATH}/${encodeURIComponent(file.name)}`;
+          const tagLabels = {
+            blackwork: 'Blackwork', fantasy: 'Dark Fantasy',
+            blackmetal: 'Black Metal', dotwork: 'Dotwork',
+            realism: 'Réalisme', coverup: 'Cover-up'
+          };
+
+          const card = document.createElement('div');
+          card.className = 'existing-card';
+          card.innerHTML = `
+            <img
+              src="${src}"
+              alt="${m.title || file.name}"
+              loading="lazy"
+              onerror="this.style.opacity='0.2'"
+            />
+            <!-- Bouton supprimer (apparaît au survol grâce au CSS) -->
+            <div class="existing-card-overlay">
+              <button class="btn-danger" onclick="deletePhoto('${file.name}')">✕</button>
+            </div>
+            <div class="existing-card-info">
+              <div class="existing-card-title">${m.title || file.name}</div>
+              <div class="existing-card-tag">${tagLabels[m.tag] || m.tag || '—'}</div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
+
+      } catch (err) {
+        loading.textContent = 'Erreur : ' + err.message;
+      }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  NOTIFICATION GLOBALE (toast en bas à droite)
+    // ═════════════════════════════════════════════════════════════════════
+    let notifTimer;
+    function notify(message, type = 'success') {
+      const el = document.getElementById('globalNotif');
+      el.textContent = message;
+      el.className   = type; // 'success' ou 'error'
+      el.style.display = 'block';
+
+      // Disparaît après 4 secondes
+      clearTimeout(notifTimer);
+      notifTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+  </script>
+</body>
+</html>
