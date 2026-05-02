@@ -578,82 +578,27 @@
 
   <script>
     // ════════════════════════════════════════════════════════════════════════
-    //  PHOTOS — Comment ajouter une photo :
-    //  1. Pousse ton image sur GitHub dans le dossier Photos/
-    //  2. Copie ce bloc et colle-le avant le dernier "]" :
+    //  GALERIE — CHARGEMENT AUTOMATIQUE DEPUIS GITHUB
     //
-    //  {
-    //    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/NOM_DU_FICHIER.jpg",
-    //    title: "Titre du tatouage",
-    //    tag: "blackwork",   // choix : blackwork | fantasy | blackmetal | dotwork | realism | coverup
-    //    rune: "☠",          // choix : ☩ ☠ ⚔ 🜏 ⛧ ☽ ⚡ 🗡 ✝ 🔱 ⚜ 🜃 ⚗ 🜄 ⚸ 🝐
-    //  },
+    //  Tu n'as PLUS besoin de modifier ce fichier pour ajouter des photos !
+    //  Utilise le panneau admin (admin.html) à la place.
     //
-    //  Note : "rune" sert uniquement si l'image ne charge pas (placeholder).
+    //  Comment ça marche :
+    //  1. L'admin uploade une photo via admin.html
+    //  2. La photo est déposée dans Photos/ sur GitHub
+    //  3. Les métadonnées (titre, style, rune) sont sauvées dans photos-meta.json
+    //  4. Cette page charge automatiquement les deux → galerie à jour !
     // ════════════════════════════════════════════════════════════════════════
-    const allItems = [
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfg.jpg",
-        title: "Tattoo 1",
-        tag: "blackwork",
-        rune: "☠",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfgd.jpg",
-        title: "Tattoo 2",
-        tag: "fantasy",
-        rune: "⚔",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22xwcxwc.jpg",
-        title: "Tattoo 3",
-        tag: "realism",
-        rune: "🜏",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/qsdqsdsq.jpg",
-        title: "Tattoo 4",
-        tag: "blackmetal",
-        rune: "🜏",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnamed.jpg",
-        title: "Tattoo 5",
-        tag: "fantasy",
-        rune: "✝",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnameddsfdff.jpg",
-        title: "Tattoo 6",
-        tag: "coverup",
-        rune: "✝",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnamedgfhfghfghf.jpg",
-        title: "Tattoo 7",
-        tag: "dotwork",
-        rune: "⚡",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/zeazeaze.jpg",
-        title: "Tattoo 8",
-        tag: "blackmetal",
-        rune: "⚡",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/dssd.jpg",
-        title: "Tattoo 9",
-        tag: "fantasy",
-        rune: "⚡",
-      },
-      {
-        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-03-17.jpg",
-        title: "Tattoo 10",
-        tag: "realism",
-        rune: "⚡",
-      },
-      // ← Ajoute tes photos ici
-    ];
+
+    // Infos du repo GitHub
+    const GITHUB_OWNER = 'Trolorder';
+    const GITHUB_REPO  = 'intenebris.github.io';
+    const RAW_BASE     = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/`;
+    const API_BASE     = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/`;
+
+    // allItems sera rempli dynamiquement par loadPhotos()
+    // (déclaré ici pour que les fonctions filter/render y aient accès)
+    let allItems = [];
 
     // ════════════════════════════════════════════════════════════════════════
     //  ÉTAT
