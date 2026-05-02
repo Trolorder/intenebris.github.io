@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Artistes — In Tenebris</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --black:   #080808;
+      --deep:    #0d0d0d;
+      --crimson: #8b0000;
+      --blood:   #c0000a;
+      --silver:  #a8a8a8;
+      --bone:    #d4c9b0;
+      --fog:     #1a1a1a;
+      --goldlit: #c9a84c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--bone);
+      font-family: 'IM Fell English', Georgia, serif;
+      cursor: crosshair;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 3rem;
+      background: rgba(8,8,8,0.97);
+      border-bottom: 1px solid rgba(139,0,0,0.25);
+    }
+
+    .nav-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 1.8rem;
+      color: var(--goldlit);
+      letter-spacing: 2px;
+      text-decoration: none;
+      text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+
+    .nav-links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0; right: 0;
+      height: 1px;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--goldlit); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-links a.active { color: var(--goldlit); }
+    .nav-links a.active::after { transform: scaleX(1); }
+
+    /* ── HERO ── */
+    .page-hero {
+      padding: 10rem 2rem 5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 50% 50%, rgba(139,0,0,0.1), transparent 70%);
+    }
+
+    .page-eyebrow {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--blood);
+      margin-bottom: 1rem;
+    }
+
+    .page-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      color: var(--bone);
+      text-shadow: 0 0 40px rgba(139,0,0,0.4);
+      line-height: 0.9;
+    }
+
+    .page-subtitle {
+      font-style: italic;
+      color: var(--silver);
+      margin-top: 1.2rem;
+      font-size: 1rem;
+    }
+
+    .divider {
+      width: 200px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--crimson), transparent);
+      margin: 1.5rem auto;
+      position: relative;
+    }
+
+    .divider::before, .divider::after {
+      content: '✦';
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--blood);
+      font-size: 0.6rem;
+    }
+    .divider::before { left: -15px; }
+    .divider::after  { right: -15px; }
+
+    .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
+
+    /* ── GRILLE ARTISTES ── */
+    .artists-section {
+      padding: 4rem 2rem 7rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .artists-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2px;
+    }
+
+    /* ── CARTE ARTISTE ── */
+    .artist-card {
+      background: var(--deep);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(139,0,0,0.15);
+      transition: border-color 0.4s;
+    }
+
+    .artist-card:hover { border-color: rgba(139,0,0,0.5); }
+
+    /* Photo de profil */
+    .artist-photo {
+      width: 100%;
+      aspect-ratio: 4/5;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+      filter: grayscale(0.2) contrast(1.05);
+      transition: transform 0.6s ease, filter 0.4s ease;
+    }
+
+    .artist-card:hover .artist-photo {
+      transform: scale(1.04);
+      filter: grayscale(0) contrast(1.1);
+    }
+
+    /* Placeholder si pas de photo */
+    .artist-photo-placeholder {
+      width: 100%;
+      aspect-ratio: 4/5;
+      background: var(--fog);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: rgba(139,0,0,0.12);
+      position: relative;
+    }
+
+    .artist-photo-placeholder::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(139,0,0,0.1), transparent 70%);
+    }
+
+    /* Overlay dégradé sur la photo */
+    .artist-photo-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .artist-photo-wrap::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 60%;
+      background: linear-gradient(to top, rgba(8,8,8,0.95), transparent);
+      pointer-events: none;
+    }
+
+    /* Infos sur la carte */
+    .artist-info {
+      padding: 1.8rem 2rem 2rem;
+      position: relative;
+    }
+
+    .artist-name {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 2.2rem;
+      color: var(--bone);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+      text-shadow: 0 0 20px rgba(139,0,0,0.2);
+    }
+
+    .artist-role {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blood);
+      margin-bottom: 1.2rem;
+    }
+
+    .artist-bio {
+      font-style: italic;
+      color: var(--silver);
+      font-size: 0.92rem;
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Styles pratiqués */
+    .artist-styles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .style-tag {
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver);
+      border: 1px solid rgba(139,0,0,0.3);
+      padding: 0.25rem 0.7rem;
+      transition: all 0.25s;
+    }
+
+    .style-tag:hover { border-color: var(--blood); color: var(--bone); }
+
+    /* Réseaux sociaux */
+    .artist-socials {
+      display: flex;
+      gap: 1rem;
+      padding-top: 1.2rem;
+      border-top: 1px solid rgba(139,0,0,0.15);
+    }
+
+    .social-link {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .social-link:hover { color: var(--goldlit); }
+
+    .social-icon { font-size: 0.9rem; }
+
+    /* Coin décoratif */
+    .artist-corner {
+      position: absolute;
+      top: 0; right: 0;
+      width: 0; height: 0;
+      border-top: 40px solid rgba(139,0,0,0.25);
+      border-left: 40px solid transparent;
+    }
+
+    /* ── SCROLL TO TOP ── */
+    #scrollTop {
+      position: fixed;
+      bottom: 2.5rem; right: 2rem;
+      z-index: 200;
+      width: 44px; height: 44px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(139,0,0,0.5);
+      color: var(--blood);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s, border-color 0.3s, color 0.3s;
+      pointer-events: none;
+    }
+
+    #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
+
+    /* ── FOOTER ── */
+    footer { background: var(--black); border-top: 1px solid rgba(139,0,0,0.15); padding: 3rem 2rem; text-align: center; }
+    .footer-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 3rem; color: rgba(139,0,0,0.4); margin-bottom: 1rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; flex-wrap: wrap; }
+    .footer-links a { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); text-decoration: none; opacity: 0.5; transition: opacity 0.3s; }
+    .footer-links a:hover { opacity: 1; color: var(--goldlit); }
+    .footer-copy { font-size: 0.7rem; color: rgba(168,168,168,0.3); letter-spacing: 2px; font-family: 'Cinzel', serif; margin-bottom: 0.4rem; }
+    .footer-address { font-size: 0.65rem; color: rgba(168,168,168,0.2); font-family: 'Cinzel', serif; letter-spacing: 1px; }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 900px) {
+      .nav-links { gap: 1rem; }
+      .nav-links a { font-size: 0.58rem; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 0.8rem; }
+      .nav-links a { font-size: 0.53rem; letter-spacing: 1px; }
+      .artists-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">In Tenebris</a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">L'Atelier</a></li>
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="Galerie/Galerie.html">Galerie</a></li>
+      <li><a href="Artistes.html" class="active">Artistes</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
+
+  <!-- HERO -->
+  <div class="page-hero">
+    <p class="page-eyebrow">✦ Les gardiens de l'encre ✦</p>
+    <h1 class="page-title">Artistes</h1>
+    <div class="divider"></div>
+    <p class="page-subtitle">Rencontrez les âmes qui forgent l'art dans la chair</p>
+    <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ</div>
+  </div>
+
+  <!-- GRILLE ARTISTES -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       COMMENT AJOUTER UN ARTISTE :
+       Dans le tableau "artistes" dans le <script> ci-dessous, copie ce bloc
+       et remplis les champs :
+
+       {
+         nom: "Prénom Nom",
+         role: "Tatoueur",             // ex: Tatoueur, Fondateur, Guest Artist...
+         photo: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Artiste/NOM_DU_FICHIER.jpg",
+         bio: "Quelques phrases sur l'artiste, son parcours, sa vision...",
+         styles: ["Blackwork", "Dark Fantasy"],   // autant que tu veux
+         instagram: "@pseudo_instagram",          // laisser "" si pas d'instagram
+         instagram_url: "https://instagram.com/pseudo"
+       },
+
+       Les photos vont dans le dossier Artiste/ sur GitHub.
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="artists-section">
+    <div class="artists-grid" id="artistsGrid"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">In Tenebris</div>
+    <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ</div>
+    <ul class="footer-links">
+      <li><a href="index.html#about">L'Atelier</a></li>
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="Galerie/Galerie.html">Galerie</a></li>
+      <li><a href="Artistes.html">Artistes</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">Instagram</a></li>
+    </ul>
+    <p class="footer-copy">© In Tenebris · Tous droits réservés</p>
+    <p class="footer-address">20 Rue du Général Leclerc · 76000 Rouen</p>
+  </footer>
+
+  <script>
+    // ════════════════════════════════════════════════════════════════════════
+    //  ARTISTES — Comment ajouter un artiste :
+    //  1. Pousse sa photo sur GitHub dans le dossier Artiste/
+    //  2. Copie le bloc modèle ci-dessous dans le tableau
+    //  3. Remplis les champs et sauvegarde
+    // ════════════════════════════════════════════════════════════════════════
+    const artistes = [
+      {
+        nom: "Grimm",
+        role: "Fondateur & Tatoueur",
+        photo: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Artiste/2026-02-22.jpg",
+        bio: "Maître du blackwork et des univers dark fantasy, Grimm fonde In Tenebris avec une vision : graver l'obscurité dans la chair avec précision et intention. Chaque ligne est une invocation.",
+        styles: ["Blackwork", "Dark Fantasy", "Black Metal", "Occultisme"],
+        instagram: "@grimm.tattoo.artist",
+        instagram_url: "https://instagram.com/grimm.tattoo.artist",
+      },
+      // ← Ajoute tes artistes ici, exemple :
+      // {
+      //   nom: "Prénom Nom",
+      //   role: "Tatoueur",
+      //   photo: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Artiste/NOM_FICHIER.jpg",
+      //   bio: "Bio de l'artiste...",
+      //   styles: ["Dotwork", "Réalisme"],
+      //   instagram: "@pseudo",
+      //   instagram_url: "https://instagram.com/pseudo",
+      // },
+    ];
+
+    // ── Rendu des cartes ──────────────────────────────────────────────────
+    function renderArtistes() {
+      const grid = document.getElementById('artistsGrid');
+
+      artistes.forEach((a, i) => {
+        const stylesHTML = a.styles
+          .map(s => `<span class="style-tag">${s}</span>`)
+          .join('');
+
+        const socialsHTML = a.instagram
+          ? `<a href="${a.instagram_url}" target="_blank" class="social-link">
+               <span class="social-icon">◈</span> ${a.instagram}
+             </a>`
+          : '';
+
+        const photoHTML = a.photo
+          ? `<img class="artist-photo" src="${a.photo}" alt="${a.nom}" loading="lazy"/>`
+          : `<div class="artist-photo-placeholder">☠</div>`;
+
+        const card = document.createElement('div');
+        card.className = 'artist-card reveal';
+        card.style.transitionDelay = (i * 0.1) + 's';
+
+        card.innerHTML = `
+          <div class="artist-photo-wrap">${photoHTML}</div>
+          <div class="artist-corner"></div>
+          <div class="artist-info">
+            <div class="artist-name">${a.nom}</div>
+            <div class="artist-role">${a.role}</div>
+            <p class="artist-bio">${a.bio}</p>
+            <div class="artist-styles">${stylesHTML}</div>
+            <div class="artist-socials">${socialsHTML}</div>
+          </div>`;
+
+        grid.appendChild(card);
+      });
+
+      // Déclenche le scroll reveal sur les nouvelles cartes
+      initReveal();
+    }
+
+    // ── Scroll reveal ─────────────────────────────────────────────────────
+    function initReveal() {
+      const reveals = document.querySelectorAll('.reveal');
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      reveals.forEach(el => obs.observe(el));
+    }
+
+    // ── Scroll to top ─────────────────────────────────────────────────────
+    const scrollTopBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ── Init ──────────────────────────────────────────────────────────────
+    renderArtistes();
+  </script>
+</body>
+</html>
