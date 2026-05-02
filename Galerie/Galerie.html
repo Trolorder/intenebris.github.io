@@ -9,14 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
   <style>
     :root {
-      --black:    #080808;
-      --deep:     #0d0d0d;
-      --crimson:  #8b0000;
-      --blood:    #c0000a;
-      --silver:   #a8a8a8;
-      --bone:     #d4c9b0;
-      --fog:      #1a1a1a;
-      --goldlit:  #c9a84c;
+      --black:   #080808;
+      --deep:    #0d0d0d;
+      --crimson: #8b0000;
+      --blood:   #c0000a;
+      --silver:  #a8a8a8;
+      --bone:    #d4c9b0;
+      --fog:     #1a1a1a;
+      --goldlit: #c9a84c;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -30,7 +30,6 @@
       overflow-x: hidden;
     }
 
-    /* Grain */
     body::before {
       content: '';
       position: fixed;
@@ -45,7 +44,9 @@
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
-    /* ── NAV ── */
+    /* ── NAV ──
+       IMPORTANT : cette page est dans /Galerie/ donc les liens remontent d'un niveau avec ../
+    */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -67,15 +68,11 @@
       text-shadow: 0 0 20px rgba(201,168,76,0.4);
     }
 
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
 
     .nav-links a {
       font-family: 'Cinzel', serif;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       letter-spacing: 3px;
       text-transform: uppercase;
       color: var(--silver);
@@ -96,10 +93,11 @@
     }
 
     .nav-links a:hover { color: var(--goldlit); }
-    .nav-links a:hover::after, .nav-links a.active::after { transform: scaleX(1); }
+    .nav-links a:hover::after { transform: scaleX(1); }
     .nav-links a.active { color: var(--goldlit); }
+    .nav-links a.active::after { transform: scaleX(1); }
 
-    /* ── HERO BANNER ── */
+    /* ── HERO ── */
     .gallery-hero {
       padding: 10rem 2rem 4rem;
       text-align: center;
@@ -157,19 +155,23 @@
     .divider::before { left: -15px; }
     .divider::after  { right: -15px; }
 
-    /* ── FILTERS ── */
-    .filter-bar {
-      padding: 2rem;
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.6rem;
+    /* ── BARRE FILTRES + COMPTEUR ── */
+    .controls-bar {
       position: sticky;
       top: 65px;
       z-index: 50;
-      background: rgba(8,8,8,0.9);
+      background: rgba(8,8,8,0.92);
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(139,0,0,0.15);
+      padding: 1rem 2rem;
+    }
+
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.8rem;
     }
 
     .filter-btn {
@@ -180,30 +182,54 @@
       color: var(--silver);
       background: transparent;
       border: 1px solid rgba(168,168,168,0.2);
-      padding: 0.5rem 1.4rem;
+      padding: 0.45rem 1.2rem;
       cursor: crosshair;
       transition: all 0.25s;
     }
 
-    .filter-btn:hover {
-      border-color: var(--blood);
-      color: var(--bone);
+    .filter-btn:hover { border-color: var(--blood); color: var(--bone); }
+    .filter-btn.active { background: var(--blood); border-color: var(--blood); color: var(--bone); }
+
+    /* Sélecteur du nombre de photos à afficher */
+    .count-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
     }
 
-    .filter-btn.active {
-      background: var(--blood);
-      border-color: var(--blood);
-      color: var(--bone);
+    .count-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(168,168,168,0.5);
     }
 
-    /* ── GALLERY GRID ── */
+    .count-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 2px;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.15);
+      padding: 0.3rem 0.8rem;
+      cursor: crosshair;
+      transition: all 0.25s;
+    }
+
+    .count-btn:hover { border-color: var(--blood); color: var(--bone); }
+    .count-btn.active { background: rgba(139,0,0,0.3); border-color: var(--blood); color: var(--bone); }
+
+    /* ── GALERIE ── */
     .gallery-section {
       padding: 3rem 1.5rem 6rem;
       max-width: 1600px;
       margin: 0 auto;
     }
 
-    .gallery-count {
+    .gallery-status {
       font-family: 'Cinzel', serif;
       font-size: 0.6rem;
       letter-spacing: 4px;
@@ -213,12 +239,12 @@
       margin-bottom: 2.5rem;
     }
 
-    .gallery-count span { color: var(--blood); }
+    .gallery-status span { color: var(--blood); }
 
-    /* Masonry-style grid */
+    /* Grille masonry 4 colonnes */
     .gallery-grid {
       columns: 4;
-      column-gap: 3px;
+      column-gap: 4px;
     }
 
     @media (max-width: 1200px) { .gallery-grid { columns: 3; } }
@@ -227,10 +253,11 @@
 
     .gallery-item {
       break-inside: avoid;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
       position: relative;
       overflow: hidden;
       cursor: crosshair;
+      animation: fadeUp 0.4s ease both;
     }
 
     .gallery-item img {
@@ -245,7 +272,7 @@
       filter: grayscale(0) contrast(1.1);
     }
 
-    /* Placeholder when no real image */
+    /* Placeholder (quand pas de src) */
     .gallery-placeholder {
       width: 100%;
       background: var(--fog);
@@ -280,7 +307,7 @@
       justify-content: center;
       opacity: 0;
       transition: opacity 0.3s;
-      gap: 0.5rem;
+      gap: 0.4rem;
     }
 
     .gallery-item:hover .gallery-item-overlay { opacity: 1; }
@@ -301,20 +328,10 @@
       padding: 0 1rem;
     }
 
-    .overlay-zoom {
-      font-size: 1.2rem;
-      color: var(--goldlit);
-      margin-top: 0.5rem;
-    }
+    .overlay-zoom { font-size: 1.2rem; color: var(--goldlit); margin-top: 0.3rem; }
 
-    /* ── HIDDEN items (for filter) ── */
-    .gallery-item.hidden { display: none; }
-
-    /* ── LOAD MORE ── */
-    .load-more-wrap {
-      text-align: center;
-      margin-top: 4rem;
-    }
+    /* ── BOUTON CHARGER PLUS ── */
+    .load-more-wrap { text-align: center; margin-top: 4rem; }
 
     .btn {
       font-family: 'Cinzel', serif;
@@ -343,20 +360,8 @@
     }
 
     .btn:hover::before { transform: scaleX(1); }
-
-    .btn-primary {
-      color: var(--bone);
-      border-color: var(--blood);
-    }
-
+    .btn-primary { color: var(--bone); border-color: var(--blood); }
     .btn-primary:hover { color: var(--black); }
-
-    .btn-ghost {
-      color: var(--silver);
-      border-color: rgba(168,168,168,0.3);
-    }
-
-    .btn-ghost:hover { color: var(--black); }
 
     /* ── LIGHTBOX ── */
     .lightbox {
@@ -387,8 +392,7 @@
 
     .lightbox-close {
       position: fixed;
-      top: 2rem;
-      right: 2rem;
+      top: 2rem; right: 2rem;
       font-family: 'Cinzel', serif;
       font-size: 0.7rem;
       letter-spacing: 4px;
@@ -400,10 +404,7 @@
       transition: all 0.3s;
     }
 
-    .lightbox-close:hover {
-      color: var(--bone);
-      border-color: var(--blood);
-    }
+    .lightbox-close:hover { color: var(--bone); border-color: var(--blood); }
 
     .lightbox-caption {
       text-align: center;
@@ -435,56 +436,71 @@
     .lightbox-next { right: 1.5rem; }
 
     /* ── RUNE SEP ── */
-    .rune-sep {
-      text-align: center;
-      color: rgba(139,0,0,0.25);
-      font-size: 1rem;
-      letter-spacing: 1.2rem;
-      margin: 1.5rem 0;
-    }
+    .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
 
     /* ── FOOTER ── */
     footer { background: var(--black); border-top: 1px solid rgba(139,0,0,0.15); padding: 3rem 2rem; text-align: center; }
     .footer-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 3rem; color: rgba(139,0,0,0.4); margin-bottom: 1rem; }
-    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; list-style: none; margin-bottom: 2rem; flex-wrap: wrap; }
     .footer-links a { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--silver); text-decoration: none; opacity: 0.5; transition: opacity 0.3s; }
     .footer-links a:hover { opacity: 1; color: var(--goldlit); }
     .footer-copy { font-size: 0.7rem; color: rgba(168,168,168,0.3); letter-spacing: 2px; font-family: 'Cinzel', serif; margin-bottom: 0.4rem; }
     .footer-address { font-size: 0.65rem; color: rgba(168,168,168,0.2); font-family: 'Cinzel', serif; letter-spacing: 1px; }
 
-    .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
+    /* ── SCROLL TO TOP ── */
+    #scrollTop {
+      position: fixed;
+      bottom: 2.5rem; right: 2rem;
+      z-index: 200;
+      width: 44px; height: 44px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(139,0,0,0.5);
+      color: var(--blood);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s, border-color 0.3s, color 0.3s;
+      pointer-events: none;
+    }
 
-    /* Fade-in items */
+    #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
+
+    /* ── ANIMATIONS ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .gallery-item {
-      animation: fadeUp 0.5s ease both;
-    }
-
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
-      .nav-links { gap: 1.2rem; }
-      .nav-links a { font-size: 0.6rem; letter-spacing: 1px; }
-      .filter-bar { padding: 1rem; gap: 0.4rem; }
-      .filter-btn { font-size: 0.55rem; padding: 0.4rem 0.9rem; letter-spacing: 1px; }
+      .nav-links { gap: 0.8rem; }
+      .nav-links a { font-size: 0.55rem; letter-spacing: 1px; }
+      .controls-bar { padding: 0.8rem 1rem; }
+      .filter-btn { font-size: 0.52rem; padding: 0.35rem 0.8rem; letter-spacing: 1px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
+  <!-- NAV — liens avec ../ car on est dans le sous-dossier /Galerie/ -->
   <nav>
-    <a href="index.html" class="nav-logo">In Tenebris</a>
+    <a href="../index.html" class="nav-logo">In Tenebris</a>
     <ul class="nav-links">
-      <li><a href="index.html#about">L'Atelier</a></li>
-      <li><a href="index.html#services">Services</a></li>
-      <li><a href="gallery.html" class="active">Galerie</a></li>
-      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="../index.html#about">L'Atelier</a></li>
+      <li><a href="../index.html#services">Services</a></li>
+      <li><a href="Galerie.html" class="active">Galerie</a></li>
+      <li><a href="../Artistes.html">Artistes</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
     </ul>
   </nav>
+
+  <!-- Bouton retour en haut -->
+  <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
 
   <!-- HERO -->
   <div class="gallery-hero">
@@ -495,32 +511,41 @@
     <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ</div>
   </div>
 
-  <!-- FILTERS -->
-  <div class="filter-bar">
-    <button class="filter-btn active" data-filter="all">Tout voir</button>
-    <button class="filter-btn" data-filter="blackwork">Blackwork</button>
-    <button class="filter-btn" data-filter="fantasy">Dark Fantasy</button>
-    <button class="filter-btn" data-filter="blackmetal">Black Metal</button>
-    <button class="filter-btn" data-filter="dotwork">Dotwork</button>
-    <button class="filter-btn" data-filter="realism">Réalisme</button>
-    <button class="filter-btn" data-filter="coverup">Cover-up</button>
-  </div>
-
-  <!-- GALLERY -->
-  <div class="gallery-section">
-    <p class="gallery-count" id="count-display">Affichage de <span id="count-num">42</span> œuvres</p>
-
-    <div class="gallery-grid" id="galleryGrid">
-      <!-- Les items sont générés par JS — remplace les placeholders par de vraies <img> -->
+  <!-- FILTRES + SÉLECTEUR DE QUANTITÉ -->
+  <div class="controls-bar">
+    <!-- Filtres par style -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">Tout voir</button>
+      <button class="filter-btn" data-filter="blackwork">Blackwork</button>
+      <button class="filter-btn" data-filter="fantasy">Dark Fantasy</button>
+      <button class="filter-btn" data-filter="blackmetal">Black Metal</button>
+      <button class="filter-btn" data-filter="dotwork">Dotwork</button>
+      <button class="filter-btn" data-filter="realism">Réalisme</button>
+      <button class="filter-btn" data-filter="coverup">Cover-up</button>
     </div>
 
-    <div class="load-more-wrap">
+    <!-- Sélecteur nombre de photos affichées -->
+    <div class="count-controls">
+      <span class="count-label">Afficher :</span>
+      <button class="count-btn" data-count="10">10</button>
+      <button class="count-btn active" data-count="25">25</button>
+      <button class="count-btn" data-count="50">50</button>
+      <button class="count-btn" data-count="75">75</button>
+      <button class="count-btn" data-count="all">Tout</button>
+    </div>
+  </div>
+
+  <!-- GALERIE -->
+  <div class="gallery-section">
+    <p class="gallery-status" id="galleryStatus">
+      Affichage de <span id="countShown">0</span> / <span id="countTotal">0</span> œuvres
+    </p>
+    <div class="gallery-grid" id="galleryGrid"></div>
+
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
       <button class="btn btn-primary" id="loadMoreBtn" onclick="loadMore()">
         Charger plus d'œuvres
       </button>
-      <p style="margin-top:1.5rem; font-style:italic; color: rgba(168,168,168,0.4); font-size:0.8rem;">
-        — ou glissez vos photos dans le dossier <code style="color:var(--blood)">photos/</code> —
-      </p>
     </div>
   </div>
 
@@ -529,10 +554,11 @@
     <div class="footer-logo">In Tenebris</div>
     <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ</div>
     <ul class="footer-links">
-      <li><a href="#about">L'Atelier</a></li>
-      <li><a href="#services">Services</a></li>
-      <li><a href="Galerie/Galerie.html">Galerie</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="../index.html#about">L'Atelier</a></li>
+      <li><a href="../index.html#services">Services</a></li>
+      <li><a href="Galerie.html">Galerie</a></li>
+      <li><a href="../Artistes.html">Artistes</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
       <li><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">Instagram</a></li>
     </ul>
     <p class="footer-copy">© In Tenebris · Tous droits réservés</p>
@@ -550,251 +576,263 @@
     </div>
   </div>
 
-<script>
-    // ── DATA ──────────────────────────────────────────────────────────────────
-    // Remplace chaque entrée par { src: 'photos/ton-fichier.jpg', title: '...', tag: '...' }
-    // Les tags doivent correspondre aux data-filter des boutons
+  <script>
+    // ════════════════════════════════════════════════════════════════════════
+    //  PHOTOS — Comment ajouter une photo :
+    //  1. Pousse ton image sur GitHub dans le dossier Photos/
+    //  2. Copie ce bloc et colle-le avant le dernier "]" :
+    //
+    //  {
+    //    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/NOM_DU_FICHIER.jpg",
+    //    title: "Titre du tatouage",
+    //    tag: "blackwork",   // choix : blackwork | fantasy | blackmetal | dotwork | realism | coverup
+    //    rune: "☠",          // choix : ☩ ☠ ⚔ 🜏 ⛧ ☽ ⚡ 🗡 ✝ 🔱 ⚜ 🜃 ⚗ 🜄 ⚸ 🝐
+    //  },
+    //
+    //  Note : "rune" sert uniquement si l'image ne charge pas (placeholder).
+    // ════════════════════════════════════════════════════════════════════════
+    const allItems = [
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfg.jpg",
+        title: "Tattoo 1",
+        tag: "blackwork",
+        rune: "☠",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfgd.jpg",
+        title: "Tattoo 2",
+        tag: "fantasy",
+        rune: "⚔",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22xwcxwc.jpg",
+        title: "Tattoo 3",
+        tag: "realism",
+        rune: "🜏",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/qsdqsdsq.jpg",
+        title: "Tattoo 4",
+        tag: "blackmetal",
+        rune: "🜏",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnamed.jpg",
+        title: "Tattoo 5",
+        tag: "fantasy",
+        rune: "✝",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnameddsfdff.jpg",
+        title: "Tattoo 6",
+        tag: "coverup",
+        rune: "✝",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnamedgfhfghfghf.jpg",
+        title: "Tattoo 7",
+        tag: "dotwork",
+        rune: "⚡",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/zeazeaze.jpg",
+        title: "Tattoo 8",
+        tag: "blackmetal",
+        rune: "⚡",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/dssd.jpg",
+        title: "Tattoo 9",
+        tag: "fantasy",
+        rune: "⚡",
+      },
+      {
+        src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-03-17.jpg",
+        title: "Tattoo 10",
+        tag: "realism",
+        rune: "⚡",
+      },
+      // ← Ajoute tes photos ici
+    ];
 
-const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
+    // ════════════════════════════════════════════════════════════════════════
+    //  ÉTAT
+    // ════════════════════════════════════════════════════════════════════════
+    const tagLabels = {
+      blackwork: 'Blackwork', fantasy: 'Dark Fantasy',
+      blackmetal: 'Black Metal', dotwork: 'Dotwork',
+      realism: 'Réalisme', coverup: 'Cover-up'
+    };
 
-const titles = [
-  'Le Voile de l\'Oubli','Corvus Noir','Séraphin Déchu','L\'Arbre des Âmes',
-  'Roi des Ombres','Lune Sanglante','Armure Runique','Mère des Serpents',
-  'Forêt Maudite','Chant du Chaos','Basilic','Portail d\'Hécate',
-  'Cerf Spectral','Le Dernier Chevalier','Danse Macabre','Oeil de la Nuit',
-  'Crâne Féodal','Les Trois Nornes','Fenrir','Banshee','Léviathan',
-  'Tour de Babel','Rune Primordiale','Ange Brisé','Hydre Sombre',
-];
-                                                                      // Remplace chaque entrée par  src: 'photos/ton-fichier.jpg', title: '...', tag: '...' 
-                                                                      // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!
-  // ── DATA ──────────────────────────────────────────────────────────────────
-const allItems = [
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfg.jpg",
-    title: "Tattoo 1",
-    tag: "blackwork", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "☠",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22dfgdfgd.jpg",
-    title: "Tattoo 2",
-    tag: "fantasy",  // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "⚔",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-02-22xwcxwc.jpg",
-    title: "Tattoo 3",
-    tag: "realism",  // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "🜏",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/qsdqsdsq.jpg",
-    title: "Tattoo 4",
-    tag: "blackmetal", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "🜏",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnamed.jpg",
-    title: "Tattoo5",
-    tag: "fantasy", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "✝",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnameddsfdff.jpg",
-    title: "Tattoo6",
-    tag: "coverup", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "✝",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/unnamedgfhfghfghf.jpg",
-    title: "Tattoo7",
-    tag: "dotwork", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "⚡",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/zeazeaze.jpg",
-    title: "Tattoo8",
-    tag: "blackmetal", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "⚡",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/dssd.jpg",
-    title: "Tattoo9",
-    tag: "fantasy", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "⚡",// Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
-  {
-    src: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Photos/2026-03-17.jpg",
-    title: "Tattoo10",
-    tag: "realism", // Les tags doivent correspondre aux data-filter des boutons !!!!!!!!!  choisi en un la dedans ou ajoute les dans: const styles = ['blackwork','fantasy','blackmetal','dotwork','realism','coverup'];
-    rune: "⚡",    // Les rune doivent correspondre aux const rune!!!!!!!!!  choisi en un la dedans ou ajoute les dans:    const runes = ['☩','☠','⚔','🜏','⛧','☽','⚡','🗡','✝','🔱','⚜','🜃','⚗','🜄','⚸','🝐'];
-  },
+    let currentFilter = 'all';
+    let batchSize = 25;   // nombre par défaut
+    let shownCount = 0;
+    let lightboxIndex = 0;
 
-  // ← Tu ajouteras les autres photos ici de la même façon
-  // glissez vos photos dans le dossier photos/ —> https://github.com/Trolorder/intenebris.github.io/tree/main/Photos
-];
-  
-let visible = 0;
-let currentFilter = 'all';
-let lightboxIndex = 0;
-const BATCH = 21;
+    const grid       = document.getElementById('galleryGrid');
+    const statusEl   = document.getElementById('galleryStatus');
+    const countShown = document.getElementById('countShown');
+    const countTotal = document.getElementById('countTotal');
+    const loadWrap   = document.getElementById('loadMoreWrap');
 
-const galleryGrid = document.getElementById('galleryGrid');
-const countNum = document.getElementById('count-num');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
+    // ── Filtrage ──────────────────────────────────────────────────────────
+    function getFiltered() {
+      return currentFilter === 'all'
+        ? allItems
+        : allItems.filter(it => it.tag === currentFilter);
+    }
 
-// ── Helpers ───────────────────────────────────────────────────────────────
-function getFiltered() {
-  return currentFilter === 'all' 
-    ? allItems 
-    : allItems.filter(item => item.tag === currentFilter);
-}
+    // ── Rendu d'un item ───────────────────────────────────────────────────
+    function makeItem(item, idx) {
+      const div = document.createElement('div');
+      div.className = 'gallery-item';
+      div.style.animationDelay = (idx % 10 * 0.04) + 's';
 
-function tagLabel(tag) {
-  const map = {
-    blackwork: 'Blackwork',
-    fantasy: 'Dark Fantasy',
-    blackmetal: 'Black Metal',
-    dotwork: 'Dotwork',
-    realism: 'Réalisme',
-    coverup: 'Cover-up'
-  };
-  return map[tag] || tag;
-}
+      const label = tagLabels[item.tag] || item.tag;
 
-// ── Render Item ───────────────────────────────────────────────────────────
-function renderItem(item, globalIdx) {
-  const div = document.createElement('div');
-  div.className = 'gallery-item';
-  div.dataset.tag = item.tag;
-  div.dataset.idx = globalIdx;
+      if (item.src) {
+        div.innerHTML = `
+          <img src="${item.src}" alt="${item.title}" loading="lazy"/>
+          <div class="gallery-item-overlay">
+            <span class="overlay-tag">${label}</span>
+            <span class="overlay-title">${item.title}</span>
+            <span class="overlay-zoom">⊕</span>
+          </div>`;
+      } else {
+        div.innerHTML = `
+          <div class="gallery-placeholder" style="height:260px">
+            <span class="placeholder-rune">${item.rune || '☠'}</span>
+            <div class="gallery-item-overlay">
+              <span class="overlay-tag">${label}</span>
+              <span class="overlay-title">${item.title}</span>
+              <span class="overlay-zoom">⊕</span>
+            </div>
+          </div>`;
+      }
 
-  if (item.src) {
-    div.innerHTML = `
-      <img src="${item.src}" alt="${item.title}" loading="lazy"/>
-      <div class="gallery-item-overlay">
-        <span class="overlay-tag">${tagLabel(item.tag)}</span>
-        <span class="overlay-title">${item.title}</span>
-        <span class="overlay-zoom">⊕</span>
-      </div>`;
-  } else {
-    div.innerHTML = `
-      <div class="gallery-placeholder" style="height:${item.height}px">
-        <span class="placeholder-rune">${item.rune}</span>
-        <div class="gallery-item-overlay">
-          <span class="overlay-tag">${tagLabel(item.tag)}</span>
-          <span class="overlay-title">${item.title}</span>
-          <span class="overlay-zoom">⊕</span>
-        </div>
-      </div>`;
-  }
+      div.addEventListener('click', () => openLightbox(idx));
+      return div;
+    }
 
-  div.addEventListener('click', () => openLightbox(globalIdx));
-  return div;
-}
+    // ── Affichage initial / après changement de filtre ou de quantité ─────
+    function renderAll() {
+      grid.innerHTML = '';
+      shownCount = 0;
+      const filtered = getFiltered();
+      countTotal.textContent = filtered.length;
 
-// ── Render Batch ──────────────────────────────────────────────────────────
-function renderBatch() {
-  const filtered = getFiltered();
-  const end = Math.min(visible + BATCH, filtered.length);
+      const limit = batchSize === 'all' ? filtered.length : batchSize;
+      const end   = Math.min(limit, filtered.length);
 
-  const fragment = document.createDocumentFragment();
+      const frag = document.createDocumentFragment();
+      for (let i = 0; i < end; i++) {
+        frag.appendChild(makeItem(filtered[i], i));
+      }
+      grid.appendChild(frag);
+      shownCount = end;
+      countShown.textContent = shownCount;
 
-  for (let i = visible; i < end; i++) {
-    fragment.appendChild(renderItem(filtered[i], i));
-  }
+      // Bouton "charger plus" visible uniquement si mode illimité (all) ET reste des items
+      const hasMore = batchSize !== 'all' && shownCount < filtered.length;
+      loadWrap.style.display = hasMore ? 'block' : 'none';
+    }
 
-  galleryGrid.appendChild(fragment);
-  visible = end;
+    // ── Charger plus (mode batchSize fixe) ───────────────────────────────
+    function loadMore() {
+      const filtered = getFiltered();
+      const end = Math.min(shownCount + batchSize, filtered.length);
+      const frag = document.createDocumentFragment();
+      for (let i = shownCount; i < end; i++) {
+        frag.appendChild(makeItem(filtered[i], i));
+      }
+      grid.appendChild(frag);
+      shownCount = end;
+      countShown.textContent = shownCount;
+      loadWrap.style.display = shownCount < filtered.length ? 'block' : 'none';
+    }
 
-  // Mise à jour du compteur (nombre affiché / total filtré)
-  countNum.textContent = `${visible} / ${filtered.length}`;
+    // ── Filtres ───────────────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderAll();
+      });
+    });
 
-  loadMoreBtn.style.display = visible >= filtered.length ? 'none' : 'inline-block';
-}
+    // ── Sélecteur de quantité ─────────────────────────────────────────────
+    document.querySelectorAll('.count-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const val = btn.dataset.count;
+        batchSize = val === 'all' ? 'all' : parseInt(val);
+        renderAll();
+      });
+    });
 
-function loadMore() {
-  renderBatch();
-}
+    // ── Lightbox ──────────────────────────────────────────────────────────
+    const lightbox        = document.getElementById('lightbox');
+    const lightboxImg     = document.getElementById('lightboxImg');
+    const lightboxCaption = document.getElementById('lightboxCaption');
 
-// ── Filters ───────────────────────────────────────────────────────────────
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    function updateLightbox() {
+      const filtered = getFiltered();
+      const item = filtered[lightboxIndex];
+      const label = tagLabels[item.tag] || item.tag;
 
-    currentFilter = btn.dataset.filter;
-    visible = 0;
-    galleryGrid.innerHTML = '';
+      if (item.src) {
+        lightboxImg.src = item.src;
+      } else {
+        lightboxImg.src = `data:image/svg+xml,${encodeURIComponent(`
+          <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600">
+            <rect width="800" height="600" fill="#0d0d0d"/>
+            <text x="400" y="320" font-size="180" text-anchor="middle" fill="#8b0000" opacity="0.35">${item.rune || '☠'}</text>
+            <text x="400" y="420" font-size="22" text-anchor="middle" fill="#d4c9b0" font-family="Georgia" opacity="0.7">${item.title}</text>
+          </svg>`)}`;
+      }
 
-    renderBatch();
-  });
-});
+      lightboxCaption.textContent = `${item.title} — ${label}`;
+    }
 
-// ── Lightbox ──────────────────────────────────────────────────────────────
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightboxImg');
-const lightboxCaption = document.getElementById('lightboxCaption');
+    function openLightbox(idx) {
+      const filtered = getFiltered();
+      lightboxIndex = Math.max(0, Math.min(idx, filtered.length - 1));
+      updateLightbox();
+      lightbox.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
 
-function updateLightbox() {
-  const filtered = getFiltered();
-  const item = filtered[lightboxIndex];
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      document.body.style.overflow = '';
+    }
 
-  if (item.src) {
-    // Préchargement
-    const preload = new Image();
-    preload.src = item.src;
-    lightboxImg.src = item.src;
-  } else {
-    // Placeholder stylé
-    lightboxImg.src = `data:image/svg+xml,${encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
-        <rect width="800" height="600" fill="#0d0d0d"/>
-        <text x="400" y="320" font-size="180" text-anchor="middle" fill="#8b0000" opacity="0.35">${item.rune}</text>
-        <text x="400" y="420" font-size="22" text-anchor="middle" fill="#d4c9b0" font-family="Georgia" opacity="0.7">${item.title}</text>
-      </svg>
-    `)}`;
-  }
+    function navigateLightbox(dir) {
+      const filtered = getFiltered();
+      lightboxIndex = (lightboxIndex + dir + filtered.length) % filtered.length;
+      updateLightbox();
+    }
 
-  lightboxCaption.textContent = `${item.title} — ${tagLabel(item.tag)}`;
-}
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
 
-function openLightbox(idx) {
-  const filtered = getFiltered();
-  lightboxIndex = Math.max(0, Math.min(idx, filtered.length - 1));
-  
-  updateLightbox();
-  lightbox.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
+    document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('open')) return;
+      if (e.key === 'Escape')      closeLightbox();
+      if (e.key === 'ArrowRight')  navigateLightbox(1);
+      if (e.key === 'ArrowLeft')   navigateLightbox(-1);
+    });
 
-function closeLightbox() {
-  lightbox.classList.remove('open');
-  document.body.style.overflow = '';
-}
+    // ── Scroll to top ─────────────────────────────────────────────────────
+    const scrollTopBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-function navigateLightbox(dir) {
-  const filtered = getFiltered();
-  lightboxIndex = (lightboxIndex + dir + filtered.length) % filtered.length;
-  updateLightbox();
-}
-
-// ── Event Listeners Lightbox ─────────────────────────────────────────────
-document.getElementById('lightbox').addEventListener('click', e => {
-  if (e.target === lightbox) closeLightbox();
-});
-
-document.addEventListener('keydown', e => {
-  if (!lightbox.classList.contains('open')) return;
-  
-  if (e.key === 'Escape') closeLightbox();
-  if (e.key === 'ArrowRight') navigateLightbox(1);
-  if (e.key === 'ArrowLeft') navigateLightbox(-1);
-});
-
-// ── Init ──────────────────────────────────────────────────────────────────
-renderBatch();
-</script>
+    // ── Init ──────────────────────────────────────────────────────────────
+    renderAll();
+  </script>
 </body>
 </html>
