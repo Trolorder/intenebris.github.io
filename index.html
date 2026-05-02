@@ -379,12 +379,7 @@
     /* ── AVIS ── */
     #avis { background: var(--deep); }
     .avis-header { text-align: center; margin-bottom: 4rem; }
-
-    .avis-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.5rem;
-    }
+    .avis-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 
     .avis-card {
       background: rgba(255,255,255,0.02);
@@ -395,45 +390,11 @@
     }
 
     .avis-card:hover { border-color: rgba(139,0,0,0.5); }
-
-    .avis-stars {
-      color: var(--goldlit);
-      font-size: 0.9rem;
-      letter-spacing: 3px;
-      margin-bottom: 1rem;
-    }
-
-    .avis-text {
-      font-style: italic;
-      color: var(--silver);
-      font-size: 0.92rem;
-      line-height: 1.8;
-      margin-bottom: 1.5rem;
-    }
-
-    .avis-author {
-      font-family: 'Cinzel', serif;
-      font-size: 0.65rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: var(--blood);
-    }
-
-    .avis-date {
-      font-size: 0.75rem;
-      color: rgba(168,168,168,0.3);
-      margin-top: 0.2rem;
-    }
-
-    .avis-quote {
-      position: absolute;
-      top: 1rem;
-      right: 1.5rem;
-      font-size: 3rem;
-      color: rgba(139,0,0,0.08);
-      font-family: Georgia, serif;
-      line-height: 1;
-    }
+    .avis-stars { color: var(--goldlit); font-size: 0.9rem; letter-spacing: 3px; margin-bottom: 1rem; }
+    .avis-text { font-style: italic; color: var(--silver); font-size: 0.92rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    .avis-author { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--blood); }
+    .avis-date { font-size: 0.75rem; color: rgba(168,168,168,0.3); margin-top: 0.2rem; }
+    .avis-quote { position: absolute; top: 1rem; right: 1.5rem; font-size: 3rem; color: rgba(139,0,0,0.08); font-family: Georgia, serif; line-height: 1; }
 
     /* ── CONTACT ── */
     #contact { background: linear-gradient(to bottom, var(--black), var(--deep)); }
@@ -464,6 +425,72 @@
     .form-field select option { background: var(--deep); }
     .form-field textarea { resize: vertical; min-height: 140px; }
 
+    /* Bouton submit */
+    .btn-submit {
+      font-family: 'Cinzel', serif;
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--bone);
+      border: 1px solid var(--blood);
+      background: transparent;
+      padding: 1rem 2.5rem;
+      width: 100%;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s;
+    }
+
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+      z-index: 0;
+    }
+
+    .btn-submit:hover::before { transform: scaleX(1); }
+    .btn-submit:hover { color: var(--black); }
+    .btn-submit span { position: relative; z-index: 1; }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-submit:disabled::before { transform: scaleX(0) !important; }
+
+    /* Message de confirmation */
+    #formMsg {
+      display: none;
+      margin-top: 0.5rem;
+      padding: 1.2rem;
+      border: 1px solid rgba(139,0,0,0.4);
+      background: rgba(139,0,0,0.06);
+      font-style: italic;
+      color: var(--goldlit);
+      text-align: center;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    /* Message d'erreur */
+    #formErr {
+      display: none;
+      margin-top: 0.5rem;
+      padding: 1rem;
+      border: 1px solid rgba(192,0,10,0.5);
+      background: rgba(192,0,10,0.07);
+      font-style: italic;
+      color: #e05050;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
     .contact-info .section-title { margin-bottom: 2rem; }
     .contact-detail { display: flex; flex-direction: column; gap: 1.8rem; margin-top: 2rem; }
     .contact-item { border-left: 2px solid rgba(139,0,0,0.4); padding-left: 1.5rem; }
@@ -484,14 +511,12 @@
     /* ── RUNE SEP ── */
     .rune-sep { text-align: center; color: rgba(139,0,0,0.3); font-size: 1.2rem; letter-spacing: 1rem; margin: 1rem 0; }
 
-    /* ── SCROLL TO TOP (bouton flottant) ── */
+    /* ── SCROLL TO TOP ── */
     #scrollTop {
       position: fixed;
-      bottom: 2.5rem;
-      right: 2rem;
+      bottom: 2.5rem; right: 2rem;
       z-index: 200;
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       background: rgba(8,8,8,0.9);
       border: 1px solid rgba(139,0,0,0.5);
       color: var(--blood);
@@ -506,16 +531,8 @@
       pointer-events: none;
     }
 
-    #scrollTop.visible {
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
-    #scrollTop:hover {
-      border-color: var(--goldlit);
-      color: var(--goldlit);
-    }
+    #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
 
     /* ── ANIMATIONS ── */
     @keyframes fadeDown {
@@ -558,7 +575,6 @@
     </ul>
   </nav>
 
-  <!-- Bouton retour en haut -->
   <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
 
   <section class="hero">
@@ -674,17 +690,15 @@
     </div>
   </section>
 
-  <!-- ── AVIS GOOGLE ──────────────────────────────────────────────────────── -->
   <!--
-    COMMENT AJOUTER UN AVIS :
-    Dans le tableau "avis" ci-dessous (dans le <script>), copie-colle un nouveau bloc :
+    AVIS — Comment ajouter un avis :
+    Dans le tableau "avis" dans le <script>, copie-colle un nouveau bloc :
     {
       auteur: "Prénom N.",
-      note: 5,           // nombre d'étoiles (1 à 5)
+      note: 5,
       texte: "Texte de l'avis...",
       date: "avril 2025"
     },
-    Sauvegarde. C'est tout !
   -->
   <section id="avis">
     <div class="container">
@@ -700,6 +714,8 @@
   <section id="contact">
     <div class="container">
       <div class="contact-grid">
+
+        <!-- Infos de contact -->
         <div class="contact-info reveal">
           <span class="section-label">✦ Nous trouver ✦</span>
           <h2 class="section-title">Entrez dans<br>l'Antre</h2>
@@ -723,21 +739,44 @@
             </div>
           </div>
         </div>
+
+        <!-- ════════════════════════════════════════════════════════════════
+             FORMULAIRE DE RÉSERVATION — Formspree
+             
+             Pour activer l'envoi :
+             1. Va sur https://formspree.io et crée un compte gratuit
+             2. Crée un nouveau formulaire → copie l'URL (ex: https://formspree.io/f/XXXXXXXX)
+             3. Remplace "METS_TON_URL_FORMSPREE_ICI" ci-dessous par cette URL
+             4. Les messages arriveront par email à l'adresse de ton compte Formspree
+        ════════════════════════════════════════════════════════════════ -->
         <div class="reveal">
           <span class="section-label">✦ Réservation ✦</span>
           <h2 class="section-title" style="font-size:2rem; margin-bottom: 2rem;">Prendre RDV</h2>
-          <form class="contact-form">
+
+          <form
+            id="rdvForm"
+            class="contact-form"
+            action="METS_TON_URL_FORMSPREE_ICI"
+            method="POST"
+          >
             <div class="form-field">
-              <label>Votre nom</label>
-              <input type="text" placeholder="Ex: Morgane D."/>
+              <label for="rdv-nom">Votre nom</label>
+              <input id="rdv-nom" type="text" name="nom" placeholder="Ex: Morgane D." required/>
             </div>
+
             <div class="form-field">
-              <label>Email</label>
-              <input type="email" placeholder="votre@email.com"/>
+              <label for="rdv-email">Email</label>
+              <input id="rdv-email" type="email" name="email" placeholder="votre@email.com" required/>
             </div>
+
             <div class="form-field">
-              <label>Style souhaité</label>
-              <select>
+              <label for="rdv-tel">Téléphone (optionnel)</label>
+              <input id="rdv-tel" type="tel" name="telephone" placeholder="06 XX XX XX XX"/>
+            </div>
+
+            <div class="form-field">
+              <label for="rdv-style">Style souhaité</label>
+              <select id="rdv-style" name="style" required>
                 <option value="" disabled selected>— Choisissez un style —</option>
                 <option>Blackwork / Géométrie</option>
                 <option>Dark Fantasy / Médiéval</option>
@@ -748,15 +787,32 @@
                 <option>Autre / À discuter</option>
               </select>
             </div>
+
             <div class="form-field">
-              <label>Votre projet</label>
-              <textarea placeholder="Décrivez votre vision, la zone du corps, la taille approximative..."></textarea>
+              <label for="rdv-projet">Votre projet</label>
+              <textarea id="rdv-projet" name="projet" placeholder="Décrivez votre vision, la zone du corps, la taille approximative..." required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary" style="width:100%; cursor:pointer; font-family:'Cinzel',serif;">
-              Envoyer le Parchemin
+
+            <!-- Champ honeypot anti-spam (invisible pour les humains) -->
+            <input type="text" name="_gotcha" style="display:none"/>
+
+            <button type="submit" class="btn-submit" id="rdvSubmit">
+              <span id="rdvBtnText">Envoyer le Parchemin</span>
             </button>
+
+            <!-- Message de confirmation (apparaît après envoi réussi) -->
+            <div id="formMsg">
+              ✦ Votre message a traversé les ténèbres — nous reviendrons vers vous bientôt. ✦
+            </div>
+
+            <!-- Message d'erreur (apparaît en cas de problème) -->
+            <div id="formErr">
+              Une ombre a perturbé l'envoi. Veuillez réessayer ou nous contacter directement par téléphone.
+            </div>
+
           </form>
         </div>
+
       </div>
     </div>
   </section>
@@ -778,7 +834,7 @@
 
   <script>
     // ════════════════════════════════════════════════════════════════════════
-    // AVIS GOOGLE — Comment ajouter un avis :
+    // AVIS — Comment ajouter un avis :
     //   1. Copie un bloc { auteur, note, texte, date }
     //   2. Colle-le dans le tableau ci-dessous (avant le dernier "]")
     //   3. Sauvegarde → l'avis apparaît automatiquement
@@ -802,7 +858,7 @@
         texte: "Accueil chaleureux malgré l'ambiance dark du lieu, ce qui est rassurant pour un premier tatouage. Je recommande les yeux fermés.",
         date: "février 2025"
       },
-      // ← Ajoute tes avis ici, ex :
+      // ← Ajoute tes avis ici :
       // {
       //   auteur: "Prénom N.",
       //   note: 5,
@@ -811,7 +867,6 @@
       // },
     ];
 
-    // Rendu des avis
     function renderAvis() {
       const grid = document.getElementById('avisGrid');
       avis.forEach(a => {
@@ -828,7 +883,53 @@
     }
     renderAvis();
 
+    // ════════════════════════════════════════════════════════════════════════
+    // FORMULAIRE — envoi asynchrone via Formspree
+    // ════════════════════════════════════════════════════════════════════════
+    const form      = document.getElementById('rdvForm');
+    const submitBtn = document.getElementById('rdvSubmit');
+    const btnText   = document.getElementById('rdvBtnText');
+    const formMsg   = document.getElementById('formMsg');
+    const formErr   = document.getElementById('formErr');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault(); // empêche le rechargement de page
+
+      // Masque les messages précédents
+      formMsg.style.display = 'none';
+      formErr.style.display = 'none';
+
+      // État "envoi en cours"
+      submitBtn.disabled = true;
+      btnText.textContent = 'Envoi en cours…';
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+          // ✅ Succès
+          form.reset();
+          formMsg.style.display = 'block';
+          btnText.textContent = 'Message envoyé ✦';
+        } else {
+          // ❌ Erreur serveur Formspree
+          throw new Error('Erreur serveur');
+        }
+      } catch (err) {
+        // ❌ Erreur réseau ou autre
+        formErr.style.display = 'block';
+        submitBtn.disabled = false;
+        btnText.textContent = 'Envoyer le Parchemin';
+      }
+    });
+
+    // ════════════════════════════════════════════════════════════════════════
     // Scroll reveal
+    // ════════════════════════════════════════════════════════════════════════
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry, i) => {
@@ -840,7 +941,7 @@
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
 
-    // Nav scroll
+    // Nav + scroll to top
     const nav = document.querySelector('nav');
     const scrollTopBtn = document.getElementById('scrollTop');
 
@@ -848,7 +949,6 @@
       const y = window.scrollY;
       nav.style.background = y > 80 ? 'rgba(8,8,8,0.97)' : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
       nav.style.borderBottomColor = y > 80 ? 'rgba(139,0,0,0.3)' : 'rgba(139,0,0,0.2)';
-      // Bouton retour en haut
       scrollTopBtn.classList.toggle('visible', y > 400);
     });
 
