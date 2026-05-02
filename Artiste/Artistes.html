@@ -44,7 +44,9 @@
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
-    /* ── NAV ── */
+    /* ── NAV ──
+       Ce fichier est dans /Artiste/ — tous les liens remontent d'un niveau avec ../
+    */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -179,7 +181,6 @@
 
     .artist-card:hover { border-color: rgba(139,0,0,0.5); }
 
-    /* Photo de profil */
     .artist-photo {
       width: 100%;
       aspect-ratio: 4/5;
@@ -195,7 +196,6 @@
       filter: grayscale(0) contrast(1.1);
     }
 
-    /* Placeholder si pas de photo */
     .artist-photo-placeholder {
       width: 100%;
       aspect-ratio: 4/5;
@@ -215,7 +215,6 @@
       background: radial-gradient(ellipse at 50% 30%, rgba(139,0,0,0.1), transparent 70%);
     }
 
-    /* Overlay dégradé sur la photo */
     .artist-photo-wrap {
       position: relative;
       overflow: hidden;
@@ -230,7 +229,6 @@
       pointer-events: none;
     }
 
-    /* Infos sur la carte */
     .artist-info {
       padding: 1.8rem 2rem 2rem;
       position: relative;
@@ -262,7 +260,6 @@
       margin-bottom: 1.5rem;
     }
 
-    /* Styles pratiqués */
     .artist-styles {
       display: flex;
       flex-wrap: wrap;
@@ -283,7 +280,6 @@
 
     .style-tag:hover { border-color: var(--blood); color: var(--bone); }
 
-    /* Réseaux sociaux */
     .artist-socials {
       display: flex;
       gap: 1rem;
@@ -305,10 +301,8 @@
     }
 
     .social-link:hover { color: var(--goldlit); }
-
     .social-icon { font-size: 0.9rem; }
 
-    /* Coin décoratif */
     .artist-corner {
       position: absolute;
       top: 0; right: 0;
@@ -368,14 +362,15 @@
 </head>
 <body>
 
+  <!-- NAV — ../ car ce fichier est dans /Artiste/ -->
   <nav>
-    <a href="index.html" class="nav-logo">In Tenebris</a>
+    <a href="../index.html" class="nav-logo">In Tenebris</a>
     <ul class="nav-links">
-      <li><a href="index.html#about">L'Atelier</a></li>
-      <li><a href="index.html#services">Services</a></li>
-      <li><a href="Galerie/Galerie.html">Galerie</a></li>
-      <li><a href="Artistes.html" class="active">Artistes</a></li>
-      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="../index.html#about">L'Atelier</a></li>
+      <li><a href="../index.html#services">Services</a></li>
+      <li><a href="../Galerie/Galerie.html">Galerie</a></li>
+      <li><a href="Artistes.html" class="active">Les artistes</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
     </ul>
   </nav>
 
@@ -398,11 +393,11 @@
 
        {
          nom: "Prénom Nom",
-         role: "Tatoueur",             // ex: Tatoueur, Fondateur, Guest Artist...
+         role: "Tatoueur",
          photo: "https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/Artiste/NOM_DU_FICHIER.jpg",
-         bio: "Quelques phrases sur l'artiste, son parcours, sa vision...",
-         styles: ["Blackwork", "Dark Fantasy"],   // autant que tu veux
-         instagram: "@pseudo_instagram",          // laisser "" si pas d'instagram
+         bio: "Quelques phrases sur l'artiste...",
+         styles: ["Blackwork", "Dark Fantasy"],
+         instagram: "@pseudo_instagram",   // laisser "" si pas d'instagram
          instagram_url: "https://instagram.com/pseudo"
        },
 
@@ -412,16 +407,16 @@
     <div class="artists-grid" id="artistsGrid"></div>
   </div>
 
-  <!-- FOOTER -->
+  <!-- FOOTER — ../ car ce fichier est dans /Artiste/ -->
   <footer>
     <div class="footer-logo">In Tenebris</div>
     <div class="rune-sep">ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ ᚺ ᚾ ᛁ ᛃ</div>
     <ul class="footer-links">
-      <li><a href="index.html#about">L'Atelier</a></li>
-      <li><a href="index.html#services">Services</a></li>
-      <li><a href="Galerie/Galerie.html">Galerie</a></li>
-      <li><a href="Artistes.html">Artistes</a></li>
-      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="../index.html#about">L'Atelier</a></li>
+      <li><a href="../index.html#services">Services</a></li>
+      <li><a href="../Galerie/Galerie.html">Galerie</a></li>
+      <li><a href="Artistes.html">Les artistes</a></li>
+      <li><a href="../index.html#contact">Contact</a></li>
       <li><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">Instagram</a></li>
     </ul>
     <p class="footer-copy">© In Tenebris · Tous droits réservés</p>
@@ -494,7 +489,6 @@
         grid.appendChild(card);
       });
 
-      // Déclenche le scroll reveal sur les nouvelles cartes
       initReveal();
     }
 
