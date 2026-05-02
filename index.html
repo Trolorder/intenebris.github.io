@@ -726,43 +726,37 @@
         <div class="reveal">
           <span class="section-label">✦ Réservation ✦</span>
           <h2 class="section-title" style="font-size:2rem; margin-bottom: 2rem;">Prendre RDV</h2>
-<form class="contact-form" action="https://formspree.io/f/XXXXXXXX" method="POST" id="rdvForm">
-  <div class="form-field">
-    <label>Votre nom</label>
-    <input type="text" name="nom" placeholder="Ex: Morgane D." required/>
-  </div>
-  <div class="form-field">
-    <label>Email</label>
-    <input type="email" name="email" placeholder="votre@email.com" required/>
-  </div>
-  <div class="form-field">
-    <label>Téléphone (optionnel)</label>
-    <input type="tel" name="telephone" placeholder="06 XX XX XX XX"/>
-  </div>
-  <div class="form-field">
-    <label>Style souhaité</label>
-    <select name="style" required>
-      <option value="" disabled selected>— Choisissez un style —</option>
-      <option>Blackwork / Géométrie</option>
-      <option>Dark Fantasy / Médiéval</option>
-      <option>Black Metal / Occultisme</option>
-      <option>Dotwork / Mandala</option>
-      <option>Réalisme Sombre</option>
-      <option>Cover-up</option>
-      <option>Autre / À discuter</option>
-    </select>
-  </div>
-  <div class="form-field">
-    <label>Votre projet</label>
-    <textarea name="projet" placeholder="Décrivez votre vision, la zone du corps, la taille approximative..." required></textarea>
-  </div>
-  <button type="submit" class="btn btn-primary" style="width:100%; cursor:pointer; font-family:'Cinzel',serif;">
-    Envoyer le Parchemin
-  </button>
-  <p id="formMsg" style="display:none; margin-top:1rem; font-style:italic; color:var(--goldlit); text-align:center; font-size:0.85rem;">
-    ✦ Votre message a été envoyé — nous reviendrons vers vous bientôt. ✦
-  </p>
-</form>        </div>
+          <form class="contact-form">
+            <div class="form-field">
+              <label>Votre nom</label>
+              <input type="text" placeholder="Ex: Morgane D."/>
+            </div>
+            <div class="form-field">
+              <label>Email</label>
+              <input type="email" placeholder="votre@email.com"/>
+            </div>
+            <div class="form-field">
+              <label>Style souhaité</label>
+              <select>
+                <option value="" disabled selected>— Choisissez un style —</option>
+                <option>Blackwork / Géométrie</option>
+                <option>Dark Fantasy / Médiéval</option>
+                <option>Black Metal / Occultisme</option>
+                <option>Dotwork / Mandala</option>
+                <option>Réalisme Sombre</option>
+                <option>Cover-up</option>
+                <option>Autre / À discuter</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Votre projet</label>
+              <textarea placeholder="Décrivez votre vision, la zone du corps, la taille approximative..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%; cursor:pointer; font-family:'Cinzel',serif;">
+              Envoyer le Parchemin
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </section>
@@ -859,23 +853,6 @@
     });
 
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    // Confirmation envoi formulaire
-const form = document.getElementById('rdvForm');
-if (form) {
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const data = new FormData(form);
-    const res = await fetch(form.action, {
-      method: 'POST',
-      body: data,
-      headers: { 'Accept': 'application/json' }
-    });
-    if (res.ok) {
-      form.reset();
-      document.getElementById('formMsg').style.display = 'block';
-    }
-  });
-}
   </script>
 </body>
 </html>
