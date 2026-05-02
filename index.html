@@ -374,6 +374,24 @@
     .gallery-cell:nth-child(7) { background: linear-gradient(45deg,  #0d0d0d 0%, #120d08 50%, #111 100%); }
 
     .gallery-rune { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 3rem; opacity: 0.06; color: var(--bone); }
+
+    /* Image réelle dans les cellules d'aperçu */
+    .gallery-cell img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      filter: grayscale(0.15) contrast(1.05);
+      transition: transform 0.5s ease, filter 0.4s ease;
+    }
+
+    .gallery-cell:hover img {
+      transform: scale(1.06);
+      filter: grayscale(0) contrast(1.1);
+    }
     .gallery-cta-text { font-style: italic; color: var(--silver); margin-bottom: 2rem; font-size: 1rem; }
 
     /* ── AVIS ── */
@@ -580,7 +598,7 @@
   <section class="hero">
     <div class="hero-bg"></div>
     <span class="hero-eyebrow">✦ Rouen · Normandie · Depuis 2018 ✦</span>
-    <h1 class="hero-title">In Tenebris</h1>
+    <h1 class="hero-title">In Tenebris<br><span>Ink</span></h1>
     <p class="hero-sub">Salon de Tatouage</p>
     <div class="divider"></div>
     <p class="hero-desc">L'art gravé dans la chair. Des créations uniques nées des abysses de l'imaginaire dark, metal & fantastique.</p>
@@ -675,7 +693,8 @@
         <h2 class="section-title">Galerie</h2>
         <p class="gallery-cta-text">Un avant-goût de notre univers — la galerie complète vous attend.</p>
       </div>
-      <div class="gallery-teaser reveal">
+      <!-- Les cellules sont remplies dynamiquement par le script ci-dessous -->
+      <div class="gallery-teaser reveal" id="galleryTeaser">
         <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☩</span></div>
         <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">☠</span></div>
         <div class="gallery-cell" onclick="location.href='Galerie/Galerie.html'"><span class="gallery-rune">⚔</span></div>
@@ -953,6 +972,59 @@
     });
 
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ════════════════════════════════════════════════════════════════════════
+    // APERÇU GALERIE — 7 photos aléatoires sans doublon depuis GitHub
+    // ════════════════════════════════════════════════════════════════════════
+    (async function loadRandomPreviews() {
+      const REPO_API  = 'https://api.github.com/repos/Trolorder/intenebris.github.io/contents/Photos';
+      const RAW_BASE  = 'https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/Photos/';
+      const cells     = document.querySelectorAll('#galleryTeaser .gallery-cell');
+      const NB        = cells.length; // 7
+
+      try {
+        const res  = await fetch(REPO_API);
+        if (!res.ok) return; // si l'API est indisponible on garde les placeholders rune
+
+        const files = await res.json();
+
+        // Garde uniquement les images (jpg, jpeg, png, webp, gif)
+        const images = files.filter(f =>
+          f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
+        );
+
+        if (images.length === 0) return;
+
+        // Mélange Fisher-Yates pour garantir aucun doublon
+        const shuffled = [...images];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        // Prend les N premières (N = nombre de cellules)
+        const picked = shuffled.slice(0, NB);
+
+        // Injecte chaque image dans sa cellule
+        picked.forEach((file, idx) => {
+          const cell = cells[idx];
+          const url  = RAW_BASE + encodeURIComponent(file.name);
+
+          // Crée l'image
+          const img = document.createElement('img');
+          img.alt     = 'Tatouage In Tenebris';
+          img.loading = 'lazy';
+          img.src     = url;
+
+          // Insère l'image avant la rune (qui reste en fallback visuel)
+          cell.insertBefore(img, cell.firstChild);
+        });
+
+      } catch (err) {
+        // En cas d'erreur réseau on garde les placeholders rune — pas de crash
+        console.warn('Aperçu galerie : impossible de charger les photos.', err);
+      }
+    })();
   </script>
 </body>
 </html>
