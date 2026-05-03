@@ -26,6 +26,13 @@
       background: var(--black);
       color: var(--bone);
       font-family: 'IM Fell English', Georgia, serif;
+      /* ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────
+         Pour changer le curseur :
+         1. Dépose ton fichier cursor.png à la RACINE de ton repo GitHub
+         2. Remplace "crosshair" par :  url('../cursor.png') 16 16, crosshair
+         Le "../" remonte d'un dossier car Galerie.html est dans /Galerie/
+         Le "16 16" = point de clic (centre si ton image fait 32x32 px)
+      ─────────────────────────────────────────────────────────────────── */
       cursor: crosshair;
       overflow-x: hidden;
     }
@@ -776,8 +783,96 @@
     });
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
-    // ── Init ──────────────────────────────────────────────────────────────
-    renderAll();
+    // ── Scroll to top ─────────────────────────────────────────────────────
+    const scrollTopBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  CHARGEMENT DYNAMIQUE DEPUIS GITHUB
+    //
+    //  Plus besoin de modifier ce fichier pour ajouter des photos !
+    //  Utilise admin.html à la place. Voilà comment ça marche :
+    //  1. Lit photos-meta.json → titre, style, rune de chaque photo
+    //  2. Lit la liste des fichiers dans Photos/ via l'API GitHub
+    //  3. Construit allItems en croisant les deux
+    //  4. Lance renderAll() pour afficher la galerie
+    // ════════════════════════════════════════════════════════════════════════
+    async function loadPhotos() {
+      // Message de chargement pendant la récupération des données
+      grid.innerHTML = `
+        <div style="
+          grid-column: 1/-1;
+          text-align: center;
+          padding: 4rem 2rem;
+          font-family: 'Cinzel', serif;
+          font-size: 0.65rem;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: rgba(168,168,168,0.3);
+        ">✦ Invocation de la galerie… ✦</div>`;
+
+      try {
+        // ── ÉTAPE 1 : charge photos-meta.json ──────────────────────────
+        // ?t=Date.now() = empêche le cache du navigateur (toujours à jour)
+        let meta = {};
+        try {
+          const metaRes = await fetch(
+            `${RAW_BASE}photos-meta.json?t=${Date.now()}`
+          );
+          if (metaRes.ok) meta = await metaRes.json();
+        } catch {
+          // Si photos-meta.json n'existe pas encore → valeurs par défaut partout
+        }
+
+        // ── ÉTAPE 2 : liste les fichiers dans Photos/ via l'API GitHub ──
+        const apiRes = await fetch(`${API_BASE}Photos`);
+        if (!apiRes.ok) throw new Error(`Erreur API GitHub (${apiRes.status})`);
+
+        const files      = await apiRes.json();
+        const imageFiles = files.filter(
+          f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
+        );
+
+        if (imageFiles.length === 0) {
+          grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:3rem;
+            font-style:italic; color:rgba(168,168,168,0.3);">
+            Aucune photo dans le dossier Photos/.</p>`;
+          return;
+        }
+
+        // ── ÉTAPE 3 : construit allItems ────────────────────────────────
+        // Pour chaque fichier on récupère ses métadonnées (ou des valeurs par défaut)
+        allItems = imageFiles.map(file => {
+          const m = meta[file.name] || {};
+          return {
+            src:   `${RAW_BASE}Photos/${encodeURIComponent(file.name)}`,
+            title: m.title || file.name.replace(/\.[^.]+$/, ''), // nom sans extension si pas de titre
+            tag:   m.tag   || 'blackwork',
+            rune:  m.rune  || '☠',
+          };
+        });
+
+        // ── ÉTAPE 4 : affiche la galerie ────────────────────────────────
+        grid.innerHTML = ''; // vide le message de chargement
+        shownCount = 0;
+        renderAll();
+
+      } catch (err) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1; text-align:center; padding:3rem;
+            font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:3px;
+            color:rgba(192,0,10,0.6);">
+            ✕ Erreur de chargement : ${err.message}
+          </div>`;
+        console.error('Galerie loadPhotos:', err);
+      }
+    }
+
+    // ── Init — loadPhotos() au lieu de renderAll() car allItems est vide au départ ──
+    loadPhotos();
   </script>
 </body>
 </html>
