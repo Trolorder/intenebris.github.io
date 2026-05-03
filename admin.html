@@ -72,6 +72,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
     }
 
     .admin-nav-logo {
@@ -79,6 +81,46 @@
       font-size: 1.6rem;
       color: var(--goldlit);
       text-shadow: 0 0 15px rgba(201,168,76,0.4);
+      text-decoration: none; /* c'est un lien vers l'accueil */
+    }
+
+    /* Liens vers les pages du site (L'Atelier, Services, etc.) */
+    .admin-nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .admin-nav-links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .admin-nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0; right: 0;
+      height: 1px;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+
+    .admin-nav-links a:hover { color: var(--goldlit); }
+    .admin-nav-links a:hover::after { transform: scaleX(1); }
+
+    .admin-nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
     .admin-nav-info {
@@ -106,6 +148,81 @@
     #btnLogout:hover {
       border-color: var(--blood);
       color: var(--bone);
+    }
+
+    /* ─── SECTION DESSINS CLIENTS ───────────────────────────────────────
+       Visible uniquement dans le panneau admin (pas sur le site public).
+    ─────────────────────────────────────────────────────────────────── */
+    .dessins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 4px;
+    }
+
+    .dessin-card {
+      position: relative;
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.15);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .dessin-card:hover { border-color: rgba(139,0,0,0.5); }
+
+    .dessin-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(0.1);
+      transition: filter 0.3s;
+    }
+
+    .dessin-card:hover img { filter: grayscale(0); }
+
+    .dessin-card-info {
+      padding: 0.6rem;
+      background: rgba(8,8,8,0.9);
+    }
+
+    /* Affiche le numéro de téléphone masqué (ex: 062497** ) */
+    .dessin-card-tel {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 2px;
+      color: var(--goldlit);
+      margin-bottom: 0.2rem;
+    }
+
+    .dessin-card-date {
+      font-size: 0.7rem;
+      color: rgba(168,168,168,0.35);
+      font-style: italic;
+    }
+
+    .dessin-card-overlay {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .dessin-card:hover .dessin-card-overlay { opacity: 1; }
+
+    #dessinsLoading {
+      text-align: center;
+      padding: 3rem;
+      font-style: italic;
+      color: rgba(168,168,168,0.3);
+    }
+
+    .dessins-empty {
+      text-align: center;
+      padding: 3rem;
+      font-style: italic;
+      color: rgba(168,168,168,0.25);
+      font-size: 0.9rem;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -645,11 +762,25 @@
   ═══════════════════════════════════════════════════════════════════ -->
   <div id="adminPanel">
 
-    <!-- Barre de navigation -->
+    <!-- Barre de navigation — logo + liens vers le site + déconnexion -->
     <div class="admin-nav">
-      <div class="admin-nav-logo">In Tenebris</div>
-      <div class="admin-nav-info">✦ Panneau Admin ✦</div>
-      <button id="btnLogout" onclick="logout()">✕ Déconnexion</button>
+      <!-- Logo = lien retour accueil -->
+      <a href="index.html" class="admin-nav-logo">In Tenebris</a>
+
+      <!-- Liens vers les sections du site, comme dans la nav principale -->
+      <ul class="admin-nav-links">
+        <li><a href="index.html#about">L'Atelier</a></li>
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="Galerie/Galerie.html">Galerie</a></li>
+        <li><a href="Artiste/Artistes.html">Artistes</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+
+      <!-- Partie droite : badge + déconnexion -->
+      <div class="admin-nav-right">
+        <span class="admin-nav-info">✦ Admin ✦</span>
+        <button id="btnLogout" onclick="logout()">✕ Déconnexion</button>
+      </div>
     </div>
 
     <div style="padding: 2rem; max-width: 1200px; margin: 0 auto;">
@@ -658,15 +789,13 @@
       <span class="section-label">✦ Publier de nouvelles photos</span>
       <h2 class="section-title">Ajouter à la Galerie</h2>
 
-      <!-- Zone de dépôt -->
-      <!-- Clique dessus ou glisse tes images directement -->
+      <!-- Zone de dépôt — clique ou glisse des images -->
       <div id="dropZone" onclick="document.getElementById('fileInput').click()">
         <div class="drop-icon">☩</div>
         <div class="drop-text">Glisse tes photos ici ou clique pour sélectionner</div>
         <div class="drop-subtext">JPG, PNG, WEBP — plusieurs fichiers acceptés</div>
       </div>
 
-      <!-- Input file invisible, déclenché par le clic sur la zone -->
       <input
         type="file"
         id="fileInput"
@@ -675,10 +804,8 @@
         onchange="handleFiles(this.files)"
       />
 
-      <!-- Liste des photos sélectionnées, en attente d'upload -->
       <div id="pendingList"></div>
 
-      <!-- Bouton "Tout publier" — visible seulement quand des fichiers sont en attente -->
       <div id="publishAllWrap">
         <button class="btn-primary" id="btnPublishAll" onclick="publishAll()">
           <span id="publishAllText">✦ Publier toutes les photos ✦</span>
@@ -693,13 +820,36 @@
           <span class="section-label">✦ Photos actuellement en ligne</span>
           <h2 class="section-title">Galerie existante</h2>
         </div>
-        <!-- Bouton pour rafraîchir la liste -->
         <button class="btn-secondary" onclick="loadExisting()">↺ Rafraîchir</button>
       </div>
 
-      <!-- Zone de chargement et grille des photos existantes -->
       <div id="existingLoading">Chargement de la galerie…</div>
       <div id="existingGrid"></div>
+
+      <hr class="dark-sep"/>
+
+      <!-- ─── SECTION 3 : DESSINS CLIENTS ─────────────────────────────
+           Ces images sont envoyées par les clients via le formulaire de RDV.
+           Elles sont stockées dans /dessins/ sur GitHub.
+           Elles NE sont PAS visibles sur le site public.
+           Le nom du fichier = numéro de téléphone avec les 2 derniers chiffres masqués.
+      ──────────────────────────────────────────────────────────────── -->
+      <div class="existing-header">
+        <div>
+          <span class="section-label">✦ Références visuelles clients</span>
+          <h2 class="section-title">Dessins Clients</h2>
+        </div>
+        <button class="btn-secondary" onclick="loadDessins()">↺ Rafraîchir</button>
+      </div>
+
+      <p style="font-style:italic; color:rgba(168,168,168,0.4); font-size:0.85rem; margin-bottom:1.5rem;">
+        Images envoyées par les clients lors de leur demande de RDV.
+        Le nom du fichier affiche le numéro de téléphone partiellement masqué.
+        Ces images ne sont visibles que depuis ce panneau.
+      </p>
+
+      <div id="dessinsLoading" style="display:none;">Chargement des dessins…</div>
+      <div id="dessinsGrid" class="dessins-grid"></div>
 
     </div>
   </div>
@@ -759,8 +909,9 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').style.display  = 'block';
 
-        // Charge la galerie existante
+        // Charge la galerie existante ET les dessins clients
         loadExisting();
+        loadDessins();
 
       } catch (err) {
         showLoginError('Erreur réseau. Vérifie ta connexion Internet.');
@@ -787,6 +938,7 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').style.display  = 'block';
         loadExisting();
+        loadDessins();
       }
     })();
 
@@ -1268,8 +1420,118 @@
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  NOTIFICATION GLOBALE (toast en bas à droite).
+    //  NOTIFICATION GLOBALE (toast en bas à droite)
     // ═════════════════════════════════════════════════════════════════════
+    // ═════════════════════════════════════════════════════════════════════
+    //  DESSINS CLIENTS
+    //  Charge les images du dossier /dessins/ sur GitHub.
+    //  Ces images ont été envoyées par les clients via le formulaire de RDV.
+    //  Le nom du fichier = téléphone masqué + timestamp (ex: 062497**_1714903200000.jpg)
+    // ═════════════════════════════════════════════════════════════════════
+    async function loadDessins() {
+      const grid    = document.getElementById('dessinsGrid');
+      const loading = document.getElementById('dessinsLoading');
+
+      grid.innerHTML         = '';
+      loading.style.display  = 'block';
+      loading.textContent    = 'Chargement des dessins clients…';
+
+      try {
+        const token  = sessionStorage.getItem('gh_token');
+        const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/dessins`;
+
+        const res = await fetch(apiUrl, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        loading.style.display = 'none';
+
+        // Si le dossier n'existe pas encore (aucun client n'a encore envoyé de dessin)
+        if (res.status === 404) {
+          grid.innerHTML = `<p class="dessins-empty">Aucun dessin client reçu pour le moment.</p>`;
+          return;
+        }
+
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+
+        const files  = await res.json();
+        const images = files.filter(
+          f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
+        );
+
+        if (images.length === 0) {
+          grid.innerHTML = `<p class="dessins-empty">Aucun dessin client reçu pour le moment.</p>`;
+          return;
+        }
+
+        // Trie par date de modification décroissante (plus récent en premier)
+        images.sort((a, b) => b.name.localeCompare(a.name));
+
+        images.forEach(file => {
+          const src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/dessins/${encodeURIComponent(file.name)}`;
+
+          // Extrait le numéro masqué et le timestamp depuis le nom de fichier
+          // Format : "062497**_1714903200000.jpg"
+          const parts    = file.name.replace(/\.[^.]+$/, '').split('_');
+          const maskedTel = parts[0] || '—';
+          const ts        = parseInt(parts[1]);
+          const dateStr   = ts ? new Date(ts).toLocaleDateString('fr-FR', {
+            day: '2-digit', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          }) : '—';
+
+          const card = document.createElement('div');
+          card.className = 'dessin-card';
+          card.innerHTML = `
+            <img src="${src}" alt="Dessin ${maskedTel}" loading="lazy"
+                 onerror="this.style.opacity='0.2'"/>
+            <!-- Bouton supprimer au survol -->
+            <div class="dessin-card-overlay">
+              <button class="btn-danger" onclick="deleteDessin('${file.name}')">✕</button>
+            </div>
+            <div class="dessin-card-info">
+              <div class="dessin-card-tel">✦ ${maskedTel}</div>
+              <div class="dessin-card-date">${dateStr}</div>
+            </div>`;
+
+          grid.appendChild(card);
+        });
+
+      } catch (err) {
+        loading.style.display = 'none';
+        grid.innerHTML = `<p class="dessins-empty" style="color:rgba(192,0,10,0.5);">
+          Erreur : ${err.message}</p>`;
+      }
+    }
+
+    // Supprime un dessin client du dossier /dessins/
+    async function deleteDessin(filename) {
+      if (!confirm(`Supprimer le dessin "${filename}" ?`)) return;
+
+      const token = sessionStorage.getItem('gh_token');
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/dessins/${encodeURIComponent(filename)}`;
+
+      try {
+        const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (!check.ok) throw new Error('Fichier introuvable');
+        const { sha } = await check.json();
+
+        const del = await fetch(url, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `✦ Suppression dessin : ${filename}`, sha }),
+        });
+
+        if (!del.ok) throw new Error(`Erreur ${del.status}`);
+
+        notify(`Dessin "${filename}" supprimé.`, 'success');
+        loadDessins(); // rafraîchit la liste
+
+      } catch (err) {
+        notify('Erreur : ' + err.message, 'error');
+      }
+    }
+
     let notifTimer;
     function notify(message, type = 'success') {
       const el = document.getElementById('globalNotif');
