@@ -567,7 +567,7 @@
       border: 1px solid rgba(139,0,0,0.5);
       color: var(--blood);
       font-size: 1rem;
-      display: none; /* caché par défaut, mis en "flex" par JS si connecté */
+      display: flex; /* toujours visible — mène vers le panneau admin */
       align-items: center;
       justify-content: center;
       cursor: pointer;
@@ -897,11 +897,246 @@
 
   <script>
     // ════════════════════════════════════════════════════════════════════════
-    //  CONFIGURATION GITHUB
-    //  Ces infos sont utilisées pour uploader le dessin du client.
+    //  CONFIGURATION GITHUB (utilisé uniquement par l'admin via admin.html)
     // ════════════════════════════════════════════════════════════════════════
     const GH_OWNER = 'Trolorder';
     const GH_REPO  = 'intenebris.github.io';
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  CLOUDFLARE WORKER — upload des dessins clients
+    //
+    //  Le client n'a pas de token GitHub, donc on passe par ton Worker
+    //  Cloudflare qui lui, possède le token en variable d'environnement sécurisée.
+    //  Le client envoie l'image en base64 → le Worker la pousse sur GitHub.
+    //
+    //  URL de ton Worker :
+    // ════════════════════════════════════════════════════════════════════════
+    const WORKER_URL = 'https://dessins.trolorder.workers.dev/';
+
+    // ── Avis ─────────────────────────────────────────────────────────────────
+    // Comment ajouter un avis : copie un bloc { auteur, note, texte, date }
+    // dans le tableau ci-dessous (avant le dernier "]") et sauvegarde.
+    const avis = [
+      {
+        auteur: "Marie L.",
+        note: 5,
+        texte: "Un travail absolument magnifique, l'artiste a su retranscrire exactement ma vision. L'ambiance du salon est à l'image du tatouage : sombre et envoûtante.",
+        date: "mars 2025"
+      },
+      {
+        auteur: "Thomas R.",
+        note: 5,
+        texte: "Je cherchais quelqu'un capable de faire du blackwork complexe — c'est exactement ce que j'ai trouvé. Précision chirurgicale, résultat époustouflant.",
+        date: "janvier 2025"
+      },
+      {
+        auteur: "Lucie V.",
+        note: 5,
+        texte: "Accueil chaleureux malgré l'ambiance dark du lieu, ce qui est rassurant pour un premier tatouage. Je recommande les yeux fermés.",
+        date: "février 2025"
+      },
+      // ← Ajoute tes avis ici :
+      // { auteur: "Prénom N.", note: 5, texte: "...", date: "avril 2025" },
+    ];
+
+    function renderAvis() {
+      const grid = document.getElementById('avisGrid');
+      avis.forEach(a => {
+        const stars = '★'.repeat(a.note) + '☆'.repeat(5 - a.note);
+        grid.innerHTML += `
+          <div class="avis-card">
+            <div class="avis-quote">"</div>
+            <div class="avis-stars">${stars}</div>
+            <p class="avis-text">${a.texte}</p>
+            <div class="avis-author">${a.auteur}</div>
+            <div class="avis-date">${a.date}</div>
+          </div>`;
+      });
+    }
+    renderAvis();
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  HELPER — convertit un fichier image en base64
+    //  Nécessaire pour l'envoyer au Worker Cloudflare en JSON.
+    // ════════════════════════════════════════════════════════════════════════
+    function fileToDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        // readAsDataURL retourne la chaîne complète "data:image/jpeg;base64,XXX..."
+        // On la garde entière car le Worker Cloudflare retire lui-même le préfixe
+        reader.onload  = e => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  FORMULAIRE — envoi via Formspree + upload image via Cloudflare Worker
+    //
+    //  Flux :
+    //  1. Si le client a joint une image → envoi au Worker Cloudflare
+    //     Le Worker pousse l'image sur GitHub dans /dessins/
+    //     sans que le client n'ait besoin d'un token GitHub.
+    //  2. Le formulaire texte (nom, email, style, projet) part vers Formspree.
+    // ════════════════════════════════════════════════════════════════════════
+    const form      = document.getElementById('rdvForm');
+    const submitBtn = document.getElementById('rdvSubmit');
+    const btnText   = document.getElementById('rdvBtnText');
+    const formMsg   = document.getElementById('formMsg');
+    const formErr   = document.getElementById('formErr');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault(); // empêche le rechargement de page
+
+      formMsg.style.display = 'none';
+      formErr.style.display = 'none';
+      submitBtn.disabled    = true;
+      btnText.textContent   = 'Envoi en cours…';
+
+      try {
+        // ── ÉTAPE 1 : upload du dessin via Cloudflare Worker ──────────────
+        const fileInput = document.getElementById('rdv-fichier');
+        const file      = fileInput?.files[0];
+
+        if (file) {
+          btnText.textContent = 'Upload du dessin…';
+
+          // Masque les 2 derniers chiffres du téléphone (confidentialité)
+          // Ex: "06 24 97 01 55" → espaces supprimés → "0624970155" → "062497015**"
+          const tel       = (document.getElementById('rdv-tel')?.value || '').replace(/\s/g, '');
+          const maskedTel = tel.length >= 3 ? tel.slice(0, -2) + '**' : 'client**';
+
+          // Timestamp pour éviter les doublons de noms de fichier
+          const ext      = file.name.split('.').pop().toLowerCase();
+          const filename = `${maskedTel}_${Date.now()}.${ext}`;
+
+          // Lit l'image en base64 (format "data:image/jpeg;base64,XXX...")
+          const dataUrl = await fileToDataURL(file);
+
+          // Envoie au Worker Cloudflare en JSON
+          // Le Worker retire le préfixe base64 et pousse sur GitHub
+          const workerRes = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image: dataUrl,      // base64 complet avec préfixe data:...
+              filename: filename   // ex: "062497015**_1714903200000.jpg"
+            }),
+          });
+
+          const workerData = await workerRes.json();
+          if (!workerData.success) {
+            // L'upload a échoué mais on n'interrompt pas l'envoi du formulaire
+            // L'artiste ne recevra juste pas le dessin
+            console.warn('Upload dessin échoué :', workerData.error);
+          }
+        }
+
+        // ── ÉTAPE 2 : envoi du formulaire texte via Formspree ─────────────
+        // On ne passe PAS le fichier à Formspree (plan gratuit = pas de pièces jointes)
+        btnText.textContent = 'Envoi du message…';
+        const data = new FormData(form);
+        // Supprime le champ fichier du FormData avant l'envoi à Formspree
+        data.delete('rdv-fichier');
+
+        const response = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (response.ok) {
+          // ✅ Tout s'est bien passé
+          form.reset();
+          formMsg.style.display = 'block';
+          btnText.textContent   = 'Message envoyé ✦';
+        } else {
+          throw new Error('Erreur Formspree');
+        }
+
+      } catch (err) {
+        // ❌ Erreur réseau ou autre
+        console.error('Formulaire erreur:', err);
+        formErr.style.display = 'block';
+        submitBtn.disabled    = false;
+        btnText.textContent   = 'Envoyer le Parchemin';
+      }
+    });
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  SCROLL REVEAL — animation d'apparition des sections au scroll
+    // ════════════════════════════════════════════════════════════════════════
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 100);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  NAV + SCROLL TO TOP
+    // ════════════════════════════════════════════════════════════════════════
+    const nav = document.querySelector('nav');
+    const scrollTopBtn = document.getElementById('scrollTop');
+
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      nav.style.background = y > 80
+        ? 'rgba(8,8,8,0.97)'
+        : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
+      nav.style.borderBottomColor = y > 80
+        ? 'rgba(139,0,0,0.3)'
+        : 'rgba(139,0,0,0.2)';
+      scrollTopBtn.classList.toggle('visible', y > 400);
+    });
+
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  APERÇU GALERIE — 7 photos aléatoires sans doublon depuis GitHub
+    // ════════════════════════════════════════════════════════════════════════
+    (async function loadRandomPreviews() {
+      const REPO_API = 'https://api.github.com/repos/Trolorder/intenebris.github.io/contents/Photos';
+      const RAW_BASE = 'https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/Photos/';
+      const cells    = document.querySelectorAll('#galleryTeaser .gallery-cell');
+      const NB       = cells.length;
+
+      try {
+        const res = await fetch(REPO_API);
+        if (!res.ok) return;
+
+        const files  = await res.json();
+        const images = files.filter(f =>
+          f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
+        );
+        if (images.length === 0) return;
+
+        // Mélange Fisher-Yates — garantit aucun doublon
+        const shuffled = [...images];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        shuffled.slice(0, NB).forEach((file, idx) => {
+          const img   = document.createElement('img');
+          img.alt     = 'Tatouage In Tenebris';
+          img.loading = 'lazy';
+          img.src     = RAW_BASE + encodeURIComponent(file.name);
+          cells[idx].insertBefore(img, cells[idx].firstChild);
+        });
+
+      } catch (err) {
+        console.warn('Aperçu galerie :', err);
+      }
+    })();
+  </script>
+</body>
+</html>
 
     // ════════════════════════════════════════════════════════════════════════
     //  TOKEN D'UPLOAD CLIENT (pour le dossier /dessins/ seulement)
