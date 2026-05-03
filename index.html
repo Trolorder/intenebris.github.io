@@ -28,7 +28,21 @@
       background: var(--black);
       color: var(--bone);
       font-family: 'IM Fell English', Georgia, serif;
-      cursor: default;
+      /* ─── CURSEUR PERSONNALISÉ ─────────────────────────────────────────
+         Actuellement : curseur "crosshair" (croix de visée natif)
+         
+         Pour mettre ta propre image de curseur :
+         1. Trouve un curseur sur cursor.cc ou rw-designer.com (format .png)
+         2. Dépose le fichier cursor.png à la RACINE de ton repo GitHub
+            (au même niveau que index.html)
+         3. Remplace la ligne ci-dessous par :
+            cursor: url('cursor.png') 16 16, crosshair;
+            ↑ chemin    ↑ image       ↑ hotspot    ↑ fallback si l'image charge pas
+         
+         Le "hotspot" 16 16 = coordonnées du point cliquable dans l'image.
+         Si ton image fait 32x32 px, le centre = 16 16. Si elle fait 64x64 = 32 32.
+      ─────────────────────────────────────────────────────────────────── */
+      cursor: crosshair;
       overflow-x: hidden;
     }
 
