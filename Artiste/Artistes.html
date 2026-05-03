@@ -26,10 +26,6 @@
       background: var(--black);
       color: var(--bone);
       font-family: 'IM Fell English', Georgia, serif;
-      /* ─── CURSEUR — même fichier cursor.png que sur index.html ────────
-         Remplace "crosshair" par : url('../cursor.png') 16 16, crosshair
-         Le "../" remonte d'un niveau car Artistes.html est dans /Artiste/
-      ─────────────────────────────────────────────────────────────────── */
       cursor: crosshair;
       overflow-x: hidden;
     }
@@ -338,6 +334,25 @@
     #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
 
+    /* Bouton Admin flottant — bas gauche, visible uniquement si connecté */
+    #adminBtn {
+      position: fixed;
+      bottom: 2.5rem; left: 2rem;
+      z-index: 200;
+      width: 44px; height: 44px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(139,0,0,0.5);
+      color: var(--blood);
+      font-size: 1rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s;
+      text-decoration: none;
+    }
+    #adminBtn:hover { border-color: var(--goldlit); color: var(--goldlit); }
+
     /* ── FOOTER ── */
     footer { background: var(--black); border-top: 1px solid rgba(139,0,0,0.15); padding: 3rem 2rem; text-align: center; }
     .footer-logo { font-family: 'UnifrakturMaguntia', cursive; font-size: 3rem; color: rgba(139,0,0,0.4); margin-bottom: 1rem; }
@@ -379,6 +394,8 @@
   </nav>
 
   <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
+  <!-- Lien vers le panneau admin — visible uniquement si connecté -->
+  <a id="adminBtn" href="../admin.html" title="Panneau Admin" aria-label="Admin">⚙</a>
 
   <!-- HERO -->
   <div class="page-hero">
@@ -519,6 +536,14 @@
 
     // ── Init ──────────────────────────────────────────────────────────────
     renderArtistes();
+
+    // Bouton admin ⚙ — visible seulement si le token admin est en sessionStorage
+    (function checkAdminSession() {
+      if (sessionStorage.getItem('gh_token')) {
+        const btn = document.getElementById('adminBtn');
+        if (btn) btn.style.display = 'flex';
+      }
+    })();
   </script>
 </body>
 </html>
