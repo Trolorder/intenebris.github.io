@@ -477,6 +477,50 @@
     #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
 
+    /* Bouton Admin flottant — bas gauche, visible uniquement si connecté */
+    #adminBtn {
+      position: fixed;
+      bottom: 2.5rem; left: 2rem;
+      z-index: 200;
+      width: 44px; height: 44px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(139,0,0,0.5);
+      color: var(--blood);
+      font-size: 1rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 0.3s, color 0.3s;
+      text-decoration: none;
+    }
+    #adminBtn:hover { border-color: var(--goldlit); color: var(--goldlit); }
+
+    /* ── BOUTON SUPPRIMER PHOTO (admin uniquement) ──────────────────────
+       Affiché au survol de chaque image, visible seulement si connecté.
+       display:none par défaut, passé à flex par JS si token présent.
+    ─────────────────────────────────────────────────────────────────── */
+    .gallery-delete-btn {
+      position: absolute;
+      top: 0.4rem; right: 0.4rem;
+      z-index: 10;
+      display: none; /* caché par défaut */
+      font-family: 'Cinzel', serif;
+      font-size: 0.5rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: rgba(192,0,10,0.8);
+      background: rgba(8,8,8,0.85);
+      border: 1px solid rgba(192,0,10,0.4);
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      transition: all 0.25s;
+      opacity: 0;
+    }
+
+    .gallery-item:hover .gallery-delete-btn { opacity: 1; }
+    .gallery-delete-btn:hover { background: rgba(192,0,10,0.2); border-color: var(--blood); color: var(--blood); }
+
     /* ── ANIMATIONS ── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -508,6 +552,7 @@
 
   <!-- Bouton retour en haut -->
   <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
+  <a id="adminBtn" href="../admin.html" title="Panneau Admin" aria-label="Admin">⚙</a>
 
   <!-- HERO -->
   <div class="gallery-hero">
@@ -645,6 +690,8 @@
       if (item.src) {
         div.innerHTML = `
           <img src="${item.src}" alt="${item.title}" loading="lazy"/>
+          <!-- Bouton supprimer — visible seulement pour l'admin (géré par JS) -->
+          <button class="gallery-delete-btn" onclick="adminDeletePhoto(event, '${item.src}')">✕ Supprimer</button>
           <div class="gallery-item-overlay">
             <span class="overlay-tag">${label}</span>
             <span class="overlay-title">${item.title}</span>
@@ -783,6 +830,13 @@
     });
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
+    // ── Scroll to top ─────────────────────────────────────────────────────
+    const scrollTopBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
     // ════════════════════════════════════════════════════════════════════════
     //  CHARGEMENT DYNAMIQUE DEPUIS GITHUB
     //
@@ -866,6 +920,124 @@
 
     // ── Init — loadPhotos() au lieu de renderAll() car allItems est vide au départ ──
     loadPhotos();
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  ADMIN — Bouton flottant + suppression de photos
+    //  Tout est conditionné à la présence du token en sessionStorage.
+    //  Si l'admin n'est pas connecté : rien n'apparaît, rien ne fonctionne.
+    // ════════════════════════════════════════════════════════════════════════
+    const GH_OWNER = 'Trolorder';
+    const GH_REPO  = 'intenebris.github.io';
+
+    // Affiche le bouton admin et les boutons supprimer si connecté
+    (function checkAdminSession() {
+      if (!sessionStorage.getItem('gh_token')) return;
+
+      // Affiche le bouton ⚙ en bas à gauche
+      const btn = document.getElementById('adminBtn');
+      if (btn) btn.style.display = 'flex';
+
+      // Active tous les boutons supprimer (qui sont display:none par défaut)
+      // On utilise une MutationObserver pour aussi gérer les items chargés en async
+      function showDeleteBtns() {
+        document.querySelectorAll('.gallery-delete-btn').forEach(b => {
+          b.style.display = 'block';
+        });
+      }
+
+      showDeleteBtns(); // pour les items déjà rendus
+
+      // Observer pour les items ajoutés après le chargement async
+      const mo = new MutationObserver(showDeleteBtns);
+      mo.observe(document.getElementById('galleryGrid'), { childList: true, subtree: true });
+    })();
+
+    // Supprime une photo : retire du repo GitHub + met à jour photos-meta.json
+    async function adminDeletePhoto(e, srcUrl) {
+      e.stopPropagation(); // empêche l'ouverture du lightbox
+
+      const token = sessionStorage.getItem('gh_token');
+      if (!token) return;
+
+      // Extrait le nom du fichier depuis l'URL raw GitHub
+      // ex: ".../main/Photos/mon-tatoo.jpg" → "mon-tatoo.jpg"
+      const filename = decodeURIComponent(srcUrl.split('/Photos/').pop());
+
+      if (!confirm(`Supprimer définitivement "${filename}" de la galerie ?`)) return;
+
+      try {
+        const path = `Photos/${filename}`;
+        const url  = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+
+        // Récupère le SHA du fichier (obligatoire pour supprimer sur GitHub)
+        const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (!check.ok) throw new Error('Fichier introuvable sur GitHub');
+        const { sha } = await check.json();
+
+        // Supprime le fichier
+        const del = await fetch(url, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `✦ Suppression : ${filename}`, sha }),
+        });
+        if (!del.ok) throw new Error(`Erreur suppression (${del.status})`);
+
+        // Retire aussi l'entrée dans photos-meta.json
+        await removeFromMeta(filename, token);
+
+        // Retire l'item du tableau allItems et re-affiche la galerie
+        allItems = allItems.filter(it => !it.src.includes(encodeURIComponent(filename)));
+        shownCount = 0;
+        grid.innerHTML = '';
+        renderAll();
+
+        // Mini notification de succès
+        showToast(`"${filename}" supprimée ✦`);
+
+      } catch (err) {
+        showToast('Erreur : ' + err.message, true);
+      }
+    }
+
+    // Retire une entrée de photos-meta.json après suppression
+    async function removeFromMeta(filename, token) {
+      const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/photos-meta.json`;
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (!res.ok) return;
+        const data    = await res.json();
+        const meta    = JSON.parse(atob(data.content.replace(/\n/g, '')));
+        delete meta[filename];
+        const b64 = btoa(unescape(encodeURIComponent(JSON.stringify(meta, null, 2))));
+        await fetch(url, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `✦ Suppression meta : ${filename}`, content: b64, sha: data.sha }),
+        });
+      } catch {} // non bloquant
+    }
+
+    // Mini toast de notification en bas de page
+    function showToast(msg, isError = false) {
+      let t = document.getElementById('adminToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'adminToast';
+        t.style.cssText = `
+          position:fixed; bottom:5rem; right:2rem; z-index:500;
+          padding:0.8rem 1.2rem;
+          font-family:'Cinzel',serif; font-size:0.6rem; letter-spacing:2px;
+          border:1px solid; transition:opacity 0.3s;`;
+        document.body.appendChild(t);
+      }
+      t.textContent    = msg;
+      t.style.background  = isError ? 'rgba(100,10,10,0.95)' : 'rgba(8,8,8,0.95)';
+      t.style.borderColor = isError ? 'rgba(192,0,10,0.5)'   : 'rgba(139,0,0,0.5)';
+      t.style.color       = isError ? '#f0a0a0' : 'var(--goldlit)';
+      t.style.opacity  = '1';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.style.opacity = '0'; }, 3500);
+    }
   </script>
 </body>
 </html>
