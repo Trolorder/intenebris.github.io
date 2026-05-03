@@ -552,27 +552,25 @@
     #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
     #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
 
-    /* ─── BOUTON ADMIN FLOTTANT ─────────────────────────────────────────
-       Visible uniquement quand l'admin est connecté (token dans sessionStorage).
-       En bas à gauche pour ne pas gêner le bouton "remonter" (bas à droite).
+    /* ─── BOUTON ADMIN ⚙ FLOTTANT ────────────────────────────────────────
+       Toujours visible sur toutes les pages.
+       Mène vers admin.html où le token GitHub est demandé.
+       Sans token = accès refusé au panneau, donc pas de risque.
     ─────────────────────────────────────────────────────────────────── */
     #adminBtn {
       position: fixed;
-      bottom: 2.5rem;
-      left: 2rem;
+      bottom: 2.5rem; left: 2rem;
       z-index: 200;
-      width: 44px;
-      height: 44px;
+      width: 44px; height: 44px;
       background: rgba(8,8,8,0.9);
       border: 1px solid rgba(139,0,0,0.5);
       color: var(--blood);
       font-size: 1rem;
-      display: flex; /* toujours visible — mène vers le panneau admin */
+      display: flex; /* toujours visible */
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      transition: border-color 0.3s, color 0.3s;
       text-decoration: none;
+      transition: border-color 0.3s, color 0.3s;
     }
     #adminBtn:hover { border-color: var(--goldlit); color: var(--goldlit); }
 
@@ -619,8 +617,8 @@
 
   <button id="scrollTop" title="Retour en haut" aria-label="Retour en haut">&#8679;</button>
 
-  <!-- Bouton Admin flottant — n'apparaît que si l'admin est connecté -->
-  <a id="adminBtn" href="admin.html" title="Panneau Administrateur" aria-label="Admin">⚙</a>
+  <!-- Bouton ⚙ admin — toujours visible, mène vers le panneau admin -->
+  <a id="adminBtn" href="admin.html" title="Panneau Admin" aria-label="Admin">⚙</a>
 
   <section class="hero">
     <div class="hero-bg"></div>
@@ -771,7 +769,10 @@
               <div class="contact-item-label">Adresse</div>
               <div class="contact-item-value">20 Rue du Général Leclerc<br>76000 Rouen</div>
             </div>
-             
+            <div class="contact-item">
+              <div class="contact-item-label">Téléphone</div>
+              <div class="contact-item-value"><a href="tel:+33624970155">06 24 97 01 55</a></div>
+            </div>
             <div class="contact-item">
               <div class="contact-item-label">Instagram</div>
               <div class="contact-item-value"><a href="https://instagram.com/grimm.tattoo.artist" target="_blank">@grimm.tattoo.artist</a></div>
@@ -799,7 +800,7 @@
           <form
             id="rdvForm"
             class="contact-form"
-            action="hhttps://formspree.io/f/mykoegky"
+            action="https://formspree.io/f/xwvyvkog"
             method="POST"
           >
             <div class="form-field">
@@ -836,15 +837,14 @@
               <textarea id="rdv-projet" name="projet" placeholder="Décrivez votre vision, la zone du corps, la taille approximative..." required></textarea>
             </div>
 
-            <!-- ─────────────────────────────────────────────────────────
-                 UPLOAD IMAGE CLIENT
-                 Le fichier est envoyé directement sur GitHub (dossier /dessins/).
-                 Il NE passe PAS par Formspree (plan gratuit = pas de pièces jointes).
-                 L'artiste le retrouve dans le panneau Admin.
-                 Nom du fichier = téléphone avec les 2 derniers chiffres masqués (**).
-            ──────────────────────────────────────────────────────────── -->
+            <!-- ─────────────────────────────────────────────────────────────
+                 RÉFÉRENCE VISUELLE — upload optionnel pour le client
+                 L'image est envoyée vers /dessins/ sur GitHub via un Worker
+                 Cloudflare. Le client n'a pas besoin de compte GitHub.
+                 Visible uniquement dans le panneau admin.
+            ──────────────────────────────────────────────────────────────── -->
             <div class="form-field">
-              <label for="rdv-fichier">Votre référence visuelle (optionnel)</label>
+              <label for="rdv-fichier">Référence visuelle (optionnel)</label>
               <input
                 id="rdv-fichier"
                 type="file"
@@ -855,17 +855,19 @@
               </small>
             </div>
 
-            <!-- Champ honeypot anti-spam (invisible) -->
+            <!-- Champ honeypot anti-spam (invisible pour les humains) -->
             <input type="text" name="_gotcha" style="display:none"/>
 
             <button type="submit" class="btn-submit" id="rdvSubmit">
               <span id="rdvBtnText">Envoyer le Parchemin</span>
             </button>
 
+            <!-- Message de confirmation (apparaît après envoi réussi) -->
             <div id="formMsg">
               ✦ Votre message a traversé les ténèbres — nous reviendrons vers vous bientôt. ✦
             </div>
 
+            <!-- Message d'erreur (apparaît en cas de problème) -->
             <div id="formErr">
               Une ombre a perturbé l'envoi. Veuillez réessayer ou nous contacter directement par téléphone.
             </div>
@@ -894,25 +896,11 @@
 
   <script>
     // ════════════════════════════════════════════════════════════════════════
-    //  CONFIGURATION GITHUB (utilisé uniquement par l'admin via admin.html)
+    // AVIS — Comment ajouter un avis :
+    //   1. Copie un bloc { auteur, note, texte, date }
+    //   2. Colle-le dans le tableau ci-dessous (avant le dernier "]")
+    //   3. Sauvegarde → l'avis apparaît automatiquement
     // ════════════════════════════════════════════════════════════════════════
-    const GH_OWNER = 'Trolorder';
-    const GH_REPO  = 'intenebris.github.io';
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  CLOUDFLARE WORKER — upload des dessins clients
-    //
-    //  Le client n'a pas de token GitHub, donc on passe par ton Worker
-    //  Cloudflare qui lui, possède le token en variable d'environnement sécurisée.
-    //  Le client envoie l'image en base64 → le Worker la pousse sur GitHub.
-    //
-    //  URL de ton Worker :
-    // ════════════════════════════════════════════════════════════════════════
-    const WORKER_URL = 'https://dessins.trolorder.workers.dev/';
-
-    // ── Avis ─────────────────────────────────────────────────────────────────
-    // Comment ajouter un avis : copie un bloc { auteur, note, texte, date }
-    // dans le tableau ci-dessous (avant le dernier "]") et sauvegarde.
     const avis = [
       {
         auteur: "Marie L.",
@@ -933,7 +921,12 @@
         date: "février 2025"
       },
       // ← Ajoute tes avis ici :
-      // { auteur: "Prénom N.", note: 5, texte: "...", date: "avril 2025" },
+      // {
+      //   auteur: "Prénom N.",
+      //   note: 5,
+      //   texte: "Texte de l'avis...",
+      //   date: "avril 2025"
+      // },
     ];
 
     function renderAvis() {
@@ -953,29 +946,22 @@
     renderAvis();
 
     // ════════════════════════════════════════════════════════════════════════
-    //  HELPER — convertit un fichier image en base64
-    //  Nécessaire pour l'envoyer au Worker Cloudflare en JSON.
-    // ════════════════════════════════════════════════════════════════════════
-    function fileToDataURL(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        // readAsDataURL retourne la chaîne complète "data:image/jpeg;base64,XXX..."
-        // On la garde entière car le Worker Cloudflare retire lui-même le préfixe
-        reader.onload  = e => resolve(e.target.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  FORMULAIRE — envoi via Formspree + upload image via Cloudflare Worker
+    //  FORMULAIRE — Cloudflare Worker (image) + Formspree (texte)
     //
-    //  Flux :
-    //  1. Si le client a joint une image → envoi au Worker Cloudflare
-    //     Le Worker pousse l'image sur GitHub dans /dessins/
-    //     sans que le client n'ait besoin d'un token GitHub.
-    //  2. Le formulaire texte (nom, email, style, projet) part vers Formspree.
+    //  Flux complet quand le client clique "Envoyer le Parchemin" :
+    //  1. Si une image est sélectionnée :
+    //     → Elle est lue en base64 dans le navigateur
+    //     → Envoyée en JSON à ton Worker Cloudflare (https://dessins.trolorder.workers.dev/)
+    //     → Le Worker la pousse dans /dessins/ sur GitHub avec son propre token
+    //       (le client n'a JAMAIS accès au token GitHub)
+    //     → Nom du fichier = téléphone masqué + timestamp (ex: 062497015**_1714903200.jpg)
+    //  2. Le formulaire texte (nom, email, style, projet) part vers Formspree
+    //     sans le fichier (plan gratuit = pas de pièces jointes)
     // ════════════════════════════════════════════════════════════════════════
+
+    // URL de ton Worker Cloudflare — ne change pas sauf si tu redéploies le Worker
+    const WORKER_URL = 'https://dessins.trolorder.workers.dev/';
+
     const form      = document.getElementById('rdvForm');
     const submitBtn = document.getElementById('rdvSubmit');
     const btnText   = document.getElementById('rdvBtnText');
@@ -991,49 +977,56 @@
       btnText.textContent   = 'Envoi en cours…';
 
       try {
-        // ── ÉTAPE 1 : upload du dessin via Cloudflare Worker ──────────────
+        // ── ÉTAPE 1 : upload de l'image via le Worker Cloudflare ──────────
         const fileInput = document.getElementById('rdv-fichier');
-        const file      = fileInput?.files[0];
+        const file      = fileInput?.files[0]; // undefined si rien sélectionné
 
         if (file) {
-          btnText.textContent = 'Upload du dessin…';
+          btnText.textContent = 'Envoi du dessin…';
 
-          // Masque les 2 derniers chiffres du téléphone (confidentialité)
-          // Ex: "06 24 97 01 55" → espaces supprimés → "0624970155" → "062497015**"
+          // Lit l'image et la convertit en base64 (format "data:image/jpeg;base64,XXX")
+          // Le Worker retire lui-même le préfixe "data:...;base64," côté serveur
+          const dataUrl = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload  = e => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          });
+
+          // Masque les 2 derniers chiffres du téléphone pour la confidentialité
+          // "06 24 97 01 55" → retire espaces → "0624970155" → "062497015**"
           const tel       = (document.getElementById('rdv-tel')?.value || '').replace(/\s/g, '');
           const maskedTel = tel.length >= 3 ? tel.slice(0, -2) + '**' : 'client**';
 
-          // Timestamp pour éviter les doublons de noms de fichier
+          // Timestamp = évite les doublons si 2 clients ont le même numéro
           const ext      = file.name.split('.').pop().toLowerCase();
           const filename = `${maskedTel}_${Date.now()}.${ext}`;
 
-          // Lit l'image en base64 (format "data:image/jpeg;base64,XXX...")
-          const dataUrl = await fileToDataURL(file);
-
-          // Envoie au Worker Cloudflare en JSON
-          // Le Worker retire le préfixe base64 et pousse sur GitHub
+          // Envoie au Worker — le Worker gère tout le reste (GitHub API, token, etc.)
           const workerRes = await fetch(WORKER_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              image: dataUrl,      // base64 complet avec préfixe data:...
-              filename: filename   // ex: "062497015**_1714903200000.jpg"
+              image: dataUrl,    // base64 complet avec le préfixe data:...
+              filename: filename // ex: "062497015**_1714903200000.jpg"
             }),
           });
 
-          const workerData = await workerRes.json();
-          if (!workerData.success) {
-            // L'upload a échoué mais on n'interrompt pas l'envoi du formulaire
-            // L'artiste ne recevra juste pas le dessin
-            console.warn('Upload dessin échoué :', workerData.error);
+          const workerJson = await workerRes.json().catch(() => ({ success: false }));
+
+          if (!workerJson.success) {
+            // Upload raté — on continue quand même l'envoi du formulaire texte
+            // L'artiste ne reçoit juste pas le dessin, mais le RDV est pris
+            console.warn('Upload dessin échoué :', workerJson.error);
           }
         }
 
         // ── ÉTAPE 2 : envoi du formulaire texte via Formspree ─────────────
-        // On ne passe PAS le fichier à Formspree (plan gratuit = pas de pièces jointes)
         btnText.textContent = 'Envoi du message…';
+
+        // FormData capture tous les champs du formulaire
         const data = new FormData(form);
-        // Supprime le champ fichier du FormData avant l'envoi à Formspree
+        // On retire le fichier — Formspree gratuit ne gère pas les pièces jointes
         data.delete('rdv-fichier');
 
         const response = await fetch(form.action, {
@@ -1061,7 +1054,7 @@
     });
 
     // ════════════════════════════════════════════════════════════════════════
-    //  SCROLL REVEAL — animation d'apparition des sections au scroll
+    // Scroll reveal
     // ════════════════════════════════════════════════════════════════════════
     const reveals = document.querySelectorAll('.reveal');
     const observer = new IntersectionObserver((entries) => {
@@ -1074,335 +1067,69 @@
     }, { threshold: 0.1 });
     reveals.forEach(el => observer.observe(el));
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  NAV + SCROLL TO TOP
-    // ════════════════════════════════════════════════════════════════════════
+    // Nav + scroll to top
     const nav = document.querySelector('nav');
     const scrollTopBtn = document.getElementById('scrollTop');
 
     window.addEventListener('scroll', () => {
       const y = window.scrollY;
-      nav.style.background = y > 80
-        ? 'rgba(8,8,8,0.97)'
-        : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
-      nav.style.borderBottomColor = y > 80
-        ? 'rgba(139,0,0,0.3)'
-        : 'rgba(139,0,0,0.2)';
+      nav.style.background = y > 80 ? 'rgba(8,8,8,0.97)' : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
+      nav.style.borderBottomColor = y > 80 ? 'rgba(139,0,0,0.3)' : 'rgba(139,0,0,0.2)';
       scrollTopBtn.classList.toggle('visible', y > 400);
     });
 
     scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 
     // ════════════════════════════════════════════════════════════════════════
-    //  APERÇU GALERIE — 7 photos aléatoires sans doublon depuis GitHub
+    // APERÇU GALERIE — 7 photos aléatoires sans doublon depuis GitHub
     // ════════════════════════════════════════════════════════════════════════
     (async function loadRandomPreviews() {
-      const REPO_API = 'https://api.github.com/repos/Trolorder/intenebris.github.io/contents/Photos';
-      const RAW_BASE = 'https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/Photos/';
-      const cells    = document.querySelectorAll('#galleryTeaser .gallery-cell');
-      const NB       = cells.length;
+      const REPO_API  = 'https://api.github.com/repos/Trolorder/intenebris.github.io/contents/Photos';
+      const RAW_BASE  = 'https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/Photos/';
+      const cells     = document.querySelectorAll('#galleryTeaser .gallery-cell');
+      const NB        = cells.length; // 7
 
       try {
-        const res = await fetch(REPO_API);
-        if (!res.ok) return;
+        const res  = await fetch(REPO_API);
+        if (!res.ok) return; // si l'API est indisponible on garde les placeholders rune
 
-        const files  = await res.json();
+        const files = await res.json();
+
+        // Garde uniquement les images (jpg, jpeg, png, webp, gif)
         const images = files.filter(f =>
           f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
         );
+
         if (images.length === 0) return;
 
-        // Mélange Fisher-Yates — garantit aucun doublon
+        // Mélange Fisher-Yates pour garantir aucun doublon
         const shuffled = [...images];
         for (let i = shuffled.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
           [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
 
-        shuffled.slice(0, NB).forEach((file, idx) => {
-          const img   = document.createElement('img');
+        // Prend les N premières (N = nombre de cellules)
+        const picked = shuffled.slice(0, NB);
+
+        // Injecte chaque image dans sa cellule
+        picked.forEach((file, idx) => {
+          const cell = cells[idx];
+          const url  = RAW_BASE + encodeURIComponent(file.name);
+
+          // Crée l'image
+          const img = document.createElement('img');
           img.alt     = 'Tatouage In Tenebris';
           img.loading = 'lazy';
-          img.src     = RAW_BASE + encodeURIComponent(file.name);
-          cells[idx].insertBefore(img, cells[idx].firstChild);
+          img.src     = url;
+
+          // Insère l'image avant la rune (qui reste en fallback visuel)
+          cell.insertBefore(img, cell.firstChild);
         });
 
       } catch (err) {
-        console.warn('Aperçu galerie :', err);
-      }
-    })();
-  </script>
-</body>
-</html>
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  TOKEN D'UPLOAD CLIENT (pour le dossier /dessins/ seulement)
-    //
-    //  !! Ce token est visible dans le code source de la page !!
-    //  Pour limiter les risques :
-    //  1. Va sur GitHub → Settings → Developer settings → Fine-grained tokens
-    //  2. New token → sélectionne UNIQUEMENT ce repo
-    //  3. Permissions → "Contents" → "Read and Write" UNIQUEMENT
-    //  4. Colle le token ci-dessous entre les guillemets
-    //  5. Tu peux le regénérer si besoin sans toucher au reste du site
-    //
-    //  Le pire qu'un utilisateur malveillant peut faire avec ce token :
-    //  uploader des fichiers dans /dessins/ — pas toucher aux autres fichiers.
-    // ════════════════════════════════════════════════════════════════════════
-    const DESSINS_TOKEN = 'REMPLACE_PAR_TON_TOKEN_UPLOAD';
-
-    // ── Avis ─────────────────────────────────────────────────────────────────
-    // Comment ajouter un avis : copie un bloc { auteur, note, texte, date }
-    // dans le tableau ci-dessous (avant le dernier "]") et sauvegarde.
-    const avis = [
-      {
-        auteur: "Marie L.",
-        note: 5,
-        texte: "Un travail absolument magnifique, l'artiste a su retranscrire exactement ma vision. L'ambiance du salon est à l'image du tatouage : sombre et envoûtante.",
-        date: "mars 2025"
-      },
-      {
-        auteur: "Thomas R.",
-        note: 5,
-        texte: "Je cherchais quelqu'un capable de faire du blackwork complexe — c'est exactement ce que j'ai trouvé. Précision chirurgicale, résultat époustouflant.",
-        date: "janvier 2025"
-      },
-      {
-        auteur: "Lucie V.",
-        note: 5,
-        texte: "Accueil chaleureux malgré l'ambiance dark du lieu, ce qui est rassurant pour un premier tatouage. Je recommande les yeux fermés.",
-        date: "février 2025"
-      },
-      // ← Ajoute tes avis ici :
-      // { auteur: "Prénom N.", note: 5, texte: "...", date: "avril 2025" },
-    ];
-
-    function renderAvis() {
-      const grid = document.getElementById('avisGrid');
-      avis.forEach(a => {
-        const stars = '★'.repeat(a.note) + '☆'.repeat(5 - a.note);
-        grid.innerHTML += `
-          <div class="avis-card">
-            <div class="avis-quote">"</div>
-            <div class="avis-stars">${stars}</div>
-            <p class="avis-text">${a.texte}</p>
-            <div class="avis-author">${a.auteur}</div>
-            <div class="avis-date">${a.date}</div>
-          </div>`;
-      });
-    }
-    renderAvis();
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  HELPERS — utilisés par le formulaire de contact
-    // ════════════════════════════════════════════════════════════════════════
-
-    // Convertit un fichier image en chaîne base64 (format requis par l'API GitHub)
-    function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        // readAsDataURL retourne "data:image/jpeg;base64,XXXX..."
-        // On retire le préfixe "data:...;base64," pour n'avoir que le base64 pur
-        reader.onload  = e => resolve(e.target.result.split(',')[1]);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Envoie un fichier sur GitHub via l'API (crée ou écrase le fichier)
-    async function githubPutFile(path, base64Content, commitMessage, token) {
-      const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
-
-      // On vérifie si le fichier existe déjà pour récupérer son SHA
-      // (le SHA est obligatoire pour modifier un fichier existant sur GitHub)
-      let sha;
-      try {
-        const check = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        if (check.ok) {
-          const data = await check.json();
-          sha = data.sha;
-        }
-      } catch {} // le fichier n'existe pas encore → sha reste undefined → création
-
-      const body = { message: commitMessage, content: base64Content };
-      if (sha) body.sha = sha; // nécessaire seulement pour une mise à jour
-
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || `GitHub API ${res.status}`);
-      }
-      return res.json();
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  FORMULAIRE — envoi via Formspree + upload image sur GitHub
-    // ════════════════════════════════════════════════════════════════════════
-    const form      = document.getElementById('rdvForm');
-    const submitBtn = document.getElementById('rdvSubmit');
-    const btnText   = document.getElementById('rdvBtnText');
-    const formMsg   = document.getElementById('formMsg');
-    const formErr   = document.getElementById('formErr');
-
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault(); // empêche le rechargement de page
-
-      formMsg.style.display = 'none';
-      formErr.style.display = 'none';
-      submitBtn.disabled    = true;
-      btnText.textContent   = 'Envoi en cours…';
-
-      try {
-        // ── ÉTAPE 1 : upload du dessin sur GitHub (si fichier sélectionné) ──
-        const fileInput = document.getElementById('rdv-fichier');
-        const file      = fileInput?.files[0];
-
-        if (file && DESSINS_TOKEN !== 'REMPLACE_PAR_TON_TOKEN_UPLOAD') {
-          btnText.textContent = 'Upload du dessin…';
-
-          // Masque les 2 derniers chiffres du téléphone pour la confidentialité
-          // Ex: 0624970155 → 062497015** | si pas de tel → "inconnu**"
-          const tel       = (document.getElementById('rdv-tel')?.value || '').replace(/\s/g, '');
-          const maskedTel = tel.length >= 3
-            ? tel.slice(0, -2) + '**'
-            : 'client**';
-
-          // Ajoute un timestamp pour éviter les doublons de noms de fichier
-          const timestamp = Date.now();
-          const ext       = file.name.split('.').pop().toLowerCase();
-          const filename  = `${maskedTel}_${timestamp}.${ext}`;
-
-          // Convertit et envoie sur GitHub dans /dessins/
-          const base64 = await fileToBase64(file);
-          await githubPutFile(
-            `dessins/${filename}`,
-            base64,
-            `✦ Dessin client : ${maskedTel}`,
-            DESSINS_TOKEN
-          );
-        }
-
-        // ── ÉTAPE 2 : envoi du formulaire texte via Formspree ─────────────
-        // On enlève le fichier du FormData (Formspree gratuit = pas de pièces jointes)
-        btnText.textContent = 'Envoi du message…';
-        const data = new FormData(form);
-        data.delete('rdv-fichier'); // on ne passe pas le fichier à Formspree
-
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: data,
-          headers: { 'Accept': 'application/json' }
-        });
-
-        if (response.ok) {
-          // ✅ Tout s'est bien passé
-          form.reset();
-          formMsg.style.display = 'block';
-          btnText.textContent   = 'Message envoyé ✦';
-        } else {
-          throw new Error('Erreur Formspree');
-        }
-
-      } catch (err) {
-        // ❌ Erreur lors de l'upload ou de l'envoi Formspree
-        console.error('Formulaire erreur:', err);
-        formErr.style.display = 'block';
-        submitBtn.disabled    = false;
-        btnText.textContent   = 'Envoyer le Parchemin';
-      }
-    });
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  SCROLL REVEAL — animation d'apparition des sections au scroll
-    // ════════════════════════════════════════════════════════════════════════
-    const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry, i) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => entry.target.classList.add('visible'), i * 100);
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    reveals.forEach(el => observer.observe(el));
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  NAV + SCROLL TO TOP
-    // ════════════════════════════════════════════════════════════════════════
-    const nav = document.querySelector('nav');
-    const scrollTopBtn = document.getElementById('scrollTop');
-
-    window.addEventListener('scroll', () => {
-      const y = window.scrollY;
-      nav.style.background = y > 80
-        ? 'rgba(8,8,8,0.97)'
-        : 'linear-gradient(to bottom, rgba(8,8,8,0.97), transparent)';
-      nav.style.borderBottomColor = y > 80
-        ? 'rgba(139,0,0,0.3)'
-        : 'rgba(139,0,0,0.2)';
-      scrollTopBtn.classList.toggle('visible', y > 400);
-    });
-
-    scrollTopBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  BOUTON ADMIN — visible seulement si l'admin est connecté
-    //  Le token est stocké en sessionStorage lors de la connexion sur admin.html.
-    //  Il disparaît automatiquement à la fermeture du navigateur.
-    // ════════════════════════════════════════════════════════════════════════
-    (function checkAdminSession() {
-      if (sessionStorage.getItem('gh_token')) {
-        const btn = document.getElementById('adminBtn');
-        if (btn) btn.style.display = 'flex';
-      }
-    })();
-
-    // ════════════════════════════════════════════════════════════════════════
-    //  APERÇU GALERIE — 7 photos aléatoires sans doublon depuis GitHub
-    // ════════════════════════════════════════════════════════════════════════
-    (async function loadRandomPreviews() {
-      const REPO_API = 'https://api.github.com/repos/Trolorder/intenebris.github.io/contents/Photos';
-      const RAW_BASE = 'https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/Photos/';
-      const cells    = document.querySelectorAll('#galleryTeaser .gallery-cell');
-      const NB       = cells.length; // 7
-
-      try {
-        const res = await fetch(REPO_API);
-        if (!res.ok) return;
-
-        const files  = await res.json();
-        const images = files.filter(f =>
-          f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
-        );
-        if (images.length === 0) return;
-
-        // Mélange Fisher-Yates — garantit aucun doublon
-        const shuffled = [...images];
-        for (let i = shuffled.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-        }
-
-        shuffled.slice(0, NB).forEach((file, idx) => {
-          const img   = document.createElement('img');
-          img.alt     = 'Tatouage In Tenebris';
-          img.loading = 'lazy';
-          img.src     = RAW_BASE + encodeURIComponent(file.name);
-          cells[idx].insertBefore(img, cells[idx].firstChild);
-        });
-
-      } catch (err) {
-        console.warn('Aperçu galerie :', err);
+        // En cas d'erreur réseau on garde les placeholders rune — pas de crash
+        console.warn('Aperçu galerie : impossible de charger les photos.', err);
       }
     })();
   </script>
