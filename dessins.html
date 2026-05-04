@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dessins Clients — In Tenebris</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    /* ════════════════════════════════════════════════════════════════════
+       VARIABLES — même palette que le reste du site
+    ════════════════════════════════════════════════════════════════════ */
+    :root {
+      --black:   #080808;
+      --deep:    #0d0d0d;
+      --crimson: #8b0000;
+      --blood:   #c0000a;
+      --silver:  #a8a8a8;
+      --bone:    #d4c9b0;
+      --fog:     #1a1a1a;
+      --goldlit: #c9a84c;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--bone);
+      font-family: 'IM Fell English', Georgia, serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* Grain filmique */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.3;
+    }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+    /* ════════════════════════════════════════════════════════════════════
+       ÉCRAN DE CONNEXION — même que admin.html
+    ════════════════════════════════════════════════════════════════════ */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .login-box {
+      max-width: 480px;
+      width: 100%;
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.3);
+      padding: 3rem;
+      position: relative;
+    }
+
+    .login-box::before,
+    .login-box::after {
+      content: '';
+      position: absolute;
+      width: 20px; height: 20px;
+      border-color: var(--goldlit);
+      border-style: solid;
+      opacity: 0.4;
+    }
+    .login-box::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .login-box::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    .login-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 2.2rem;
+      color: var(--bone);
+      text-shadow: 0 0 20px rgba(139,0,0,0.4);
+      text-align: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .login-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--blood);
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .divider-small {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--crimson), transparent);
+      margin: 1.5rem 0;
+    }
+
+    /* Champs de saisie */
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+
+    .form-group label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    .form-group input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(139,0,0,0.3);
+      border-bottom-color: rgba(139,0,0,0.6);
+      color: var(--bone);
+      font-family: 'IM Fell English', serif;
+      font-size: 0.95rem;
+      padding: 0.8rem 1rem;
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+      width: 100%;
+    }
+
+    .form-group input:focus {
+      border-color: var(--blood);
+      background: rgba(139,0,0,0.05);
+    }
+
+    #loginError {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.8rem;
+      background: rgba(192,0,10,0.1);
+      border: 1px solid rgba(192,0,10,0.3);
+      color: #e05050;
+      font-style: italic;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    /* ════════════════════════════════════════════════════════════════════
+       NAV
+    ════════════════════════════════════════════════════════════════════ */
+    .page-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,8,8,0.97);
+      border-bottom: 1px solid rgba(139,0,0,0.4);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .nav-logo {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 1.6rem;
+      color: var(--goldlit);
+      text-shadow: 0 0 15px rgba(201,168,76,0.4);
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      list-style: none;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      text-decoration: none;
+      transition: color 0.3s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0; right: 0;
+      height: 1px;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+
+    .nav-links a:hover { color: var(--goldlit); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-badge {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--blood);
+    }
+
+    /* Boutons */
+    .btn-primary {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--bone);
+      background: transparent;
+      border: 1px solid var(--blood);
+      padding: 0.7rem 1.5rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.3s;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--blood);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+      z-index: 0;
+    }
+
+    .btn-primary:hover::before { transform: scaleX(1); }
+    .btn-primary:hover { color: var(--black); }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-primary:disabled::before { transform: scaleX(0) !important; }
+
+    .btn-secondary {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.55rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover { border-color: var(--blood); color: var(--bone); }
+
+    .btn-logout {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-logout:hover { border-color: var(--blood); color: var(--bone); }
+
+    .btn-danger {
+      font-family: 'Cinzel', serif;
+      font-size: 0.52rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(192,0,10,0.7);
+      background: transparent;
+      border: 1px solid rgba(192,0,10,0.3);
+      padding: 0.35rem 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-danger:hover {
+      border-color: var(--blood);
+      color: var(--blood);
+      background: rgba(192,0,10,0.1);
+    }
+
+    /* ════════════════════════════════════════════════════════════════════
+       PANNEAU PRINCIPAL
+    ════════════════════════════════════════════════════════════════════ */
+    #mainPanel { display: none; }
+
+    .main-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2.5rem 2rem 5rem;
+    }
+
+    /* Titre de section */
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--blood);
+      display: block;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-title {
+      font-family: 'UnifrakturMaguntia', cursive;
+      font-size: 2.2rem;
+      color: var(--bone);
+      text-shadow: 0 0 20px rgba(139,0,0,0.3);
+      margin-bottom: 2rem;
+    }
+
+    /* Séparateur */
+    hr.sep {
+      border: none;
+      border-top: 1px solid rgba(139,0,0,0.2);
+      margin: 3rem 0;
+    }
+
+    /* ─── ZONE UPLOAD ADMIN ──────────────────────────────────────────────
+       L'admin peut aussi ajouter des dessins manuellement (références,
+       inspirations à montrer aux clients, etc.)
+    ─────────────────────────────────────────────────────────────────── */
+    #dropZone {
+      border: 2px dashed rgba(139,0,0,0.35);
+      padding: 2.5rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 2rem;
+      background: rgba(139,0,0,0.02);
+    }
+
+    #dropZone:hover, #dropZone.dragover {
+      border-color: var(--blood);
+      background: rgba(139,0,0,0.07);
+    }
+
+    #dropZone .drop-icon { font-size: 2rem; opacity: 0.35; margin-bottom: 0.8rem; }
+
+    #dropZone .drop-text {
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--silver);
+    }
+
+    #dropZone .drop-sub {
+      font-size: 0.78rem;
+      color: rgba(168,168,168,0.35);
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+
+    #fileInput { display: none; }
+
+    /* File en attente d'upload */
+    #pendingWrap {
+      display: none;
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.2);
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    #pendingThumb {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border: 1px solid rgba(139,0,0,0.2);
+      display: none;
+    }
+
+    #pendingName {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 2px;
+      color: rgba(168,168,168,0.5);
+      margin-bottom: 0.5rem;
+      word-break: break-all;
+    }
+
+    .pending-fields {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .pending-fields .form-group { margin-bottom: 0; flex: 1; min-width: 140px; }
+    .pending-fields input {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(139,0,0,0.25);
+      border-bottom-color: rgba(139,0,0,0.5);
+      color: var(--bone);
+      font-family: 'IM Fell English', serif;
+      font-size: 0.9rem;
+      padding: 0.6rem 0.8rem;
+      outline: none;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+    .pending-fields input:focus { border-color: var(--blood); }
+
+    /* ─── STATISTIQUES ───────────────────────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .stat-num {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      color: var(--blood);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(168,168,168,0.4);
+    }
+
+    /* ─── FILTRES ────────────────────────────────────────────────────── */
+    .filter-row {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .filter-input {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(139,0,0,0.25);
+      border-bottom-color: rgba(139,0,0,0.5);
+      color: var(--bone);
+      padding: 0.6rem 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+      width: 220px;
+    }
+
+    .filter-input::placeholder { color: rgba(168,168,168,0.3); }
+    .filter-input:focus { border-color: var(--blood); }
+
+    .filter-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(168,168,168,0.4);
+    }
+
+    /* ─── GRILLE DE DESSINS ──────────────────────────────────────────── */
+    #dessinsGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px;
+    }
+
+    .dessin-card {
+      position: relative;
+      background: var(--fog);
+      border: 1px solid rgba(139,0,0,0.12);
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .dessin-card:hover { border-color: rgba(139,0,0,0.5); }
+
+    /* Photo du dessin */
+    .dessin-img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(0.05);
+      transition: filter 0.3s, transform 0.4s;
+      cursor: zoom-in;
+    }
+
+    .dessin-card:hover .dessin-img {
+      filter: grayscale(0);
+      transform: scale(1.03);
+    }
+
+    /* Infos sous la photo */
+    .dessin-info {
+      padding: 0.7rem 0.8rem;
+      background: rgba(8,8,8,0.92);
+    }
+
+    /* Numéro masqué — doré pour se démarquer visuellement */
+    .dessin-tel {
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: var(--goldlit);
+      margin-bottom: 0.2rem;
+    }
+
+    .dessin-date {
+      font-size: 0.72rem;
+      color: rgba(168,168,168,0.35);
+      font-style: italic;
+    }
+
+    .dessin-note {
+      font-size: 0.75rem;
+      color: rgba(168,168,168,0.5);
+      font-style: italic;
+      margin-top: 0.3rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Badge "Admin" pour les fichiers ajoutés manuellement par l'admin */
+    .dessin-badge {
+      position: absolute;
+      top: 0.4rem;
+      left: 0.4rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.48rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: rgba(139,0,0,0.7);
+      color: var(--bone);
+      padding: 0.2rem 0.5rem;
+      border: 1px solid rgba(139,0,0,0.5);
+    }
+
+    /* Bouton supprimer au survol */
+    .dessin-delete {
+      position: absolute;
+      top: 0.4rem; right: 0.4rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .dessin-card:hover .dessin-delete { opacity: 1; }
+
+    /* ─── ÉTATS VIDE / CHARGEMENT ────────────────────────────────────── */
+    .state-msg {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .state-msg.loading { color: rgba(168,168,168,0.25); }
+    .state-msg.empty   { color: rgba(168,168,168,0.2);  }
+    .state-msg.error   { color: rgba(192,0,10,0.5);     }
+
+    /* ─── LIGHTBOX ───────────────────────────────────────────────────── */
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.96);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    #lightbox.open { display: flex; }
+
+    #lightboxImg {
+      max-width: 90vw;
+      max-height: 88vh;
+      display: block;
+      border: 1px solid rgba(139,0,0,0.3);
+    }
+
+    #lightboxInfo {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cinzel', serif;
+      font-size: 0.62rem;
+      letter-spacing: 3px;
+      color: var(--silver);
+      text-align: center;
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 1.5rem; right: 1.5rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.65rem;
+      letter-spacing: 3px;
+      color: var(--silver);
+      cursor: pointer;
+      background: none;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.5rem 1rem;
+      transition: all 0.3s;
+    }
+
+    .lightbox-close:hover { color: var(--bone); border-color: var(--blood); }
+
+    /* ─── TOAST ──────────────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      z-index: 600;
+      display: none;
+      padding: 0.9rem 1.4rem;
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 2px;
+      border: 1px solid;
+      animation: slideUp 0.3s ease;
+    }
+
+    #toast.success { background: rgba(8,8,8,0.95); border-color: rgba(139,0,0,0.5); color: var(--goldlit); }
+    #toast.error   { background: rgba(100,10,10,0.95); border-color: rgba(192,0,10,0.5); color: #f0a0a0; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── BARRE DE PROGRESSION ───────────────────────────────────────── */
+    #uploadProgress {
+      display: none;
+      height: 2px;
+      background: rgba(139,0,0,0.15);
+      margin-bottom: 1rem;
+    }
+
+    #uploadProgressBar {
+      height: 100%;
+      background: var(--blood);
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* ─── BOUTON SCROLL TOP ──────────────────────────────────────────── */
+    #scrollTop {
+      position: fixed;
+      bottom: 2.5rem; right: 2rem;
+      z-index: 200;
+      width: 44px; height: 44px;
+      background: rgba(8,8,8,0.9);
+      border: 1px solid rgba(139,0,0,0.5);
+      color: var(--blood);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s, border-color 0.3s, color 0.3s;
+      pointer-events: none;
+    }
+
+    #scrollTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    #scrollTop:hover { border-color: var(--goldlit); color: var(--goldlit); }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .page-nav { padding: 0.8rem 1rem; }
+      .nav-links { gap: 0.8rem; }
+      .nav-links a { font-size: 0.52rem; letter-spacing: 1px; }
+      #dessinsGrid { grid-template-columns: repeat(2, 1fr); }
+      .stats-bar { gap: 1.2rem; }
+    }
+
+    @media (max-width: 480px) {
+      #dessinsGrid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       ÉCRAN DE CONNEXION
+       Même système que admin.html — token GitHub stocké en sessionStorage.
+       Si l'admin est déjà connecté (token présent), connexion automatique.
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <h1 class="login-title">In Tenebris</h1>
+      <p class="login-subtitle">✦ Dessins Clients ✦</p>
+      <div class="divider-small"></div>
+
+      <div class="form-group">
+        <label for="tokenInput">Token GitHub Admin</label>
+        <input
+          type="password"
+          id="tokenInput"
+          placeholder="github_pat_xxxxxxxxxxxx"
+          autocomplete="off"
+        />
+      </div>
+
+      <button
+        class="btn-primary"
+        onclick="login()"
+        style="width:100%;"
+      >
+        <span>Accéder aux Dessins</span>
+      </button>
+
+      <div id="loginError">Token invalide ou accès refusé.</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       PANNEAU PRINCIPAL — visible après connexion
+  ════════════════════════════════════════════════════════════════════ -->
+  <div id="mainPanel">
+
+    <!-- Navigation -->
+    <nav class="page-nav">
+      <a href="index.html" class="nav-logo">In Tenebris</a>
+
+      <ul class="nav-links">
+        <li><a href="admin.html">⚙ Admin</a></li>
+        <li><a href="index.html#about">L'Atelier</a></li>
+        <li><a href="index.html#services">Services</a></li>
+        <li><a href="Galerie/Galerie.html">Galerie</a></li>
+        <li><a href="Artiste/Artistes.html">Artistes</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-right">
+        <span class="nav-badge">✦ Dessins Clients ✦</span>
+        <button class="btn-logout" onclick="logout()">✕ Déconnexion</button>
+      </div>
+    </nav>
+
+    <div class="main-wrap">
+
+      <!-- ─── SECTION 1 : AJOUTER UN DESSIN (admin) ─────────────────────
+           L'admin peut ajouter manuellement des références, inspirations
+           ou tout autre visuel à associer à un client.
+      ──────────────────────────────────────────────────────────────── -->
+      <span class="section-label">✦ Ajouter un dessin manuellement</span>
+      <h2 class="section-title">Nouveau Dessin</h2>
+
+      <!-- Zone glisser-déposer -->
+      <div id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon">🖋</div>
+        <div class="drop-text">Glisse un fichier ici ou clique pour choisir</div>
+        <div class="drop-sub">JPG, PNG, WEBP, PDF</div>
+      </div>
+
+      <input
+        type="file"
+        id="fileInput"
+        accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
+        onchange="handleFile(this.files[0])"
+      />
+
+      <!-- Aperçu + métadonnées du fichier sélectionné -->
+      <div id="pendingWrap">
+        <img id="pendingThumb" src="" alt="aperçu"/>
+        <div style="flex:1;">
+          <div id="pendingName"></div>
+          <div class="pending-fields">
+            <div class="form-group">
+              <label>Référence client (tél masqué ou nom)</label>
+              <input type="text" id="pendingRef" placeholder="Ex: 062497**"/>
+            </div>
+            <div class="form-group">
+              <label>Note (optionnel)</label>
+              <input type="text" id="pendingNote" placeholder="Ex: Dragon épaule gauche"/>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <button class="btn-primary" id="btnUpload" onclick="uploadDessin()">
+            <span id="uploadBtnText">✦ Enregistrer</span>
+          </button>
+          <button class="btn-secondary" onclick="cancelFile()">Annuler</button>
+        </div>
+      </div>
+
+      <!-- Barre de progression pendant l'upload -->
+      <div id="uploadProgress">
+        <div id="uploadProgressBar"></div>
+      </div>
+
+      <hr class="sep"/>
+
+      <!-- ─── SECTION 2 : LISTE DES DESSINS ─────────────────────────── -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:1rem; margin-bottom:1.5rem;">
+        <div>
+          <span class="section-label">✦ Archive</span>
+          <h2 class="section-title">Dessins Reçus</h2>
+        </div>
+        <button class="btn-secondary" onclick="loadDessins()">↺ Rafraîchir</button>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="stats-bar" id="statsBar" style="display:none;">
+        <div class="stat-item">
+          <div class="stat-num" id="statTotal">0</div>
+          <div class="stat-label">Dessins au total</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="statClients">0</div>
+          <div class="stat-label">Clients distincts</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-num" id="statAdmin">0</div>
+          <div class="stat-label">Ajoutés par admin</div>
+        </div>
+      </div>
+
+      <!-- Filtre par référence client -->
+      <div class="filter-row">
+        <span class="filter-label">Filtrer :</span>
+        <input
+          type="text"
+          class="filter-input"
+          id="filterInput"
+          placeholder="Numéro ou nom..."
+          oninput="filterDessins(this.value)"
+        />
+        <button class="btn-secondary" onclick="filterDessins(''); document.getElementById('filterInput').value='';">
+          Tout afficher
+        </button>
+      </div>
+
+      <!-- Grille des dessins -->
+      <div id="dessinsGrid">
+        <div class="state-msg loading">✦ Chargement… ✦</div>
+      </div>
+
+    </div><!-- /main-wrap -->
+  </div><!-- /mainPanel -->
+
+  <!-- Bouton scroll top -->
+  <button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut">&#8679;</button>
+
+  <!-- Lightbox -->
+  <div id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕ Fermer</button>
+    <img id="lightboxImg" src="" alt=""/>
+    <div id="lightboxInfo"></div>
+  </div>
+
+  <!-- Toast de notification -->
+  <div id="toast"></div>
+
+  <script>
+    // ════════════════════════════════════════════════════════════════════════
+    //  CONFIGURATION — ne change que si tu changes de compte/repo
+    // ════════════════════════════════════════════════════════════════════════
+    const GH_OWNER = 'Trolorder';
+    const GH_REPO  = 'intenebris.github.io';
+    const FOLDER   = 'dessins'; // dossier GitHub où sont stockés les dessins
+    const API_BASE = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${FOLDER}`;
+    const RAW_BASE = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/${FOLDER}/`;
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  ÉTAT LOCAL — liste complète des dessins (pour le filtre côté client)
+    // ════════════════════════════════════════════════════════════════════════
+    let allDessins  = []; // [{name, src, tel, date, note, isAdmin, sha}]
+    let pendingFile = null; // fichier sélectionné en attente d'upload
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  CONNEXION — identique à admin.html
+    // ════════════════════════════════════════════════════════════════════════
+    async function login() {
+      const token = document.getElementById('tokenInput').value.trim();
+      if (!token) return showLoginError('Entre ton token GitHub.');
+
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!res.ok) { showLoginError('Token invalide ou dépôt introuvable.'); return; }
+
+        // Token valide → stocke en session et affiche le panneau
+        sessionStorage.setItem('gh_token', token);
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainPanel').style.display   = 'block';
+        loadDessins();
+
+      } catch {
+        showLoginError('Erreur réseau. Vérifie ta connexion.');
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('gh_token');
+      location.reload();
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent   = msg;
+      el.style.display = 'block';
+    }
+
+    // Connexion automatique si token déjà en session (admin.html → dessins.html)
+    (function autoLogin() {
+      const token = sessionStorage.getItem('gh_token');
+      if (token) {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainPanel').style.display   = 'block';
+        loadDessins();
+      }
+    })();
+
+    // Appui sur Entrée dans le champ token
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('tokenInput')?.addEventListener('keydown', e => {
+        if (e.key === 'Enter') login();
+      });
+    });
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  CHARGEMENT DES DESSINS depuis GitHub
+    // ════════════════════════════════════════════════════════════════════════
+    async function loadDessins() {
+      const grid = document.getElementById('dessinsGrid');
+      grid.innerHTML = '<div class="state-msg loading">✦ Chargement des dessins… ✦</div>';
+      document.getElementById('statsBar').style.display = 'none';
+
+      try {
+        const token = sessionStorage.getItem('gh_token');
+
+        const res = await fetch(API_BASE, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        // Si le dossier dessins/ n'existe pas encore sur GitHub
+        if (res.status === 404) {
+          grid.innerHTML = '<div class="state-msg empty">Aucun dessin client reçu pour le moment.</div>';
+          return;
+        }
+
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+
+        const files = await res.json();
+        const images = files
+          .filter(f => f.type === 'file' && /\.(jpe?g|png|webp|gif|pdf)$/i.test(f.name))
+          .sort((a, b) => b.name.localeCompare(a.name)); // plus récent en premier
+
+        if (images.length === 0) {
+          grid.innerHTML = '<div class="state-msg empty">Aucun dessin client reçu pour le moment.</div>';
+          return;
+        }
+
+        // Construit allDessins en parsant les noms de fichiers
+        // Format client :  "062497015**_1714903200000.jpg"
+        //   → tel = "062497015**"   date = timestamp
+        // Format admin :   "admin_NOTE_1714903200000.jpg"
+        //   → identifié par le préfixe "admin_"
+        allDessins = images.map(f => {
+          const nameNoExt = f.name.replace(/\.[^.]+$/, '');
+          const parts     = nameNoExt.split('_');
+          const isAdmin   = parts[0] === 'admin';
+
+          let tel, note, ts;
+
+          if (isAdmin) {
+            // Format : admin_NOTE_TIMESTAMP
+            tel   = '— Admin —';
+            note  = parts.slice(1, -1).join('_') || '';
+            ts    = parseInt(parts[parts.length - 1]);
+          } else {
+            // Format : TELMASK_TIMESTAMP
+            tel   = parts[0] || '—';
+            note  = '';
+            ts    = parseInt(parts[1]);
+          }
+
+          const date = ts
+            ? new Date(ts).toLocaleDateString('fr-FR', {
+                day: '2-digit', month: 'long', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+              })
+            : '—';
+
+          return {
+            name:    f.name,
+            sha:     f.sha,
+            src:     RAW_BASE + encodeURIComponent(f.name),
+            tel,
+            date,
+            note,
+            isAdmin,
+          };
+        });
+
+        // Statistiques
+        const adminCount   = allDessins.filter(d => d.isAdmin).length;
+        const clientsSet   = new Set(allDessins.filter(d => !d.isAdmin).map(d => d.tel));
+        document.getElementById('statTotal').textContent   = allDessins.length;
+        document.getElementById('statClients').textContent = clientsSet.size;
+        document.getElementById('statAdmin').textContent   = adminCount;
+        document.getElementById('statsBar').style.display  = 'flex';
+
+        // Affiche tout
+        renderDessins(allDessins);
+
+      } catch (err) {
+        grid.innerHTML = `<div class="state-msg error">✕ ${err.message}</div>`;
+        console.error('loadDessins:', err);
+      }
+    }
+
+    // ─── RENDU DES CARTES ──────────────────────────────────────────────────
+    function renderDessins(list) {
+      const grid = document.getElementById('dessinsGrid');
+      grid.innerHTML = '';
+
+      if (list.length === 0) {
+        grid.innerHTML = '<div class="state-msg empty">Aucun résultat pour ce filtre.</div>';
+        return;
+      }
+
+      list.forEach((d, i) => {
+        const card = document.createElement('div');
+        card.className = 'dessin-card';
+
+        const isPdf = d.name.toLowerCase().endsWith('.pdf');
+
+        card.innerHTML = `
+          ${d.isAdmin ? '<div class="dessin-badge">Admin</div>' : ''}
+
+          <!-- Photo — clic = lightbox (sauf PDF) -->
+          ${isPdf
+            ? `<div style="width:100%; aspect-ratio:1; background:var(--fog); display:flex; align-items:center; justify-content:center; font-size:2rem; opacity:0.3; cursor:default;">📄</div>`
+            : `<img
+                class="dessin-img"
+                src="${d.src}"
+                alt="${d.tel}"
+                loading="lazy"
+                onerror="this.style.opacity='0.15'"
+                onclick="openLightbox(${i})"
+              />`
+          }
+
+          <!-- Bouton supprimer au survol -->
+          <div class="dessin-delete">
+            <button class="btn-danger" onclick="deleteDessin('${d.name}', '${d.sha}')">✕</button>
+          </div>
+
+          <!-- Infos -->
+          <div class="dessin-info">
+            <div class="dessin-tel">${d.isAdmin ? '✦ Admin' : '✦ ' + d.tel}</div>
+            <div class="dessin-date">${d.date}</div>
+            ${d.note ? `<div class="dessin-note">${d.note}</div>` : ''}
+            ${isPdf
+              ? `<a href="${d.src}" target="_blank" style="display:inline-block; margin-top:0.5rem; font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:2px; color:var(--goldlit); text-decoration:none;">↗ Ouvrir le PDF</a>`
+              : ''
+            }
+          </div>`;
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ─── FILTRE EN TEMPS RÉEL ─────────────────────────────────────────────
+    // Filtre localement (pas d'appel réseau) sur le tel, la note et la date
+    function filterDessins(query) {
+      if (!query.trim()) { renderDessins(allDessins); return; }
+      const q = query.toLowerCase();
+      const filtered = allDessins.filter(d =>
+        d.tel.toLowerCase().includes(q)  ||
+        d.note.toLowerCase().includes(q) ||
+        d.date.toLowerCase().includes(q)
+      );
+      renderDessins(filtered);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  UPLOAD ADMIN — ajoute un dessin manuellement
+    // ════════════════════════════════════════════════════════════════════════
+
+    // Drag & drop
+    const dropZone = document.getElementById('dropZone');
+    dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const f = e.dataTransfer.files[0];
+      if (f) handleFile(f);
+    });
+
+    function handleFile(file) {
+      if (!file) return;
+      pendingFile = file;
+
+      // Affiche la zone de prévisualisation
+      document.getElementById('pendingName').textContent = file.name;
+
+      const thumb = document.getElementById('pendingThumb');
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = e => { thumb.src = e.target.result; thumb.style.display = 'block'; };
+        reader.readAsDataURL(file);
+      } else {
+        thumb.style.display = 'none';
+      }
+
+      const wrap = document.getElementById('pendingWrap');
+      wrap.style.display = 'flex';
+      dropZone.style.display = 'none';
+    }
+
+    function cancelFile() {
+      pendingFile = null;
+      document.getElementById('pendingWrap').style.display = 'none';
+      document.getElementById('pendingThumb').style.display = 'none';
+      document.getElementById('pendingRef').value  = '';
+      document.getElementById('pendingNote').value = '';
+      dropZone.style.display = 'block';
+      document.getElementById('fileInput').value = '';
+    }
+
+    async function uploadDessin() {
+      if (!pendingFile) return;
+
+      const token = sessionStorage.getItem('gh_token');
+      const ref   = document.getElementById('pendingRef').value.trim()  || 'admin';
+      const note  = document.getElementById('pendingNote').value.trim() || '';
+      const ts    = Date.now();
+      const ext   = pendingFile.name.split('.').pop().toLowerCase();
+
+      // Format du nom : admin_REF_NOTE_TIMESTAMP.ext
+      // (note peut être vide → admin_REF_TIMESTAMP.ext)
+      const notePart = note ? `_${note.replace(/[^a-zA-Z0-9\-]/g, '-')}` : '';
+      const filename = `admin_${ref}${notePart}_${ts}.${ext}`;
+
+      const btn  = document.getElementById('btnUpload');
+      const txt  = document.getElementById('uploadBtnText');
+      const prog = document.getElementById('uploadProgress');
+      const bar  = document.getElementById('uploadProgressBar');
+
+      btn.disabled    = true;
+      txt.textContent = 'Upload…';
+      prog.style.display = 'block';
+      bar.style.width    = '30%';
+
+      try {
+        // Convertit en base64
+        const base64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload  = e => resolve(e.target.result.split(',')[1]);
+          reader.onerror = reject;
+          reader.readAsDataURL(pendingFile);
+        });
+
+        bar.style.width = '65%';
+
+        // Envoie sur GitHub
+        const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${FOLDER}/${filename}`;
+        const res = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: `✦ Ajout dessin admin : ${filename}`,
+            content: base64,
+          }),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.message || `GitHub ${res.status}`);
+        }
+
+        bar.style.width = '100%';
+        toast('Dessin ajouté avec succès ✦');
+
+        // Remet à zéro et rafraîchit
+        setTimeout(() => {
+          cancelFile();
+          prog.style.display = 'none';
+          bar.style.width    = '0%';
+          btn.disabled       = false;
+          txt.textContent    = '✦ Enregistrer';
+          loadDessins();
+        }, 600);
+
+      } catch (err) {
+        prog.style.display = 'none';
+        bar.style.width    = '0%';
+        btn.disabled       = false;
+        txt.textContent    = '✦ Enregistrer';
+        toast('Erreur : ' + err.message, true);
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  SUPPRESSION d'un dessin
+    // ════════════════════════════════════════════════════════════════════════
+    async function deleteDessin(filename, sha) {
+      if (!confirm(`Supprimer définitivement "${filename}" ?`)) return;
+
+      const token = sessionStorage.getItem('gh_token');
+      const url   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${FOLDER}/${encodeURIComponent(filename)}`;
+
+      try {
+        // Si on n'a pas le SHA (cas rare), on le récupère
+        let fileSha = sha;
+        if (!fileSha) {
+          const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+          if (!check.ok) throw new Error('Fichier introuvable');
+          fileSha = (await check.json()).sha;
+        }
+
+        const res = await fetch(url, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: `✦ Suppression dessin : ${filename}`,
+            sha: fileSha,
+          }),
+        });
+
+        if (!res.ok) throw new Error(`GitHub ${res.status}`);
+
+        toast(`"${filename}" supprimé ✦`);
+        loadDessins();
+
+      } catch (err) {
+        toast('Erreur suppression : ' + err.message, true);
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  LIGHTBOX
+    // ════════════════════════════════════════════════════════════════════════
+    function openLightbox(idx) {
+      const d   = allDessins[idx];
+      document.getElementById('lightboxImg').src  = d.src;
+      document.getElementById('lightboxInfo').textContent =
+        `${d.isAdmin ? 'Admin' : d.tel} · ${d.date}${d.note ? ' · ' + d.note : ''}`;
+      document.getElementById('lightbox').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+    });
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  TOAST DE NOTIFICATION
+    // ════════════════════════════════════════════════════════════════════════
+    let toastTimer;
+    function toast(msg, isErr = false) {
+      const el = document.getElementById('toast');
+      el.textContent   = msg;
+      el.className     = isErr ? 'error' : 'success';
+      el.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  SCROLL TO TOP
+    // ════════════════════════════════════════════════════════════════════════
+    const scrollBtn = document.getElementById('scrollTop');
+    window.addEventListener('scroll', () => {
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+  </script>
+</body>
+</html>
