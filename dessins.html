@@ -282,6 +282,24 @@
 
     .btn-logout:hover { border-color: var(--blood); color: var(--bone); }
 
+    /* Bouton de navigation (⚙ Admin / 🖋 Dessins) — même style doré */
+    .nav-action-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.6rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--goldlit);
+      text-decoration: none;
+      border: 1px solid rgba(201,168,76,0.3);
+      padding: 0.5rem 1rem;
+      transition: border-color 0.3s, background 0.3s;
+    }
+
+    .nav-action-btn:hover {
+      border-color: var(--goldlit);
+      background: rgba(201,168,76,0.07);
+    }
+
     .btn-danger {
       font-family: 'Cinzel', serif;
       font-size: 0.52rem;
@@ -666,7 +684,40 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ─── BARRE DE PROGRESSION ───────────────────────────────────────── */
+    /* ─── PAGINATION ─────────────────────────────────────────────────── */
+    .pagination-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .page-btn {
+      font-family: 'Cinzel', serif;
+      font-size: 0.58rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--silver);
+      background: transparent;
+      border: 1px solid rgba(168,168,168,0.2);
+      padding: 0.4rem 0.9rem;
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .page-btn:hover { border-color: var(--blood); color: var(--bone); }
+    .page-btn.active { background: var(--blood); border-color: var(--blood); color: var(--bone); }
+
+    .page-info {
+      font-family: 'Cinzel', serif;
+      font-size: 0.55rem;
+      letter-spacing: 3px;
+      color: rgba(168,168,168,0.35);
+      margin-left: 0.5rem;
+    }
+
+    .page-info span { color: var(--blood); }
     #uploadProgress {
       display: none;
       height: 2px;
@@ -773,6 +824,7 @@
 
       <div class="nav-right">
         <span class="nav-badge">✦ Dessins Clients ✦</span>
+        <a href="admin.html" class="nav-action-btn">⚙ Admin</a>
         <button class="btn-logout" onclick="logout()">✕ Déconnexion</button>
       </div>
     </nav>
@@ -864,11 +916,23 @@
           class="filter-input"
           id="filterInput"
           placeholder="Numéro ou nom..."
-          oninput="filterDessins(this.value)"
+          oninput="applyAll()"
         />
-        <button class="btn-secondary" onclick="filterDessins(''); document.getElementById('filterInput').value='';">
+        <button class="btn-secondary" onclick="document.getElementById('filterInput').value=''; applyAll();">
           Tout afficher
         </button>
+      </div>
+
+      <!-- Pagination — nombre d'éléments par page -->
+      <div class="pagination-bar">
+        <span class="filter-label">Afficher :</span>
+        <button class="page-btn active" data-count="25"  onclick="setPageSize(25,  this)">25</button>
+        <button class="page-btn"        data-count="50"  onclick="setPageSize(50,  this)">50</button>
+        <button class="page-btn"        data-count="75"  onclick="setPageSize(75,  this)">75</button>
+        <button class="page-btn"        data-count="all" onclick="setPageSize('all',this)">Tout</button>
+        <span class="page-info" id="pageInfo">
+          Affichage de <span id="pageShown">0</span> / <span id="pageTotal">0</span>
+        </span>
       </div>
 
       <!-- Grille des dessins -->
@@ -1045,8 +1109,8 @@
         document.getElementById('statAdmin').textContent   = adminCount;
         document.getElementById('statsBar').style.display  = 'flex';
 
-        // Affiche tout
-        renderDessins(allDessins);
+        // Affiche avec filtre + pagination courants
+        applyAll();
 
       } catch (err) {
         grid.innerHTML = `<div class="state-msg error">✕ ${err.message}</div>`;
@@ -1055,16 +1119,62 @@
     }
 
     // ─── RENDU DES CARTES ──────────────────────────────────────────────────
-    function renderDessins(list) {
+    // pageSize = nombre de dessins à afficher (25 / 50 / 75 / 'all')
+    let pageSize = 25;
+
+    // Applique filtre + pagination et re-render
+    function applyAll() {
+      const q = document.getElementById('filterInput').value.toLowerCase().trim();
+
+      // Filtre d'abord
+      const filtered = q
+        ? allDessins.filter(d =>
+            d.tel.toLowerCase().includes(q)  ||
+            d.note.toLowerCase().includes(q) ||
+            d.date.toLowerCase().includes(q)
+          )
+        : allDessins;
+
+      // Coupe selon pageSize
+      const slice = pageSize === 'all' ? filtered : filtered.slice(0, pageSize);
+
+      // Met à jour les compteurs
+      document.getElementById('pageShown').textContent = slice.length;
+      document.getElementById('pageTotal').textContent = filtered.length;
+
+      renderDessins(slice);
+    }
+
+    // Change la taille de page et re-render
+    function setPageSize(size, btn) {
+      pageSize = size;
+      document.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyAll();
+    }
+
+    // Garde pour compatibilité (appelée depuis le bouton "Tout afficher")
+    function filterDessins(q) { applyAll(); }
+
+    function renderDessins(list, total) {
       const grid = document.getElementById('dessinsGrid');
       grid.innerHTML = '';
 
       if (list.length === 0) {
-        grid.innerHTML = '<div class="state-msg empty">Aucun résultat pour ce filtre.</div>';
+        grid.innerHTML = '<div class="state-msg empty">Aucun résultat.</div>';
         return;
       }
 
+      // Indicateur "Affichage X / Y" quand la liste est tronquée par la pagination
+      if (total !== undefined && total > list.length) {
+        const info = document.createElement('div');
+        info.style.cssText = 'grid-column:1/-1; font-family:"Cinzel",serif; font-size:0.58rem; letter-spacing:3px; text-transform:uppercase; color:rgba(168,168,168,0.35); text-align:center; padding-bottom:1rem;';
+        info.textContent = `Affichage de ${list.length} / ${total} dessins`;
+        grid.appendChild(info);
+      }
+
       list.forEach((d, i) => {
+        const globalIdx = allDessins.indexOf(d);
         const card = document.createElement('div');
         card.className = 'dessin-card';
 
@@ -1072,51 +1182,24 @@
 
         card.innerHTML = `
           ${d.isAdmin ? '<div class="dessin-badge">Admin</div>' : ''}
-
-          <!-- Photo — clic = lightbox (sauf PDF) -->
           ${isPdf
             ? `<div style="width:100%; aspect-ratio:1; background:var(--fog); display:flex; align-items:center; justify-content:center; font-size:2rem; opacity:0.3; cursor:default;">📄</div>`
-            : `<img
-                class="dessin-img"
-                src="${d.src}"
-                alt="${d.tel}"
-                loading="lazy"
+            : `<img class="dessin-img" src="${d.src}" alt="${d.tel}" loading="lazy"
                 onerror="this.style.opacity='0.15'"
-                onclick="openLightbox(${i})"
-              />`
+                onclick="openLightbox(${globalIdx})"/>`
           }
-
-          <!-- Bouton supprimer au survol -->
           <div class="dessin-delete">
             <button class="btn-danger" onclick="deleteDessin('${d.name}', '${d.sha}')">✕</button>
           </div>
-
-          <!-- Infos -->
           <div class="dessin-info">
             <div class="dessin-tel">${d.isAdmin ? '✦ Admin' : '✦ ' + d.tel}</div>
             <div class="dessin-date">${d.date}</div>
             ${d.note ? `<div class="dessin-note">${d.note}</div>` : ''}
-            ${isPdf
-              ? `<a href="${d.src}" target="_blank" style="display:inline-block; margin-top:0.5rem; font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:2px; color:var(--goldlit); text-decoration:none;">↗ Ouvrir le PDF</a>`
-              : ''
-            }
+            ${isPdf ? `<a href="${d.src}" target="_blank" style="display:inline-block; margin-top:0.5rem; font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:2px; color:var(--goldlit); text-decoration:none;">↗ Ouvrir le PDF</a>` : ''}
           </div>`;
 
         grid.appendChild(card);
       });
-    }
-
-    // ─── FILTRE EN TEMPS RÉEL ─────────────────────────────────────────────
-    // Filtre localement (pas d'appel réseau) sur le tel, la note et la date
-    function filterDessins(query) {
-      if (!query.trim()) { renderDessins(allDessins); return; }
-      const q = query.toLowerCase();
-      const filtered = allDessins.filter(d =>
-        d.tel.toLowerCase().includes(q)  ||
-        d.note.toLowerCase().includes(q) ||
-        d.date.toLowerCase().includes(q)
-      );
-      renderDessins(filtered);
     }
 
     // ════════════════════════════════════════════════════════════════════════
