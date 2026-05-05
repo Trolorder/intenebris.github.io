@@ -844,9 +844,7 @@
       </div>
 
       <p style="font-style:italic; color:rgba(168,168,168,0.4); font-size:0.85rem; margin-bottom:1.5rem;">
-        Images envoyées par les clients lors de leur demande de RDV.
-        Le nom du fichier affiche le numéro de téléphone partiellement masqué.
-        Ces images ne sont visibles que depuis ce panneau.
+        Les 5 derniers dessins reçus. <a href="dessins.html" style="color:var(--goldlit); text-decoration:none; font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:2px;">→ Voir tout dans la page Dessins</a>
       </p>
 
       <div id="dessinsLoading" style="display:none;">Chargement des dessins…</div>
@@ -1466,9 +1464,11 @@
         }
 
         // Trie par date de modification décroissante (plus récent en premier)
+        // et ne garde que les 5 derniers pour ne pas alourdir la page admin
         images.sort((a, b) => b.name.localeCompare(a.name));
+        const last5 = images.slice(0, 5);
 
-        images.forEach(file => {
+        last5.forEach(file => {
           const src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/dessins/${encodeURIComponent(file.name)}`;
 
           // Extrait le numéro masqué et le timestamp depuis le nom de fichier
