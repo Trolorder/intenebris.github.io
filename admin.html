@@ -850,6 +850,54 @@
       <div id="dessinsLoading" style="display:none;">Chargement des dessins…</div>
       <div id="dessinsGrid" class="dessins-grid"></div>
 
+      <hr class="dark-sep"/>
+
+      <!-- ─── SECTION 4 : GESTION DES EMAILS BANNIS ──────────────────────
+           Les emails bannis sont stockés dans banned-emails.json sur GitHub.
+           Un email banni = bloqué en temps réel dans le formulaire de RDV.
+           Tu peux bannir une adresse entière (ex: troll@gmail.com)
+           ou tout un domaine (ex: guerrillamail.com).
+      ──────────────────────────────────────────────────────────────── -->
+      <div class="existing-header">
+        <div>
+          <span class="section-label">✦ Anti-spam</span>
+          <h2 class="section-title">Emails Bannis</h2>
+        </div>
+        <button class="btn-secondary" onclick="loadBans()">↺ Rafraîchir</button>
+      </div>
+
+      <p style="font-style:italic; color:rgba(168,168,168,0.35); font-size:0.82rem; margin-bottom:1.5rem; line-height:1.7;">
+        Ajoute une adresse complète (<em>troll@gmail.com</em>) ou un domaine entier (<em>guerrillamail.com</em>).
+        Le formulaire de RDV refusera silencieusement ces emails en temps réel.
+      </p>
+
+      <!-- Formulaire d'ajout -->
+      <div style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:2rem; align-items:flex-end;">
+        <div class="form-group" style="flex:1; min-width:220px; margin-bottom:0;">
+          <label>Adresse ou domaine à bannir</label>
+          <input
+            type="text"
+            id="banInput"
+            placeholder="ex: spam@gmail.com  ou  guerrillamail.com"
+            style="background:rgba(255,255,255,0.03); border:1px solid rgba(139,0,0,0.3); border-bottom-color:rgba(139,0,0,0.6); color:var(--bone); font-family:'IM Fell English',serif; font-size:0.9rem; padding:0.7rem 1rem; outline:none; width:100%;"
+          />
+        </div>
+        <button class="btn-primary" onclick="addBan()" style="white-space:nowrap;">
+          <span>✦ Bannir</span>
+        </button>
+      </div>
+
+      <!-- Liste des emails bannis -->
+      <div id="banLoading" style="display:none; font-style:italic; color:rgba(168,168,168,0.3); font-size:0.85rem; padding:1rem 0;">
+        Chargement…
+      </div>
+
+      <div id="banList" style="display:flex; flex-direction:column; gap:0.4rem;"></div>
+
+      <p id="banEmpty" style="display:none; font-style:italic; color:rgba(168,168,168,0.2); font-size:0.85rem; padding:1rem 0;">
+        Aucun email banni pour le moment.
+      </p>
+
     </div>
   </div>
 
@@ -910,6 +958,7 @@
 
         // Charge la galerie existante ET les dessins clients
         loadExisting();
+        loadBans();
         loadDessins();
 
       } catch (err) {
@@ -937,6 +986,7 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('adminPanel').style.display  = 'block';
         loadExisting();
+        loadBans();
         loadDessins();
       }
     })();
@@ -1532,6 +1582,159 @@
         notify('Erreur : ' + err.message, 'error');
       }
     }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  GESTION DES EMAILS BANNIS
+    //  Fichier : banned-emails.json à la racine du repo GitHub
+    //  Format  : ["email@example.com", "domaine.com", ...]
+    // ═════════════════════════════════════════════════════════════════════
+
+    const BANNED_PATH = 'banned-emails.json';
+
+    // Charge et affiche la liste des emails bannis
+    async function loadBans() {
+      const list    = document.getElementById('banList');
+      const empty   = document.getElementById('banEmpty');
+      const loading = document.getElementById('banLoading');
+
+      list.innerHTML        = '';
+      empty.style.display   = 'none';
+      loading.style.display = 'block';
+
+      const token = sessionStorage.getItem('gh_token');
+
+      try {
+        const res = await fetch(
+          `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${BANNED_PATH}?t=${Date.now()}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        loading.style.display = 'none';
+
+        const bans = res.ok ? await res.json() : [];
+
+        if (!bans.length) { empty.style.display = 'block'; return; }
+
+        bans.forEach(email => {
+          const row = document.createElement('div');
+          row.style.cssText = `
+            display:flex; align-items:center; justify-content:space-between;
+            padding:0.6rem 1rem;
+            background:rgba(139,0,0,0.05);
+            border:1px solid rgba(139,0,0,0.15);
+            font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:2px;
+            color:var(--bone);
+          `;
+          row.innerHTML = `
+            <span>✕ ${email}</span>
+            <button class="btn-danger" onclick="removeBan('${email}')">Débannir</button>
+          `;
+          list.appendChild(row);
+        });
+
+      } catch (err) {
+        loading.style.display = 'none';
+        notify('Erreur chargement bans : ' + err.message, 'error');
+      }
+    }
+
+    // Ajoute un email/domaine à la liste de bans
+    async function addBan() {
+      const input = document.getElementById('banInput');
+      const value = input.value.trim().toLowerCase();
+
+      if (!value) { notify('Saisis une adresse ou un domaine.', 'error'); return; }
+      if (!value.includes('.')) { notify('Format invalide (ex: spam@gmail.com ou domaine.com)', 'error'); return; }
+
+      const token = sessionStorage.getItem('gh_token');
+
+      try {
+        // Lit la liste actuelle
+        const current = await readBanFile(token);
+
+        if (current.includes(value)) {
+          notify(`"${value}" est déjà banni.`, 'error');
+          return;
+        }
+
+        current.push(value);
+        await writeBanFile(token, current, `✦ Ban : ${value}`);
+
+        input.value = '';
+        notify(`"${value}" banni avec succès ✦`);
+        loadBans();
+
+      } catch (err) {
+        notify('Erreur : ' + err.message, 'error');
+      }
+    }
+
+    // Retire un email/domaine de la liste de bans
+    async function removeBan(email) {
+      if (!confirm(`Débannir "${email}" ?`)) return;
+
+      const token = sessionStorage.getItem('gh_token');
+
+      try {
+        let current = await readBanFile(token);
+        current = current.filter(e => e !== email);
+        await writeBanFile(token, current, `✦ Déban : ${email}`);
+
+        notify(`"${email}" débanni ✦`);
+        loadBans();
+
+      } catch (err) {
+        notify('Erreur : ' + err.message, 'error');
+      }
+    }
+
+    // Lit le fichier banned-emails.json depuis GitHub (retourne [] si inexistant)
+    async function readBanFile(token) {
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${BANNED_PATH}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) return [];
+        const data    = await res.json();
+        const decoded = atob(data.content.replace(/\n/g, ''));
+        return JSON.parse(decoded);
+      } catch {
+        return [];
+      }
+    }
+
+    // Écrit le fichier banned-emails.json sur GitHub (crée ou met à jour)
+    async function writeBanFile(token, bansArray, commitMsg) {
+      const url     = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${BANNED_PATH}`;
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify(bansArray, null, 2))));
+
+      // Récupère le SHA si le fichier existe (nécessaire pour le mettre à jour)
+      let sha;
+      try {
+        const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (check.ok) sha = (await check.json()).sha;
+      } catch {}
+
+      const body = { message: commitMsg, content };
+      if (sha) body.sha = sha;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `GitHub ${res.status}`);
+      }
+    }
+
+    // Appui Entrée dans le champ ban
+    document.getElementById('banInput')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') addBan();
+    });
 
     let notifTimer;
     function notify(message, type = 'success') {
