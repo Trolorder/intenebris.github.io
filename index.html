@@ -1031,78 +1031,64 @@
       }
     }
 
-    // ─── ENVOI DU CODE ────────────────────────────────────────────────────
-    async function sendVerificationCode() {
-      const email = document.getElementById('rdv-email').value.trim();
-      const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
+// ─── ENVOI DU CODE ────────────────────────────────────────────────────
+async function sendVerificationCode() {
+    const email = document.getElementById('rdv-email').value.trim();
+    const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
 
-      // Validation basique du format email
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showCodeFeedback('✕ Entre une adresse email valide avant de demander un code.', 'error');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showCodeFeedback('✕ Entre une adresse email valide.', 'error');
         return;
-      }
+    }
 
-      // Évite le double-clic
-      if (verifyState === 'sending' || verifyState === 'verified') return;
+    verifyState = 'sending';
+    const btn = document.getElementById('btnSendCode');
+    btn.textContent = 'Envoi…';
+    btn.disabled = true;
+    showCodeFeedback('Envoi du code en cours…', 'info');
 
-      verifyState = 'sending';
-      const btn = document.getElementById('btnSendCode');
-      btn.textContent = 'Envoi…';
-      btn.disabled    = true;
-      showCodeFeedback('Envoi du code en cours…', 'info');
-
-      try {
-        // Appel au Google Apps Script avec action "sendCode"
-        // Le script envoie le code par email et l'enregistre dans Google Sheets
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          // Google Apps Script requiert text/plain pour éviter les CORS preflight
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'sendCode',
-            email:  email,
-            nom:    nom,
-          }),
+    try {
+        const res = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: "sendCode",
+                email: email,
+                nom: nom
+            })
         });
 
         const data = await res.json();
 
-        if (data.status === 'code_sent') {
-          verifyState = 'waiting';
+        if (data.status === "code_sent") {
+            verifyState = 'waiting';
+            document.getElementById('codeField').style.display = 'block';
+            document.getElementById('rdv-code').focus();
 
-          // Affiche le champ de saisie du code
-          document.getElementById('codeField').style.display = 'block';
-          document.getElementById('rdv-code').focus();
+            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail (et les spams).', 'success');
 
-          showCodeFeedback('✓ Code envoyé ! Vérifiez votre boîte mail (et vos spams).', 'success');
-
-          // Bouton passe en mode "Renvoyer" avec délai de 60s
-          btn.textContent = 'Renvoyer (60s)';
-          let countdown = 60;
-          const timer = setInterval(() => {
-            countdown--;
-            btn.textContent = `Renvoyer (${countdown}s)`;
-            if (countdown <= 0) {
-              clearInterval(timer);
-              btn.textContent = 'Renvoyer le code';
-              btn.disabled    = false;
-              // Permet de renvoyer sans changer l'email
-              if (verifyState === 'waiting') verifyState = 'idle';
-            }
-          }, 1000);
+            let countdown = 60;
+            const timer = setInterval(() => {
+                countdown--;
+                btn.textContent = countdown > 0 ? `Renvoyer (${countdown}s)` : 'Renvoyer le code';
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    if (verifyState === 'waiting') verifyState = 'idle';
+                }
+            }, 1000);
 
         } else {
-          throw new Error(data.message || 'Échec de l\'envoi');
+            throw new Error();
         }
 
-      } catch (err) {
+    } catch (err) {
+        console.error(err);
         verifyState = 'idle';
-        showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par téléphone.', 'error');
-        resetSendBtn();
-        console.error('sendCode:', err);
-      }
+        showCodeFeedback('✕ Erreur lors de l’envoi du code.', 'error');
+        setTimeout(resetSendBtn, 800);
     }
-
+}
     // Remet le bouton "Envoyer le code" à son état initial
     function resetSendBtn() {
       const btn = document.getElementById('btnSendCode');
@@ -1126,19 +1112,26 @@
     }
 
     // ─── VÉRIFICATION DU CODE au submit ──────────────────────────────────
-    async function verifyCode(email, code) {
-      const res = await fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action: 'verifyCode',
-          email:  email,
-          code:   code,
-        }),
-      });
-      const data = await res.json();
-      return data.status === 'success';
+async function verifyCode(email, code) {
+    try {
+        const res = await fetch(WORKER_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: "verifyCode",
+                email: email,
+                code: code
+            })
+        });
+
+        const data = await res.json();
+        return data.status === "success";
+
+    } catch (err) {
+        console.error(err);
+        return false;
     }
+}
 
     // ════════════════════════════════════════════════════════════════════════
     //  FORMULAIRE — vérification code + Worker Cloudflare + Formspree
