@@ -1012,7 +1012,7 @@
     // ════════════════════════════════════════════════════════════════════════
 
     // URL de ton Google Apps Script — ne change que si tu redéploies le script
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzLcXqXkw9eeL3-SX1RHnryvgnDUYXMLMrApB7e3J0hLXbdKyr7WM61XNT63-RPnTV91w/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzyXgHZw_C6UgLv5IkDKG5mxsVQImUMFrg8grw-NGomNrE9bOnDMOUFCs1yI4oBInGCBw/exec';
 
     // État de la vérification
     // 'idle'     → pas encore envoyé
@@ -1031,70 +1031,78 @@
       }
     }
 
-// ─── ENVOI DU CODE ────────────────────────────────────────────────────
-async function sendVerificationCode() {
-    const email = document.getElementById('rdv-email').value.trim();
-    const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
+    // ─── ENVOI DU CODE ────────────────────────────────────────────────────
+    async function sendVerificationCode() {
+      const email = document.getElementById('rdv-email').value.trim();
+      const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showCodeFeedback('✕ Entre une adresse email valide.', 'error');
+      // Validation basique du format email
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showCodeFeedback('✕ Entre une adresse email valide avant de demander un code.', 'error');
         return;
-    }
+      }
 
-    if (verifyState === 'sending') return;
+      // Évite le double-clic
+      if (verifyState === 'sending' || verifyState === 'verified') return;
 
-    verifyState = 'sending';
-    const btn = document.getElementById('btnSendCode');
-    btn.textContent = 'Envoi…';
-    btn.disabled = true;
-    showCodeFeedback('Envoi du code en cours…', 'info');
+      verifyState = 'sending';
+      const btn = document.getElementById('btnSendCode');
+      btn.textContent = 'Envoi…';
+      btn.disabled    = true;
+      showCodeFeedback('Envoi du code en cours…', 'info');
 
-    try {
+      try {
+        // Appel au Google Apps Script avec action "sendCode"
+        // Le script envoie le code par email et l'enregistre dans Google Sheets
         const res = await fetch(GAS_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({
-                action: "sendCode",
-                email: email,
-                nom: nom
-            })
+          method: 'POST',
+          // Google Apps Script requiert text/plain pour éviter les CORS preflight
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            action: 'sendCode',
+            email:  email,
+            nom:    nom,
+          }),
         });
 
         const data = await res.json();
 
-        if (data.status === "code_sent") {
-            verifyState = 'waiting';
-            document.getElementById('codeField').style.display = 'block';
-            document.getElementById('rdv-code').focus();
+        if (data.status === 'code_sent') {
+          verifyState = 'waiting';
 
-            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail (et les spams).', 'success');
+          // Affiche le champ de saisie du code
+          document.getElementById('codeField').style.display = 'block';
+          document.getElementById('rdv-code').focus();
 
-            // Compteur renvoi
-            let countdown = 60;
+          showCodeFeedback('✓ Code envoyé ! Vérifiez votre boîte mail (et vos spams).', 'success');
+
+          // Bouton passe en mode "Renvoyer" avec délai de 60s
+          btn.textContent = 'Renvoyer (60s)';
+          let countdown = 60;
+          const timer = setInterval(() => {
+            countdown--;
             btn.textContent = `Renvoyer (${countdown}s)`;
-            const timer = setInterval(() => {
-                countdown--;
-                if (countdown > 0) {
-                    btn.textContent = `Renvoyer (${countdown}s)`;
-                } else {
-                    clearInterval(timer);
-                    btn.textContent = 'Renvoyer le code';
-                    btn.disabled = false;
-                    if (verifyState === 'waiting') verifyState = 'idle';
-                }
-            }, 1000);
+            if (countdown <= 0) {
+              clearInterval(timer);
+              btn.textContent = 'Renvoyer le code';
+              btn.disabled    = false;
+              // Permet de renvoyer sans changer l'email
+              if (verifyState === 'waiting') verifyState = 'idle';
+            }
+          }, 1000);
 
         } else {
-            throw new Error("Échec");
+          throw new Error(data.message || 'Échec de l\'envoi');
         }
 
-    } catch (err) {
-        console.error(err);
+      } catch (err) {
         verifyState = 'idle';
-        showCodeFeedback('✕ Erreur lors de l’envoi du code. Réessaie.', 'error');
+        showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par téléphone.', 'error');
         resetSendBtn();
+        console.error('sendCode:', err);
+      }
     }
-}
+
     // Remet le bouton "Envoyer le code" à son état initial
     function resetSendBtn() {
       const btn = document.getElementById('btnSendCode');
