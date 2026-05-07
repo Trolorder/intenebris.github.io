@@ -1035,7 +1035,8 @@
 async function sendVerificationCode() {
   const email = document.getElementById('rdv-email').value.trim();
   const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
-  
+  const nom   = document.getElementById('rdv-Téléphone')?.value.trim();
+
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showCodeFeedback('✕ Entre une adresse email valide avant de demander un code.', 'error');
     return;
