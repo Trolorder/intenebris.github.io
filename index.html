@@ -1032,61 +1032,69 @@
     }
 
     // ─── ENVOI DU CODE ────────────────────────────────────────────────────
+// ─── ENVOI DU CODE ────────────────────────────────────────────────────
 async function sendVerificationCode() {
-  const email = document.getElementById('rdv-email').value.trim();
-  const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
+    const nom       = document.getElementById('rdv-nom').value.trim();
+    const email     = document.getElementById('rdv-email').value.trim();
+    const telephone = document.getElementById('rdv-tel').value.trim();
+    const style     = document.getElementById('rdv-style').value;
+    const projet    = document.getElementById('rdv-projet').value.trim();
 
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showCodeFeedback('✕ Entre une adresse email valide avant de demander un code.', 'error');
-    return;
-  }
-
-  if (verifyState === 'sending' || verifyState === 'verified') return;
-
-  verifyState = 'sending';
-  const btn = document.getElementById('btnSendCode');
-  btn.textContent = 'Envoi…';
-  btn.disabled    = true;
-  showCodeFeedback('Envoi du code en cours…', 'info');
-
-  try {
-    // ← GET avec paramètres URL = pas de CORS
-    const url = new URL(GAS_URL);
-    url.searchParams.set('action', 'sendCode');
-    url.searchParams.set('email',  email);
-    url.searchParams.set('nom',    nom);
-
-    const res  = await fetch(url.toString());
-    const data = await res.json();
-
-    if (data.status === 'code_sent') {
-      verifyState = 'waiting';
-      document.getElementById('codeField').style.display = 'block';
-      document.getElementById('rdv-code').focus();
-      showCodeFeedback('✓ Code envoyé ! Vérifiez votre boîte mail (et vos spams).', 'success');
-
-      btn.textContent = 'Renvoyer (60s)';
-      let countdown = 60;
-      const timer = setInterval(() => {
-        countdown--;
-        btn.textContent = `Renvoyer (${countdown}s)`;
-        if (countdown <= 0) {
-          clearInterval(timer);
-          btn.textContent = 'Renvoyer le code';
-          btn.disabled    = false;
-          if (verifyState === 'waiting') verifyState = 'idle';
-        }
-      }, 1000);
-    } else {
-      throw new Error(data.message || 'Échec de l\'envoi');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showCodeFeedback('✕ Entre une adresse email valide.', 'error');
+        return;
     }
 
-  } catch (err) {
-    verifyState = 'idle';
-    showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par téléphone.', 'error');
-    resetSendBtn();
-    console.error('sendCode:', err);
-  }
+    verifyState = 'sending';
+    const btn = document.getElementById('btnSendCode');
+    btn.textContent = 'Envoi…';
+    btn.disabled = true;
+    showCodeFeedback('Envoi du code en cours…', 'info');
+
+    try {
+        const res = await fetch(GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: "sendCode",
+                nom: nom,
+                email: email,
+                telephone: telephone,
+                style: style,
+                projet: projet
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "code_sent") {
+            verifyState = 'waiting';
+            document.getElementById('codeField').style.display = 'block';
+            document.getElementById('rdv-code').focus();
+
+            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail (et les spams).', 'success');
+
+            let countdown = 60;
+            const timer = setInterval(() => {
+                countdown--;
+                btn.textContent = countdown > 0 ? `Renvoyer (${countdown}s)` : 'Renvoyer le code';
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    if (verifyState === 'waiting') verifyState = 'idle';
+                }
+            }, 1000);
+
+        } else {
+            throw new Error();
+        }
+
+    } catch (err) {
+        console.error(err);
+        verifyState = 'idle';
+        showCodeFeedback('✕ Erreur lors de l’envoi du code.', 'error');
+        setTimeout(resetSendBtn, 1000);
+    }
 }
 
     // Remet le bouton "Envoyer le code" à son état initial
