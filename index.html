@@ -1012,7 +1012,7 @@
     // ════════════════════════════════════════════════════════════════════════
 
     // URL de ton Google Apps Script — ne change que si tu redéploies le script
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzyXgHZw_C6UgLv5IkDKG5mxsVQImUMFrg8grw-NGomNrE9bOnDMOUFCs1yI4oBInGCBw/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzCSR9TnsGfcl57FfDVa0_Jdk3rui-5wvdK5GoxNCv9QDngpJtAsTGbfMnnlT2zM-e4/exec';
 
     // État de la vérification
     // 'idle'     → pas encore envoyé
@@ -1032,76 +1032,62 @@
     }
 
     // ─── ENVOI DU CODE ────────────────────────────────────────────────────
-    async function sendVerificationCode() {
-      const email = document.getElementById('rdv-email').value.trim();
-      const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
+async function sendVerificationCode() {
+  const email = document.getElementById('rdv-email').value.trim();
+  const nom   = document.getElementById('rdv-nom')?.value.trim() || '';
 
-      // Validation basique du format email
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showCodeFeedback('✕ Entre une adresse email valide avant de demander un code.', 'error');
-        return;
-      }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showCodeFeedback('✕ Entre une adresse email valide avant de demander un code.', 'error');
+    return;
+  }
 
-      // Évite le double-clic
-      if (verifyState === 'sending' || verifyState === 'verified') return;
+  if (verifyState === 'sending' || verifyState === 'verified') return;
 
-      verifyState = 'sending';
-      const btn = document.getElementById('btnSendCode');
-      btn.textContent = 'Envoi…';
-      btn.disabled    = true;
-      showCodeFeedback('Envoi du code en cours…', 'info');
+  verifyState = 'sending';
+  const btn = document.getElementById('btnSendCode');
+  btn.textContent = 'Envoi…';
+  btn.disabled    = true;
+  showCodeFeedback('Envoi du code en cours…', 'info');
 
-      try {
-        // Appel au Google Apps Script avec action "sendCode"
-        // Le script envoie le code par email et l'enregistre dans Google Sheets
-        const res = await fetch(GAS_URL, {
-          method: 'POST',
-          // Google Apps Script requiert text/plain pour éviter les CORS preflight
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'sendCode',
-            email:  email,
-            nom:    nom,
-          }),
-        });
+  try {
+    // ← GET avec paramètres URL = pas de CORS
+    const url = new URL(GAS_URL);
+    url.searchParams.set('action', 'sendCode');
+    url.searchParams.set('email',  email);
+    url.searchParams.set('nom',    nom);
 
-        const data = await res.json();
+    const res  = await fetch(url.toString());
+    const data = await res.json();
 
-        if (data.status === 'code_sent') {
-          verifyState = 'waiting';
+    if (data.status === 'code_sent') {
+      verifyState = 'waiting';
+      document.getElementById('codeField').style.display = 'block';
+      document.getElementById('rdv-code').focus();
+      showCodeFeedback('✓ Code envoyé ! Vérifiez votre boîte mail (et vos spams).', 'success');
 
-          // Affiche le champ de saisie du code
-          document.getElementById('codeField').style.display = 'block';
-          document.getElementById('rdv-code').focus();
-
-          showCodeFeedback('✓ Code envoyé ! Vérifiez votre boîte mail (et vos spams).', 'success');
-
-          // Bouton passe en mode "Renvoyer" avec délai de 60s
-          btn.textContent = 'Renvoyer (60s)';
-          let countdown = 60;
-          const timer = setInterval(() => {
-            countdown--;
-            btn.textContent = `Renvoyer (${countdown}s)`;
-            if (countdown <= 0) {
-              clearInterval(timer);
-              btn.textContent = 'Renvoyer le code';
-              btn.disabled    = false;
-              // Permet de renvoyer sans changer l'email
-              if (verifyState === 'waiting') verifyState = 'idle';
-            }
-          }, 1000);
-
-        } else {
-          throw new Error(data.message || 'Échec de l\'envoi');
+      btn.textContent = 'Renvoyer (60s)';
+      let countdown = 60;
+      const timer = setInterval(() => {
+        countdown--;
+        btn.textContent = `Renvoyer (${countdown}s)`;
+        if (countdown <= 0) {
+          clearInterval(timer);
+          btn.textContent = 'Renvoyer le code';
+          btn.disabled    = false;
+          if (verifyState === 'waiting') verifyState = 'idle';
         }
-
-      } catch (err) {
-        verifyState = 'idle';
-        showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par téléphone.', 'error');
-        resetSendBtn();
-        console.error('sendCode:', err);
-      }
+      }, 1000);
+    } else {
+      throw new Error(data.message || 'Échec de l\'envoi');
     }
+
+  } catch (err) {
+    verifyState = 'idle';
+    showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par téléphone.', 'error');
+    resetSendBtn();
+    console.error('sendCode:', err);
+  }
+}
 
     // Remet le bouton "Envoyer le code" à son état initial
     function resetSendBtn() {
@@ -1126,19 +1112,17 @@
     }
 
     // ─── VÉRIFICATION DU CODE au submit ──────────────────────────────────
-    async function verifyCode(email, code) {
-      const res = await fetch(GAS_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action: 'verifyCode',
-          email:  email,
-          code:   code,
-        }),
-      });
-      const data = await res.json();
-      return data.status === 'success';
-    }
+async function verifyCode(email, code) {
+  // ← GET avec paramètres URL = pas de CORS
+  const url = new URL(GAS_URL);
+  url.searchParams.set('action', 'verifyCode');
+  url.searchParams.set('email',  email);
+  url.searchParams.set('code',   code);
+
+  const res  = await fetch(url.toString());
+  const data = await res.json();
+  return data.status === 'success';
+}
 
     // ════════════════════════════════════════════════════════════════════════
     //  FORMULAIRE — vérification code + Worker Cloudflare + Formspree
