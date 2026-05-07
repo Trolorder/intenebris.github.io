@@ -1034,14 +1034,11 @@
     // ─── ENVOI DU CODE ────────────────────────────────────────────────────
 // ─── ENVOI DU CODE ────────────────────────────────────────────────────
 async function sendVerificationCode() {
-    const nom       = document.getElementById('rdv-nom').value.trim();
-    const email     = document.getElementById('rdv-email').value.trim();
-    const telephone = document.getElementById('rdv-tel').value.trim();
-    const style     = document.getElementById('rdv-style').value;
-    const projet    = document.getElementById('rdv-projet').value.trim();
+    const email = document.getElementById('rdv-email').value.trim();
+    const nom   = document.getElementById('rdv-nom').value.trim();
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        showCodeFeedback('✕ Entre une adresse email valide.', 'error');
+    if (!email) {
+        showCodeFeedback('✕ Email requis', 'error');
         return;
     }
 
@@ -1049,7 +1046,7 @@ async function sendVerificationCode() {
     const btn = document.getElementById('btnSendCode');
     btn.textContent = 'Envoi…';
     btn.disabled = true;
-    showCodeFeedback('Envoi du code en cours…', 'info');
+    showCodeFeedback('Envoi du code...', 'info');
 
     try {
         const res = await fetch(GAS_URL, {
@@ -1058,10 +1055,7 @@ async function sendVerificationCode() {
             body: JSON.stringify({
                 action: "sendCode",
                 nom: nom,
-                email: email,
-                telephone: telephone,
-                style: style,
-                projet: projet
+                email: email
             })
         });
 
@@ -1071,32 +1065,16 @@ async function sendVerificationCode() {
             verifyState = 'waiting';
             document.getElementById('codeField').style.display = 'block';
             document.getElementById('rdv-code').focus();
-
-            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail (et les spams).', 'success');
-
-            let countdown = 60;
-            const timer = setInterval(() => {
-                countdown--;
-                btn.textContent = countdown > 0 ? `Renvoyer (${countdown}s)` : 'Renvoyer le code';
-                if (countdown <= 0) {
-                    clearInterval(timer);
-                    btn.disabled = false;
-                    if (verifyState === 'waiting') verifyState = 'idle';
-                }
-            }, 1000);
-
+            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail.', 'success');
         } else {
-            throw new Error();
+            throw new Error('Erreur serveur');
         }
-
     } catch (err) {
         console.error(err);
-        verifyState = 'idle';
-        showCodeFeedback('✕ Erreur lors de l’envoi du code.', 'error');
+        showCodeFeedback('✕ Erreur de connexion au serveur', 'error');
         setTimeout(resetSendBtn, 1000);
     }
 }
-
     // Remet le bouton "Envoyer le code" à son état initial
     function resetSendBtn() {
       const btn = document.getElementById('btnSendCode');
