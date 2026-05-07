@@ -1012,7 +1012,7 @@
     // ════════════════════════════════════════════════════════════════════════
 
     // URL de ton Google Apps Script — ne change que si tu redéploies le script
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyicMok-RXMa5Y0jXdAhFZZx4qsfji8M9Wi9pUJ2g6YOa-vrHpVhQ488Sz4T3m1_lzK/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzqX4AzXaRcjoDlSln8n_jgMi0wIWP_P_z1mnFB-lhJr9P2PxhoPDNVXfSvy1duCMyY/exec';
 
     // État de la vérification
     // 'idle'     → pas encore envoyé
@@ -1113,15 +1113,24 @@ async function sendVerificationCode() {
 
     // ─── VÉRIFICATION DU CODE au submit ──────────────────────────────────
 async function verifyCode(email, code) {
-  // ← GET avec paramètres URL = pas de CORS
-  const url = new URL(GAS_URL);
-  url.searchParams.set('action', 'verifyCode');
-  url.searchParams.set('email',  email);
-  url.searchParams.set('code',   code);
+    try {
+        const res = await fetch(GAS_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: "verifyCode",
+                email: email,
+                code: code
+            })
+        });
 
-  const res  = await fetch(url.toString());
-  const data = await res.json();
-  return data.status === 'success';
+        const data = await res.json();
+        return data.status === "success";
+
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
 }
 
     // ════════════════════════════════════════════════════════════════════════
