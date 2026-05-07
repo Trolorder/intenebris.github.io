@@ -1012,8 +1012,8 @@
     // ════════════════════════════════════════════════════════════════════════
 
     // URL de ton Google Apps Script — ne change que si tu redéploies le script
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyX5VhRBnMQrG1Par4W-DvygLyMcYNSn3ENDBfU-Lqabiq6Qw0Hucqe5O3i--S8CXNI/exec';
-
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbxHzJuf6GUNAN5ovd4HF5yn9LQCxJ4xZwEuZ6wVY2nKwYkajcfHO8IQm4aintzRyF5B/exec';
+    
     // État de la vérification
     // 'idle'     → pas encore envoyé
     // 'sending'  → envoi du code en cours
@@ -1034,11 +1034,14 @@
     // ─── ENVOI DU CODE ────────────────────────────────────────────────────
 // ─── ENVOI DU CODE ────────────────────────────────────────────────────
 async function sendVerificationCode() {
-    const email = document.getElementById('rdv-email').value.trim();
-    const nom   = document.getElementById('rdv-nom').value.trim();
+    const nom       = document.getElementById('rdv-nom').value.trim();
+    const email     = document.getElementById('rdv-email').value.trim();
+    const telephone = document.getElementById('rdv-tel').value.trim();
+    const style     = document.getElementById('rdv-style').value;
+    const projet    = document.getElementById('rdv-projet').value.trim();
 
-    if (!email) {
-        showCodeFeedback('✕ Email requis', 'error');
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showCodeFeedback('✕ Entre une adresse email valide.', 'error');
         return;
     }
 
@@ -1046,7 +1049,7 @@ async function sendVerificationCode() {
     const btn = document.getElementById('btnSendCode');
     btn.textContent = 'Envoi…';
     btn.disabled = true;
-    showCodeFeedback('Envoi du code...', 'info');
+    showCodeFeedback('Envoi du code en cours…', 'info');
 
     try {
         const res = await fetch(GAS_URL, {
@@ -1055,7 +1058,10 @@ async function sendVerificationCode() {
             body: JSON.stringify({
                 action: "sendCode",
                 nom: nom,
-                email: email
+                email: email,
+                telephone: telephone,
+                style: style,
+                projet: projet
             })
         });
 
@@ -1065,12 +1071,27 @@ async function sendVerificationCode() {
             verifyState = 'waiting';
             document.getElementById('codeField').style.display = 'block';
             document.getElementById('rdv-code').focus();
-            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail.', 'success');
+
+            showCodeFeedback('✓ Code envoyé ! Vérifie ta boîte mail (et les spams).', 'success');
+
+            let countdown = 60;
+            const timer = setInterval(() => {
+                countdown--;
+                btn.textContent = countdown > 0 ? `Renvoyer (${countdown}s)` : 'Renvoyer le code';
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.disabled = false;
+                    if (verifyState === 'waiting') verifyState = 'idle';
+                }
+            }, 1000);
+
         } else {
-            throw new Error('Erreur serveur');
+            throw new Error();
         }
+
     } catch (err) {
         console.error(err);
+        verifyState = 'idle';
         showCodeFeedback('✕ Erreur de connexion au serveur', 'error');
         setTimeout(resetSendBtn, 1000);
     }
