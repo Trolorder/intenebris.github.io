@@ -1112,11 +1112,15 @@ async function sendVerificationCode() {
 
     // ─── VÉRIFICATION DU CODE au submit ──────────────────────────────────
 async function verifyCode(email, code) {
-  // ← GET avec paramètres URL = pas de CORS
+  const tel   = document.getElementById('rdv-tel')?.value.trim()   || '';
+  const style = document.getElementById('rdv-style')?.value.trim() || '';
+
   const url = new URL(GAS_URL);
-  url.searchParams.set('action', 'verifyCode');
-  url.searchParams.set('email',  email);
-  url.searchParams.set('code',   code);
+  url.searchParams.set('action',    'verifyCode');
+  url.searchParams.set('email',     email);
+  url.searchParams.set('code',      code);
+  url.searchParams.set('telephone', tel);   // ← ajouté
+  url.searchParams.set('style',     style); // ← ajouté
 
   const res  = await fetch(url.toString());
   const data = await res.json();
