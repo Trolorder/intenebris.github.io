@@ -1184,13 +1184,35 @@ async function verifyCode(email, code) {
       btnText.textContent = 'Envoi en cours…';
 
       try {
-        // ÉTAPE 1 : upload image via Worker Cloudflare (si fichier sélectionné)
+        // ── TOUT passe par le Worker Cloudflare ────────────────────────────
+        // Le Worker vérifie côté SERVEUR si l'email est banni AVANT d'envoyer
+        // quoi que ce soit à GitHub ou Formspree.
+        // Un banni ne peut pas contourner ce blocage côté client.
+        btnText.textContent = 'Envoi en cours…';
+
+        // Récupère les valeurs du formulaire
+        const nom     = document.getElementById('rdv-nom')?.value.trim()     || '';
+        const emailV  = document.getElementById('rdv-email')?.value.trim()   || '';
+        const tel     = document.getElementById('rdv-tel')?.value.trim()     || '';
+        const style   = document.getElementById('rdv-style')?.value          || '';
+        const projet  = document.getElementById('rdv-projet')?.value.trim()  || '';
+
+        // Prépare le corps de la requête pour le Worker
+        const payload = {
+          action: 'submitForm',
+          email:  emailV,
+          nom,
+          telephone: tel,
+          style,
+          projet,
+        };
+
+        // Si une image est jointe — on la convertit en base64 et on l'inclut
         const fileInput = document.getElementById('rdv-fichier');
         const file      = fileInput?.files[0];
 
         if (file) {
-          btnText.textContent = 'Envoi du dessin…';
-
+          btnText.textContent = 'Préparation du dessin…';
           const dataUrl = await new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload  = ev => resolve(ev.target.result);
@@ -1198,47 +1220,51 @@ async function verifyCode(email, code) {
             reader.readAsDataURL(file);
           });
 
-          const tel       = (document.getElementById('rdv-tel')?.value || '').replace(/\s/g, '');
-          const maskedTel = tel.length >= 3 ? tel.slice(0, -2) + '**' : 'client**';
-          const ext       = file.name.split('.').pop().toLowerCase();
-          const filename  = `${maskedTel}_${Date.now()}.${ext}`;
+          const maskedTel = tel.replace(/\s/g, '').length >= 3
+            ? tel.replace(/\s/g, '').slice(0, -2) + '**'
+            : 'client**';
+          const ext = file.name.split('.').pop().toLowerCase();
 
-          const workerRes  = await fetch(WORKER_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: dataUrl, filename }),
-          });
-
-          const workerJson = await workerRes.json().catch(() => ({ success: false }));
-          if (!workerJson.success) console.warn('Upload dessin échoué :', workerJson.error);
+          payload.image    = dataUrl;
+          payload.filename = `${maskedTel}_${Date.now()}.${ext}`;
         }
 
-        // ÉTAPE 2 : envoi texte via Formspree
         btnText.textContent = 'Envoi du message…';
-        const data = new FormData(form);
-        data.delete('rdv-fichier');
 
-        const response = await fetch(form.action, {
-          method: 'POST',
-          body: data,
-          headers: { 'Accept': 'application/json' }
+        // Envoie TOUT au Worker en une seule requête
+        const workerRes  = await fetch(WORKER_URL, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload),
         });
 
-        if (response.ok) {
-          // ✅ Succès total
-          form.reset();
-          verifyState = 'idle';
-          document.getElementById('codeField').style.display = 'none';
-          showCodeFeedback('', '');
-          resetSendBtn();
-          formMsg.style.display = 'block';
-          btnText.textContent   = 'Message envoyé ✦';
-        } else {
-          throw new Error('Erreur Formspree');
+        const workerJson = await workerRes.json().catch(() => ({ success: false }));
+
+        if (workerJson.error === 'banned') {
+          // Email banni — message discret, pas d'explication
+          formErr.textContent   = 'Nous ne pouvons pas traiter votre demande.';
+          formErr.style.display = 'block';
+          submitBtn.disabled    = false;
+          btnText.textContent   = 'Envoyer le Parchemin';
+          return;
         }
+
+        if (!workerJson.success) {
+          throw new Error(workerJson.error || 'Erreur serveur');
+        }
+
+        // ✅ Succès total
+        form.reset();
+        verifyState = 'idle';
+        document.getElementById('codeField').style.display = 'none';
+        showCodeFeedback('', '');
+        resetSendBtn();
+        formMsg.style.display = 'block';
+        btnText.textContent   = 'Message envoyé ✦';
 
       } catch (err) {
         console.error('Formulaire erreur:', err);
+        formErr.textContent   = 'Une ombre a perturbé l\'envoi. Veuillez réessayer ou nous contacter par téléphone.';
         formErr.style.display = 'block';
         submitBtn.disabled    = false;
         btnText.textContent   = 'Envoyer le Parchemin';
