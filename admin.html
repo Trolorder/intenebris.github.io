@@ -1747,10 +1747,11 @@
       loading.style.display = 'block';
 
       const token = sessionStorage.getItem('gh_token');
-
+      
       try {
         const res = await fetch(
           `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${BANNED_PATH}?t=${Date.now()}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         loading.style.display = 'none';
