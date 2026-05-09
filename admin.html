@@ -1838,7 +1838,6 @@
       try {
         const res = await fetch(
           `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${BANNED_PATH}`,
-          { headers: { Authorization: `Bearer ${token}` } }
         );
         if (!res.ok) return [];
         const data    = await res.json();
