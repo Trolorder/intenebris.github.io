@@ -888,7 +888,6 @@
           <span class="section-label">✦ Archive</span>
           <h2 class="section-title">Dessins Reçus</h2>
         </div>
-        <button class="btn-secondary" onclick="loadDessins()">↺ Rafraîchir</button>
       </div>
 
       <!-- Statistiques -->
@@ -922,16 +921,20 @@
         </button>
       </div>
 
-      <!-- Pagination — nombre d'éléments par page -->
-      <div class="pagination-bar">
-        <span class="filter-label">Afficher :</span>
-        <button class="page-btn active" data-count="25"  onclick="setPageSize(25,  this)">25</button>
-        <button class="page-btn"        data-count="50"  onclick="setPageSize(50,  this)">50</button>
-        <button class="page-btn"        data-count="75"  onclick="setPageSize(75,  this)">75</button>
-        <button class="page-btn"        data-count="all" onclick="setPageSize('all',this)">Tout</button>
-        <span class="page-info" id="pageInfo">
-          Affichage de <span id="pageShown">0</span> / <span id="pageTotal">0</span>
-        </span>
+      <!-- Pagination + bouton Rafraîchir sur la même ligne -->
+      <div class="pagination-bar" style="justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <span class="filter-label">Afficher :</span>
+          <button class="page-btn active" data-count="25"  onclick="setPageSize(25,  this)">25</button>
+          <button class="page-btn"        data-count="50"  onclick="setPageSize(50,  this)">50</button>
+          <button class="page-btn"        data-count="75"  onclick="setPageSize(75,  this)">75</button>
+          <button class="page-btn"        data-count="all" onclick="setPageSize('all',this)">Tout</button>
+          <span class="page-info" id="pageInfo">
+            Affichage de <span id="pageShown">0</span> / <span id="pageTotal">0</span>
+          </span>
+        </div>
+        <!-- Rafraîchir maintenant au niveau de la pagination -->
+        <button class="btn-secondary" onclick="loadDessins()">↺ Rafraîchir</button>
       </div>
 
       <!-- Grille des dessins -->
@@ -1325,6 +1328,8 @@
 
     // ════════════════════════════════════════════════════════════════════════
     //  SUPPRESSION d'un dessin
+    //  Retire l'item du tableau local et re-render — pas de rechargement
+    //  complet donc la page ne remonte pas en haut.
     // ════════════════════════════════════════════════════════════════════════
     async function deleteDessin(filename, sha) {
       if (!confirm(`Supprimer définitivement "${filename}" ?`)) return;
@@ -1333,7 +1338,6 @@
       const url   = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${FOLDER}/${encodeURIComponent(filename)}`;
 
       try {
-        // Si on n'a pas le SHA (cas rare), on le récupère
         let fileSha = sha;
         if (!fileSha) {
           const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -1352,8 +1356,21 @@
 
         if (!res.ok) throw new Error(`GitHub ${res.status}`);
 
+        // ← Retire l'item du tableau local sans recharger depuis GitHub
+        // → la page ne remonte pas en haut
+        allDessins = allDessins.filter(d => d.name !== filename);
+
+        // Met à jour les stats
+        const adminCount  = allDessins.filter(d => d.isAdmin).length;
+        const clientsSet  = new Set(allDessins.filter(d => !d.isAdmin).map(d => d.tel));
+        document.getElementById('statTotal').textContent   = allDessins.length;
+        document.getElementById('statClients').textContent = clientsSet.size;
+        document.getElementById('statAdmin').textContent   = adminCount;
+
+        // Re-render la page courante (sans scroll)
+        applyAll();
+
         toast(`"${filename}" supprimé ✦`);
-        loadDessins();
 
       } catch (err) {
         toast('Erreur suppression : ' + err.message, true);
