@@ -656,37 +656,6 @@
     .existing-card:hover .existing-card-overlay { opacity: 1; }
 
     /* Indicateur de chargement de la galerie existante */
-    /* Boutons taille de page */
-    .pgsize-btn {
-      font-family: 'Cinzel', serif;
-      font-size: 0.55rem;
-      letter-spacing: 2px;
-      color: var(--silver);
-      background: transparent;
-      border: 1px solid rgba(168,168,168,0.15);
-      padding: 0.3rem 0.7rem;
-      cursor: pointer;
-      transition: all 0.25s;
-    }
-    .pgsize-btn:hover { border-color: var(--blood); color: var(--bone); }
-    .pgsize-btn.active { background: rgba(139,0,0,0.3); border-color: var(--blood); color: var(--bone); }
-
-    /* Boutons navigation ← → */
-    .btn-nav {
-      font-family: 'Cinzel', serif;
-      font-size: 0.58rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--silver);
-      background: transparent;
-      border: 1px solid rgba(168,168,168,0.2);
-      padding: 0.5rem 1.1rem;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-nav:hover { border-color: var(--blood); color: var(--bone); }
-    .btn-nav:disabled { opacity: 0.2; cursor: not-allowed; border-color: rgba(168,168,168,0.1); color: rgba(168,168,168,0.3); }
-
     #existingLoading {
       text-align: center;
       padding: 3rem;
@@ -852,36 +821,7 @@
           <span class="section-label">✦ Photos actuellement en ligne</span>
           <h2 class="section-title">Galerie existante</h2>
         </div>
-        <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
-          <!-- Sélecteur du nombre de photos par page -->
-          <div style="display:flex; align-items:center; gap:0.5rem;">
-            <span style="font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(168,168,168,0.4);">Par page :</span>
-            <button class="pgsize-btn active" data-size="25"  onclick="setPageSize(25)">25</button>
-            <button class="pgsize-btn"        data-size="50"  onclick="setPageSize(50)">50</button>
-            <button class="pgsize-btn"        data-size="75"  onclick="setPageSize(75)">75</button>
-            <button class="pgsize-btn"        data-size="100" onclick="setPageSize(100)">100</button>
-          </div>
-          <button class="btn-secondary" onclick="loadExisting()">↺ Rafraîchir</button>
-        </div>
-      </div>
-
-      <!-- Pagination compacte : taille + flèches sur une ligne -->
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.8rem;">
-        <!-- Boutons taille de page -->
-        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-          <span style="font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(168,168,168,0.4);">Par page :</span>
-          <button class="pgsize-btn active" data-size="25"  onclick="setPageSize(25)">25</button>
-          <button class="pgsize-btn"        data-size="50"  onclick="setPageSize(50)">50</button>
-          <button class="pgsize-btn"        data-size="75"  onclick="setPageSize(75)">75</button>
-          <button class="pgsize-btn"        data-size="100" onclick="setPageSize(100)">100</button>
-          <span id="paginationInfo" style="font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:2px; color:rgba(168,168,168,0.35); margin-left:0.5rem;"></span>
-        </div>
-        <!-- Flèches ← → -->
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <button id="btnPrev" class="btn-secondary" onclick="changePage(-1)" disabled>&#8592;</button>
-          <span id="paginationPageNum" style="font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:2px; color:rgba(168,168,168,0.35); min-width:60px; text-align:center;"></span>
-          <button id="btnNext" class="btn-secondary" onclick="changePage(1)" disabled>&#8594;</button>
-        </div>
+        <button class="btn-secondary" onclick="loadExisting()">↺ Rafraîchir</button>
       </div>
 
       <div id="existingLoading">Chargement de la galerie…</div>
@@ -903,18 +843,9 @@
         <button class="btn-secondary" onclick="loadDessins()">↺ Rafraîchir</button>
       </div>
 
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.8rem;">
-        <p style="font-style:italic; color:rgba(168,168,168,0.4); font-size:0.85rem; margin:0;">
-          <span id="dessinsPageInfo">5 derniers dessins reçus.</span>
-          <a href="dessins.html" style="color:var(--goldlit); text-decoration:none; font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:2px; margin-left:1rem;">→ Voir tout</a>
-        </p>
-        <!-- Flèches navigation -->
-        <div style="display:flex; align-items:center; gap:0.5rem;">
-          <button id="dessinsPrev" class="btn-secondary" onclick="changeDessinPage(-1)" disabled>&#8592;</button>
-          <span id="dessinsPageNum" style="font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:2px; color:rgba(168,168,168,0.35); min-width:60px; text-align:center;"></span>
-          <button id="dessinsNext" class="btn-secondary" onclick="changeDessinPage(1)" disabled>&#8594;</button>
-        </div>
-      </div>
+      <p style="font-style:italic; color:rgba(168,168,168,0.4); font-size:0.85rem; margin-bottom:1.5rem;">
+        Les 5 derniers dessins reçus. <a href="dessins.html" style="color:var(--goldlit); text-decoration:none; font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:2px;">→ Voir tout dans la page Dessins</a>
+      </p>
 
       <div id="dessinsLoading" style="display:none;">Chargement des dessins…</div>
       <div id="dessinsGrid" class="dessins-grid"></div>
@@ -982,7 +913,7 @@
 
     const PHOTOS_PATH  = 'Photos';
     const META_PATH    = 'photos-meta.json';
-    const BANNED_PATH  = 'banned-emails.json'; // ← avec les autres constantes pour éviter l'erreur d'initialisation
+    const BANNED_PATH  = 'banned-emails.json'; // ← déclaré ici pour éviter l'erreur d'initialisation
 
     const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/`;
 
@@ -1455,112 +1386,31 @@
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  GALERIE EXISTANTE — avec pagination
-    //  allPhotos = liste complète chargée une fois
-    //  currentPage + pageSize contrôlent ce qu'on affiche
+    //  CHARGEMENT DE LA GALERIE EXISTANTE
+    //  Fetch la liste des photos sur GitHub et affiche les cartes
     // ═════════════════════════════════════════════════════════════════════
-    let allPhotos   = []; // toutes les photos du repo
-    let allMeta     = {}; // métadonnées (titre, tag)
-    let currentPage = 1;
-    let pageSize    = 25; // par défaut
-
-    // Change la taille de page et réaffiche depuis la page 1
-    function setPageSize(size) {
-      pageSize = size;
-      currentPage = 1;
-      // Met à jour le bouton actif
-      document.querySelectorAll('.pgsize-btn').forEach(b => {
-        b.classList.toggle('active', parseInt(b.dataset.size) === size);
-      });
-      renderPage();
-    }
-
-    // Navigue d'une page (dir = +1 ou -1)
-    function changePage(dir) {
-      const totalPages = Math.ceil(allPhotos.length / pageSize);
-      currentPage = Math.max(1, Math.min(currentPage + dir, totalPages));
-      renderPage();
-      // Remonte en haut de la section galerie
-      document.getElementById('existingLoading').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // Affiche la page courante
-    function renderPage() {
-      const grid = document.getElementById('existingGrid');
-      grid.innerHTML = '';
-
-      const totalPages  = Math.ceil(allPhotos.length / pageSize);
-      const start       = (currentPage - 1) * pageSize;
-      const end         = Math.min(start + pageSize, allPhotos.length);
-      const pagePhotos  = allPhotos.slice(start, end);
-
-      const tagLabels = {
-        blackwork: 'Blackwork', fantasy: 'Dark Fantasy',
-        blackmetal: 'Black Metal', dotwork: 'Dotwork',
-        realism: 'Réalisme', coverup: 'Cover-up'
-      };
-
-      // Crée les cartes pour cette page
-      pagePhotos.forEach(file => {
-        const m   = allMeta[file.name] || {};
-        const src = `${RAW_BASE}${PHOTOS_PATH}/${encodeURIComponent(file.name)}`;
-
-        const card = document.createElement('div');
-        card.className = 'existing-card';
-        card.innerHTML = `
-          <img
-            src="${src}"
-            alt="${m.title || file.name}"
-            loading="lazy"
-            onerror="this.style.opacity='0.2'"
-          />
-          <div class="existing-card-overlay">
-            <button class="btn-danger" onclick="deletePhoto('${file.name}')">✕</button>
-          </div>
-          <div class="existing-card-info">
-            <div class="existing-card-title">${m.title || file.name}</div>
-            <div class="existing-card-tag">${tagLabels[m.tag] || m.tag || '—'}</div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-
-      // Met à jour les infos de pagination
-      const totalPages = Math.ceil(allPhotos.length / pageSize);
-      const infoText   = `${allPhotos.length} photos`;
-      document.getElementById('paginationInfo').textContent    = infoText;
-      document.getElementById('paginationPageNum').textContent = totalPages > 1 ? `${currentPage} / ${totalPages}` : '';
-
-      // Active/désactive les flèches
-      document.getElementById('btnPrev').disabled = currentPage <= 1;
-      document.getElementById('btnNext').disabled = currentPage >= totalPages;
-    }
-
     async function loadExisting() {
       const grid    = document.getElementById('existingGrid');
       const loading = document.getElementById('existingLoading');
 
-      grid.innerHTML        = '';
+      grid.innerHTML    = '';
       loading.style.display = 'block';
       loading.textContent   = 'Chargement de la galerie…';
-
-      // Cache les barres pendant le chargement
-      document.getElementById('paginationBar').style.display       = 'none';
-      document.getElementById('paginationBarBottom').style.display = 'none';
 
       try {
         const token = sessionStorage.getItem('gh_token');
 
-        // 1. Métadonnées
+        // 1. Récupère les métadonnées
+        let meta = {};
         try {
           const metaRes = await fetch(
             `${RAW_BASE}${META_PATH}?t=${Date.now()}`,
             { headers: { Authorization: `Bearer ${token}` } }
           );
-          if (metaRes.ok) allMeta = await metaRes.json();
-        } catch { allMeta = {}; }
+          if (metaRes.ok) meta = await metaRes.json();
+        } catch {}
 
-        // 2. Liste des photos
+        // 2. Récupère la liste des fichiers dans Photos/
         const filesRes = await fetch(
           `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PHOTOS_PATH}`,
           { headers: { Authorization: `Bearer ${token}` } }
@@ -1568,20 +1418,48 @@
 
         if (!filesRes.ok) throw new Error('Impossible de lire le dossier Photos/');
 
-        const files = await filesRes.json();
-        allPhotos   = files.filter(
+        const files  = await filesRes.json();
+        const images = files.filter(
           f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
         );
 
         loading.style.display = 'none';
 
-        if (allPhotos.length === 0) {
+        if (images.length === 0) {
           grid.innerHTML = '<p style="color:rgba(168,168,168,0.4); font-style:italic;">Aucune photo dans la galerie.</p>';
           return;
         }
 
-        currentPage = 1;
-        renderPage();
+        // 3. Crée une carte pour chaque image
+        images.forEach(file => {
+          const m    = meta[file.name] || {};
+          const src  = `${RAW_BASE}${PHOTOS_PATH}/${encodeURIComponent(file.name)}`;
+          const tagLabels = {
+            blackwork: 'Blackwork', fantasy: 'Dark Fantasy',
+            blackmetal: 'Black Metal', dotwork: 'Dotwork',
+            realism: 'Réalisme', coverup: 'Cover-up'
+          };
+
+          const card = document.createElement('div');
+          card.className = 'existing-card';
+          card.innerHTML = `
+            <img
+              src="${src}"
+              alt="${m.title || file.name}"
+              loading="lazy"
+              onerror="this.style.opacity='0.2'"
+            />
+            <!-- Bouton supprimer (apparaît au survol grâce au CSS) -->
+            <div class="existing-card-overlay">
+              <button class="btn-danger" onclick="deletePhoto('${file.name}')">✕</button>
+            </div>
+            <div class="existing-card-info">
+              <div class="existing-card-title">${m.title || file.name}</div>
+              <div class="existing-card-tag">${tagLabels[m.tag] || m.tag || '—'}</div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
 
       } catch (err) {
         loading.textContent = 'Erreur : ' + err.message;
@@ -1589,88 +1467,33 @@
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  DESSINS CLIENTS — avec navigation ← →
-    //  Charge tous les dessins une fois, navigue par groupes de 5
+    //  NOTIFICATION GLOBALE (toast en bas à droite)
     // ═════════════════════════════════════════════════════════════════════
-    let allDessinsAdmin  = []; // liste complète
-    let dessinsPage      = 0;  // page courante (index, 0 = première)
-    const DESSINS_PER_PAGE = 5;
-
-    function renderDessinsPage() {
-      const grid    = document.getElementById('dessinsGrid');
-      const total   = allDessinsAdmin.length;
-      const pages   = Math.ceil(total / DESSINS_PER_PAGE);
-      const start   = dessinsPage * DESSINS_PER_PAGE;
-      const slice   = allDessinsAdmin.slice(start, start + DESSINS_PER_PAGE);
-
-      grid.innerHTML = '';
-
-      slice.forEach(file => {
-        const src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/dessins/${encodeURIComponent(file.name)}`;
-        const parts     = file.name.replace(/\.[^.]+$/, '').split('_');
-        const maskedTel = parts[0] || '—';
-        const ts        = parseInt(parts[1]);
-        const dateStr   = ts ? new Date(ts).toLocaleDateString('fr-FR', {
-          day: '2-digit', month: 'long', year: 'numeric',
-          hour: '2-digit', minute: '2-digit'
-        }) : '—';
-
-        const card = document.createElement('div');
-        card.className = 'dessin-card';
-        card.innerHTML = `
-          <img src="${src}" alt="Dessin ${maskedTel}" loading="lazy"
-               onerror="this.style.opacity='0.2'"/>
-          <div class="dessin-card-overlay">
-            <button class="btn-danger" onclick="deleteDessin('${file.name}')">✕</button>
-          </div>
-          <div class="dessin-card-info">
-            <div class="dessin-card-tel">✦ ${maskedTel}</div>
-            <div class="dessin-card-date">${dateStr}</div>
-          </div>`;
-        grid.appendChild(card);
-      });
-
-      // Met à jour l'info page et les flèches
-      const pageNum  = document.getElementById('dessinsPageNum');
-      const prevBtn  = document.getElementById('dessinsPrev');
-      const nextBtn  = document.getElementById('dessinsNext');
-      const infoEl   = document.getElementById('dessinsPageInfo');
-
-      if (pages > 0) {
-        pageNum.textContent = `${dessinsPage + 1} / ${pages}`;
-        infoEl.textContent  = `${total} dessin${total > 1 ? 's' : ''} reçu${total > 1 ? 's' : ''}.`;
-      }
-      prevBtn.disabled = dessinsPage <= 0;
-      nextBtn.disabled = dessinsPage >= pages - 1;
-    }
-
-    function changeDessinPage(dir) {
-      const pages = Math.ceil(allDessinsAdmin.length / DESSINS_PER_PAGE);
-      dessinsPage = Math.max(0, Math.min(dessinsPage + dir, pages - 1));
-      renderDessinsPage();
-    }
-
+    // ═════════════════════════════════════════════════════════════════════
+    //  DESSINS CLIENTS
+    //  Charge les images du dossier /dessins/ sur GitHub.
+    //  Ces images ont été envoyées par les clients via le formulaire de RDV.
+    //  Le nom du fichier = téléphone masqué + timestamp (ex: 062497**_1714903200000.jpg)
+    // ═════════════════════════════════════════════════════════════════════
     async function loadDessins() {
       const grid    = document.getElementById('dessinsGrid');
       const loading = document.getElementById('dessinsLoading');
 
-      grid.innerHTML        = '';
-      loading.style.display = 'block';
-      loading.textContent   = 'Chargement des dessins clients…';
-
-      // Désactive les flèches pendant le chargement
-      document.getElementById('dessinsPrev').disabled = true;
-      document.getElementById('dessinsNext').disabled = true;
-      document.getElementById('dessinsPageNum').textContent = '';
+      grid.innerHTML         = '';
+      loading.style.display  = 'block';
+      loading.textContent    = 'Chargement des dessins clients…';
 
       try {
         const token  = sessionStorage.getItem('gh_token');
         const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/dessins`;
 
-        const res = await fetch(apiUrl, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await fetch(apiUrl, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
 
         loading.style.display = 'none';
 
+        // Si le dossier n'existe pas encore (aucun client n'a encore envoyé de dessin)
         if (res.status === 404) {
           grid.innerHTML = `<p class="dessins-empty">Aucun dessin client reçu pour le moment.</p>`;
           return;
@@ -1678,26 +1501,59 @@
 
         if (!res.ok) throw new Error(`GitHub API ${res.status}`);
 
-        const files = await res.json();
-        allDessinsAdmin = files
-          .filter(f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name))
-          .sort((a, b) => b.name.localeCompare(a.name)); // plus récent en premier
+        const files  = await res.json();
+        const images = files.filter(
+          f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
+        );
 
-        if (allDessinsAdmin.length === 0) {
+        if (images.length === 0) {
           grid.innerHTML = `<p class="dessins-empty">Aucun dessin client reçu pour le moment.</p>`;
           return;
         }
 
-        dessinsPage = 0;
-        renderDessinsPage();
+        // Trie par date de modification décroissante (plus récent en premier)
+        // et ne garde que les 5 derniers pour ne pas alourdir la page admin
+        images.sort((a, b) => b.name.localeCompare(a.name));
+        const last5 = images.slice(0, 5);
+
+        last5.forEach(file => {
+          const src = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/dessins/${encodeURIComponent(file.name)}`;
+
+          // Extrait le numéro masqué et le timestamp depuis le nom de fichier
+          // Format : "062497**_1714903200000.jpg"
+          const parts    = file.name.replace(/\.[^.]+$/, '').split('_');
+          const maskedTel = parts[0] || '—';
+          const ts        = parseInt(parts[1]);
+          const dateStr   = ts ? new Date(ts).toLocaleDateString('fr-FR', {
+            day: '2-digit', month: 'long', year: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+          }) : '—';
+
+          const card = document.createElement('div');
+          card.className = 'dessin-card';
+          card.innerHTML = `
+            <img src="${src}" alt="Dessin ${maskedTel}" loading="lazy"
+                 onerror="this.style.opacity='0.2'"/>
+            <!-- Bouton supprimer au survol -->
+            <div class="dessin-card-overlay">
+              <button class="btn-danger" onclick="deleteDessin('${file.name}')">✕</button>
+            </div>
+            <div class="dessin-card-info">
+              <div class="dessin-card-tel">✦ ${maskedTel}</div>
+              <div class="dessin-card-date">${dateStr}</div>
+            </div>`;
+
+          grid.appendChild(card);
+        });
 
       } catch (err) {
         loading.style.display = 'none';
-        grid.innerHTML = `<p class="dessins-empty" style="color:rgba(192,0,10,0.5);">Erreur : ${err.message}</p>`;
+        grid.innerHTML = `<p class="dessins-empty" style="color:rgba(192,0,10,0.5);">
+          Erreur : ${err.message}</p>`;
       }
     }
 
-    // Supprime un dessin et retire du tableau local (sans rechargement)
+    // Supprime un dessin client du dossier /dessins/
     async function deleteDessin(filename) {
       if (!confirm(`Supprimer le dessin "${filename}" ?`)) return;
 
@@ -1717,13 +1573,8 @@
 
         if (!del.ok) throw new Error(`Erreur ${del.status}`);
 
-        // Retire du tableau local et ajuste la page si nécessaire
-        allDessinsAdmin = allDessinsAdmin.filter(f => f.name !== filename);
-        const pages = Math.ceil(allDessinsAdmin.length / DESSINS_PER_PAGE);
-        if (dessinsPage >= pages && dessinsPage > 0) dessinsPage--;
-        renderDessinsPage();
-
         notify(`Dessin "${filename}" supprimé.`, 'success');
+        loadDessins(); // rafraîchit la liste
 
       } catch (err) {
         notify('Erreur : ' + err.message, 'error');
@@ -1736,6 +1587,7 @@
     //  Format  : ["email@example.com", "domaine.com", ...]
     // ═════════════════════════════════════════════════════════════════════
 
+    // Charge et affiche la liste des emails bannis
     async function loadBans() {
       const list    = document.getElementById('banList');
       const empty   = document.getElementById('banEmpty');
@@ -1745,12 +1597,10 @@
       empty.style.display   = 'none';
       loading.style.display = 'block';
 
-      const token = sessionStorage.getItem('gh_token');
-
       try {
+        // Pas de header Authorization sur raw.githubusercontent.com — CORS sinon
         const res = await fetch(
-          `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${BANNED_PATH}?t=${Date.now()}`,
-          { headers: { Authorization: `Bearer ${token}` } }
+          `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${BANNED_PATH}?t=${Date.now()}`
         );
 
         loading.style.display = 'none';
