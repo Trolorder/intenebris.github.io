@@ -980,12 +980,10 @@
     const GITHUB_OWNER = 'Trolorder';
     const GITHUB_REPO  = 'intenebris.github.io';
 
-    // Chemin du dossier photos dans le repo
     const PHOTOS_PATH  = 'Photos';
-    // Nom du fichier de métadonnées (titre, style, rune de chaque photo)
     const META_PATH    = 'photos-meta.json';
+    const BANNED_PATH  = 'banned-emails.json'; // ← avec les autres constantes pour éviter l'erreur d'initialisation
 
-    // URL de base pour les images brutes GitHub (sans passer par l'API)
     const RAW_BASE = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/`;
 
     // ─── ÉTAT DE L'APPLICATION ─────────────────────────────────────────
@@ -1738,9 +1736,6 @@
     //  Format  : ["email@example.com", "domaine.com", ...]
     // ═════════════════════════════════════════════════════════════════════
 
-    const BANNED_PATH = 'banned-emails.json';
-
-    // Charge et affiche la liste des emails bannis
     async function loadBans() {
       const list    = document.getElementById('banList');
       const empty   = document.getElementById('banEmpty');
