@@ -1961,6 +1961,120 @@
 
       await githubPutFile('config.json', base64, `✦ Mise à jour image Atelier`);
     }
+
+        // ═════════════════════════════════════════════════════════════════════
+    //  PHOTOS DE L'ATELIER — Liste + Suppression directe
+    // ═════════════════════════════════════════════════════════════════════
+
+    let allAtelierPhotos = [];
+    let atelierCurrentPage = 0;
+    const ATELIER_PER_PAGE = 5;
+
+    async function loadAtelierPhotos() {
+      const grid = document.getElementById('atelierGrid');
+      grid.innerHTML = '<p style="padding:3rem; text-align:center; color:rgba(168,168,168,0.4);">Chargement des photos...</p>';
+
+      try {
+        const token = sessionStorage.getItem('gh_token');
+        const folder = "Photos de L'Atelier";
+
+        const res = await fetch(
+          `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(folder)}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (!res.ok) {
+          grid.innerHTML = `<p style="padding:3rem; text-align:center; color:rgba(168,168,168,0.4);">Aucune photo pour le moment.</p>`;
+          return;
+        }
+
+        const files = await res.json();
+        allAtelierPhotos = files
+          .filter(f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name))
+          .sort((a, b) => b.name.localeCompare(a.name));
+
+        atelierCurrentPage = 0;
+        renderAtelierPage();
+
+      } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<p style="padding:3rem; text-align:center; color:#e05050;">Erreur lors du chargement.</p>`;
+      }
+    }
+
+    function renderAtelierPage() {
+      const grid = document.getElementById('atelierGrid');
+      const totalPages = Math.ceil(allAtelierPhotos.length / ATELIER_PER_PAGE);
+      const start = atelierCurrentPage * ATELIER_PER_PAGE;
+      const slice = allAtelierPhotos.slice(start, start + ATELIER_PER_PAGE);
+
+      grid.innerHTML = '';
+
+      slice.forEach(file => {
+        const rawUrl = `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/Photos de L'Atelier/${encodeURIComponent(file.name)}`;
+
+        const card = document.createElement('div');
+        card.className = 'existing-card';
+        card.innerHTML = `
+          <img src="${rawUrl}" alt="${file.name}" loading="lazy">
+          <div class="existing-card-overlay">
+            <button class="btn-danger" onclick="deleteAtelierPhoto('${file.name}')">✕</button>
+          </div>
+          <div class="existing-card-info">
+            <div class="existing-card-title">${file.name}</div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      // Pagination
+      document.getElementById('atelierInfo').textContent = `${allAtelierPhotos.length} photo${allAtelierPhotos.length > 1 ? 's' : ''}`;
+      document.getElementById('atelierPageNum').textContent = totalPages > 1 ? `${atelierCurrentPage + 1} / ${totalPages}` : '';
+      document.getElementById('atelierPrev').disabled = atelierCurrentPage <= 0;
+      document.getElementById('atelierNext').disabled = atelierCurrentPage >= totalPages - 1;
+    }
+
+    function changeAtelierPage(dir) {
+      const totalPages = Math.ceil(allAtelierPhotos.length / ATELIER_PER_PAGE);
+      atelierCurrentPage = Math.max(0, Math.min(atelierCurrentPage + dir, totalPages - 1));
+      renderAtelierPage();
+    }
+
+    // Suppression directe
+    async function deleteAtelierPhoto(filename) {
+      if (!confirm(`Supprimer définitivement "${filename}" ?`)) return;
+
+      const token = sessionStorage.getItem('gh_token');
+      const path = `Photos de L'Atelier/${filename}`;
+      const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(path)}`;
+
+      try {
+        const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (!check.ok) throw new Error("Fichier introuvable");
+
+        const { sha } = await check.json();
+
+        await fetch(url, {
+          method: 'DELETE',
+          headers: { 
+            Authorization: `Bearer ${token}`, 
+            'Content-Type': 'application/json' 
+          },
+          body: JSON.stringify({ 
+            message: `✦ Suppression Photo Atelier : ${filename}`, 
+            sha 
+          })
+        });
+
+        notify(`"${filename}" a été supprimée.`, 'success');
+        loadAtelierPhotos();   // Rafraîchit la liste
+
+      } catch (err) {
+        notify('Erreur lors de la suppression.', 'error');
+        console.error(err);
+      }
+    }
+    
   </script>
 </body>
 </html>
