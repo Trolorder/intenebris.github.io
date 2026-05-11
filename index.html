@@ -639,9 +639,11 @@
         <div class="about-visual reveal">
           <div class="about-frame">
             <div class="about-frame-inner"></div>
-            <img id="aboutImage" src="Photo de L'Atelier/cf60cfd9b843184742ad38da3d484eb2.png" alt="In Tenebris - Salon de Tatouage Rouen" 
-                 style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; 
+    
+            <img id="aboutImage" src="" alt="In Tenebris - Salon de Tatouage Rouen" 
+         style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; 
                 filter: brightness(0.85) contrast(1.1) saturate(0.85);">
+    
             <div class="about-corner tl"></div>
             <div class="about-corner tr"></div>
             <div class="about-corner bl"></div>
@@ -1376,6 +1378,16 @@ async function verifyCode(email, code) {
           if (config.aboutImage) {
             img.src = config.aboutImage;}})
           .catch(() => console.log("Impossible de charger l'image de l'atelier"));
+
+      // Chargement dynamique de la photo de l'atelier
+      fetch('config.json?t=' + Date.now())
+        .then(r => r.json())
+        .then(config => {
+          if (config.aboutImage) {
+            document.getElementById('aboutImage').src = config.aboutImage;
+          }
+        })
+        .catch(err => console.log("config.json pas encore créé"));
 
   </script>
 </body>
