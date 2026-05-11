@@ -1373,42 +1373,39 @@ async function verifyCode(email, code) {
 
 
   // Chargement aléatoire d'une photo depuis le dossier "Photos de L'Atelier"
-<script>
-  // === CHARGEMENT PHOTO ATELIER - Version stable ===
   (async function loadRandomAtelierImage() {
-    const img = document.getElementById('aboutImage');
-    
-    // On essaie d'abord via config.json (plus fiable)
+    const folder = "Photos de L'Atelier";
+    const imgElement = document.getElementById('aboutImage');
+
     try {
-      const res = await fetch('config.json?t=' + Date.now());
-      if (res.ok) {
-        const config = await res.json();
-        
-        let images = [];
-        
-        if (config.aboutImages && Array.isArray(config.aboutImages) && config.aboutImages.length > 0) {
-          images = config.aboutImages;
-        } else if (config.aboutImage) {
-          images = [config.aboutImage];
-        }
+      const res = await fetch(`https://api.github.com/repos/Trolorder/intenebris.github.io/contents/${encodeURIComponent(folder)}`);
+      
+      if (!res.ok) throw new Error("Dossier non trouvé");
 
-        if (images.length > 0) {
-          const randomPath = images[Math.floor(Math.random() * images.length)];
-          img.src = randomPath;
-          console.log("✅ Photo Atelier chargée via config.json");
-          return;
-        }
+      const files = await res.json();
+      
+      // Filtre uniquement les images
+      const images = files.filter(file => 
+        file.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(file.name)
+      );
+
+      if (images.length === 0) {
+        console.log("Aucune image dans Photos de L'Atelier");
+        return;
       }
-    } catch (e) {
-      console.log("config.json non trouvé ou illisible");
+
+      // Choix aléatoire
+      const randomFile = images[Math.floor(Math.random() * images.length)];
+      const imageUrl = `https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/${folder}/${encodeURIComponent(randomFile.name)}`;
+
+      imgElement.src = imageUrl;
+
+    } catch (err) {
+      console.log("Impossible de charger une photo aléatoire d'atelier :", err);
+      // Optionnel : image de fallback
+      // imgElement.src = "Photos/placeholder.jpg";
     }
-
-    // Fallback si config.json vide ou inexistant
-    console.log("⚠️ Aucune photo d'atelier configurée");
-    // img.src = "Photos/placeholder.jpg"; // tu peux décommenter si tu veux une image par défaut
-
   })();
-</script>
 
   </script>
 </body>
