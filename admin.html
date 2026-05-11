@@ -824,6 +824,23 @@
         <button class="btn-secondary" onclick="loadExisting()">↺ Rafraîchir</button>
       </div>
 
+      <!-- Pagination galerie : taille de page + flèches -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.8rem;">
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <span style="font-family:'Cinzel',serif; font-size:0.55rem; letter-spacing:2px; text-transform:uppercase; color:rgba(168,168,168,0.4);">Par page :</span>
+          <button class="pgsize-btn active" data-size="25"  onclick="setPageSize(25)">25</button>
+          <button class="pgsize-btn"        data-size="50"  onclick="setPageSize(50)">50</button>
+          <button class="pgsize-btn"        data-size="75"  onclick="setPageSize(75)">75</button>
+          <button class="pgsize-btn"        data-size="100" onclick="setPageSize(100)">100</button>
+          <span id="galleryInfo" style="font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:2px; color:rgba(168,168,168,0.35); margin-left:0.5rem;"></span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <button id="galleryPrev" class="btn-secondary" onclick="changePage(-1)" disabled>&#8592;</button>
+          <span id="galleryPageNum" style="font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:2px; color:rgba(168,168,168,0.35); min-width:55px; text-align:center;"></span>
+          <button id="galleryNext" class="btn-secondary" onclick="changePage(1)" disabled>&#8594;</button>
+        </div>
+      </div>
+
       <div id="existingLoading">Chargement de la galerie…</div>
       <div id="existingGrid"></div>
 
@@ -843,9 +860,18 @@
         <button class="btn-secondary" onclick="loadDessins()">↺ Rafraîchir</button>
       </div>
 
-      <p style="font-style:italic; color:rgba(168,168,168,0.4); font-size:0.85rem; margin-bottom:1.5rem;">
-        Les 5 derniers dessins reçus. <a href="dessins.html" style="color:var(--goldlit); text-decoration:none; font-family:'Cinzel',serif; font-size:0.7rem; letter-spacing:2px;">→ Voir tout dans la page Dessins</a>
-      </p>
+      <!-- Navigation dessins : flèches + info -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:0.8rem;">
+        <p style="font-style:italic; color:rgba(168,168,168,0.4); font-size:0.85rem; margin:0;">
+          <span id="dessinsInfo">Chargement…</span>
+          <a href="dessins.html" style="color:var(--goldlit); text-decoration:none; font-family:'Cinzel',serif; font-size:0.65rem; letter-spacing:2px; margin-left:1rem;">→ Voir tout</a>
+        </p>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <button id="dessinsPrev" class="btn-secondary" onclick="changeDessinPage(-1)" disabled>&#8592;</button>
+          <span id="dessinsPageNum" style="font-family:'Cinzel',serif; font-size:0.58rem; letter-spacing:2px; color:rgba(168,168,168,0.35); min-width:55px; text-align:center;"></span>
+          <button id="dessinsNext" class="btn-secondary" onclick="changeDessinPage(1)" disabled>&#8594;</button>
+        </div>
+      </div>
 
       <div id="dessinsLoading" style="display:none;">Chargement des dessins…</div>
       <div id="dessinsGrid" class="dessins-grid"></div>
