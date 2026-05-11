@@ -866,6 +866,33 @@
 
       <hr class="dark-sep"/>
 
+      <!-- ─── PHOTO DE L'ATELIER ─────────────────────────────────────── -->
+      <span class="section-label">✦ Image principale</span>
+      <h2 class="section-title">Photo de L'Atelier</h2>
+      <p style="color:rgba(168,168,168,0.6); font-size:0.85rem; margin-bottom:1.5rem;">
+        Cette image apparaît dans la section « L’Atelier » sur la page d’accueil.
+      </p>
+
+      <div id="dropZoneAtelier" onclick="document.getElementById('fileInputAtelier').click()" 
+           style="border:2px dashed rgba(139,0,0,0.4); padding:2.5rem 2rem; text-align:center; cursor:pointer; margin:1.5rem 0; background:rgba(139,0,0,0.03); transition:all 0.3s;">
+        <div class="drop-icon">🜏</div>
+        <div class="drop-text">Glisse ta photo d’atelier ici ou clique</div>
+        <div class="drop-subtext">JPG, PNG, WEBP — Une seule photo recommandée</div>
+      </div>
+
+      <input type="file" id="fileInputAtelier" accept="image/jpeg,image/png,image/webp" 
+             onchange="handleAtelierFiles(this.files)" style="display:none;">
+
+      <div id="pendingAtelierList"></div>
+
+      <div id="publishAtelierWrap" style="display:none; text-align:center; margin:2rem 0;">
+        <button class="btn-primary" onclick="publishAtelierPhoto()">
+          <span>✦ Définir comme photo de l’Atelier ✦</span>
+        </button>
+      </div>
+
+      <hr class="dark-sep"/>
+      
       <!-- ─── SECTION 3 : DESSINS CLIENTS ─────────────────────────────
            Ces images sont envoyées par les clients via le formulaire de RDV.
            Elles sont stockées dans /dessins/ sur GitHub.
@@ -1825,7 +1852,100 @@
       clearTimeout(notifTimer);
       notifTimer = setTimeout(() => { el.style.display = 'none'; }, 4000);
     }
+    // ═════════════════════════════════════════════════════════════════════
+    //  PHOTO DE L'ATELIER
+    // ═════════════════════════════════════════════════════════════════════
 
+    let pendingAtelierFile = null;
+
+    // Drag & Drop
+    const dropZoneAtelier = document.getElementById('dropZoneAtelier');
+    dropZoneAtelier.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropZoneAtelier.style.borderColor = 'var(--blood)';
+    });
+    dropZoneAtelier.addEventListener('dragleave', () => {
+      dropZoneAtelier.style.borderColor = 'rgba(139,0,0,0.4)';
+    });
+    dropZoneAtelier.addEventListener('drop', e => {
+      e.preventDefault();
+      dropZoneAtelier.style.borderColor = 'rgba(139,0,0,0.4)';
+      handleAtelierFiles(e.dataTransfer.files);
+    });
+
+    function handleAtelierFiles(fileList) {
+      const file = Array.from(fileList).find(f => f.type.startsWith('image/'));
+      if (!file) return notify('Seules les images sont acceptées.', 'error');
+
+      pendingAtelierFile = file;
+      document.getElementById('publishAtelierWrap').style.display = 'block';
+
+      const reader = new FileReader();
+      reader.onload = ev => {
+        document.getElementById('pendingAtelierList').innerHTML = `
+          <div style="text-align:center; margin:1.5rem 0;">
+            <img src="${ev.target.result}" style="max-height:320px; border:1px solid rgba(139,0,0,0.4); border-radius:2px;">
+            <p style="margin-top:0.8rem; color:var(--silver); font-size:0.8rem;">${file.name}</p>
+          </div>`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function publishAtelierPhoto() {
+      if (!pendingAtelierFile) return;
+
+      const btn = document.querySelector('#publishAtelierWrap button');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.querySelector('span').textContent = 'Publication en cours…';
+
+      try {
+        const base64 = await fileToBase64(pendingAtelierFile);
+        const filename = pendingAtelierFile.name;
+        const folder = "Photos de L'Atelier";
+
+        await githubPutFile(`${folder}/${filename}`, base64, `✦ Photo Atelier : ${filename}`);
+        await updateAboutConfig(`${folder}/${filename}`);
+
+        notify(`✅ Photo de l’Atelier mise à jour : ${filename}`, 'success');
+
+        // Reset
+        pendingAtelierFile = null;
+        document.getElementById('pendingAtelierList').innerHTML = '';
+        document.getElementById('publishAtelierWrap').style.display = 'none';
+
+      } catch (err) {
+        notify('Erreur : ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    async function updateAboutConfig(imagePath) {
+      const token = sessionStorage.getItem('gh_token');
+      const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/config.json`;
+
+      let current = { aboutImage: "" };
+      let sha = null;
+
+      try {
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (res.ok) {
+          const data = await res.json();
+          sha = data.sha;
+          const decoded = atob(data.content.replace(/\n/g, ''));
+          current = JSON.parse(decoded);
+        }
+      } catch (e) {}
+
+      current.aboutImage = imagePath;
+
+      const jsonStr = JSON.stringify(current, null, 2);
+      const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+
+      await githubPutFile('config.json', base64, `✦ Mise à jour image Atelier`);
+    }
   </script>
 </body>
 </html>
