@@ -911,7 +911,7 @@
 
             <!-- Message d'erreur (apparaît en cas de problème) -->
             <div id="formErr">
-              Une ombre a perturbé l'envoi. Veuillez réessayer ou nous contacter directement par téléphone.
+              Une ombre a perturbé l'envoi. Veuillez réessayer ou nous contacter directement par E-mail: intenebris.rouen@gmail.com
             </div>
 
           </form>
@@ -1072,7 +1072,7 @@ async function sendVerificationCode() {
 
   } catch (err) {
     verifyState = 'idle';
-    showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par téléphone.', 'error');
+    showCodeFeedback('✕ Impossible d\'envoyer le code. Réessaie ou contacte-nous par E-mail: intenebris.rouen@gmail.com', 'error');
     resetSendBtn();
     console.error('sendCode:', err);
   }
@@ -1257,7 +1257,7 @@ async function verifyCode(email, code) {
 
       } catch (err) {
         console.error('Formulaire erreur:', err);
-        formErr.textContent   = 'Une ombre a perturbé l\'envoi. Veuillez réessayer ou nous contacter par téléphone.';
+        formErr.textContent   = 'Une ombre a perturbé l\'envoi. Veuillez réessayer ou nous contacter par E-mail: intenebris.rouen@gmail.com';
         formErr.style.display = 'block';
         submitBtn.disabled    = false;
         btnText.textContent   = 'Envoyer le Parchemin';
