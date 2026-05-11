@@ -1941,11 +1941,11 @@
       }
     }
 
-    async function updateAboutConfig(newImagePath) {
+    async function updateAboutConfig(imagePath) {
       const token = sessionStorage.getItem('gh_token');
       const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/config.json`;
 
-      let current = { aboutImages: [] };
+      let current = { aboutImage: "" };
       let sha = null;
 
       try {
@@ -1958,21 +1958,12 @@
         }
       } catch (e) {}
 
-      // Migration si ancienne version
-      if (current.aboutImage && !current.aboutImages) {
-        current.aboutImages = [current.aboutImage];
-        delete current.aboutImage;
-      }
-
-      // Ajoute seulement si elle n'existe pas déjà
-      if (!current.aboutImages.includes(newImagePath)) {
-        current.aboutImages.unshift(newImagePath); // met la plus récente en premier
-      }
+      current.aboutImage = imagePath;
 
       const jsonStr = JSON.stringify(current, null, 2);
       const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
 
-      await githubPutFile('config.json', base64, `✦ Ajout photo Atelier : ${newImagePath}`);
+      await githubPutFile('config.json', base64, `✦ Mise à jour image Atelier`);
     }
 
         // ═════════════════════════════════════════════════════════════════════
