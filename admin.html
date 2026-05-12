@@ -2014,7 +2014,7 @@
       }
     }
 
-      function renderAtelierPage() {
+    function renderAtelierPage() {
       const grid = document.getElementById('atelierGrid');
       const totalPages = Math.ceil(allAtelierPhotos.length / ATELIER_PER_PAGE);
       const start = atelierCurrentPage * ATELIER_PER_PAGE;
@@ -2038,18 +2038,6 @@
         `;
         grid.appendChild(card);
       });
-
-      // Mise à jour pagination
-      document.getElementById('atelierInfo').textContent = 
-        `${allAtelierPhotos.length} photo${allAtelierPhotos.length > 1 ? 's' : ''}`;
-
-      document.getElementById('atelierPageNum').textContent = 
-        totalPages > 1 ? `${atelierCurrentPage + 1} / ${totalPages}` : '';
-
-      document.getElementById('atelierPrev').disabled = atelierCurrentPage <= 0;
-      document.getElementById('atelierNext').disabled = atelierCurrentPage >= totalPages - 1;
-    }
-
 
       // Pagination
       document.getElementById('atelierInfo').textContent = `${allAtelierPhotos.length} photo${allAtelierPhotos.length > 1 ? 's' : ''}`;
