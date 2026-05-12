@@ -2014,7 +2014,7 @@
       }
     }
 
-    function renderAtelierPage() {
+      function renderAtelierPage() {
       const grid = document.getElementById('atelierGrid');
       const totalPages = Math.ceil(allAtelierPhotos.length / ATELIER_PER_PAGE);
       const start = atelierCurrentPage * ATELIER_PER_PAGE;
@@ -2028,13 +2028,14 @@
         const card = document.createElement('div');
         card.className = 'existing-card';
         card.innerHTML = `
-          <img src="${rawUrl}" alt="${file.name}" loading="lazy" onerror="this.style.opacity='0.2'">
+          <img src="${rawUrl}" alt="${file.name}" loading="lazy">
           <div class="existing-card-overlay">
             <button class="btn-danger" onclick="deleteAtelierPhoto('${file.name}')">✕</button>
           </div>
           <div class="existing-card-info">
             <div class="existing-card-title">${file.name}</div>
-          </div>`;
+          </div>
+        `;
         grid.appendChild(card);
       });
 
