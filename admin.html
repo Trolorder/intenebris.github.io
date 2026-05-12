@@ -2028,16 +2028,27 @@
         const card = document.createElement('div');
         card.className = 'existing-card';
         card.innerHTML = `
-          <img src="${rawUrl}" alt="${file.name}" loading="lazy">
+          <img src="${rawUrl}" alt="${file.name}" loading="lazy" onerror="this.style.opacity='0.2'">
           <div class="existing-card-overlay">
             <button class="btn-danger" onclick="deleteAtelierPhoto('${file.name}')">✕</button>
           </div>
           <div class="existing-card-info">
             <div class="existing-card-title">${file.name}</div>
-          </div>
-        `;
+          </div>`;
         grid.appendChild(card);
       });
+
+      // Mise à jour pagination
+      document.getElementById('atelierInfo').textContent = 
+        `${allAtelierPhotos.length} photo${allAtelierPhotos.length > 1 ? 's' : ''}`;
+
+      document.getElementById('atelierPageNum').textContent = 
+        totalPages > 1 ? `${atelierCurrentPage + 1} / ${totalPages}` : '';
+
+      document.getElementById('atelierPrev').disabled = atelierCurrentPage <= 0;
+      document.getElementById('atelierNext').disabled = atelierCurrentPage >= totalPages - 1;
+    }
+
 
       // Pagination
       document.getElementById('atelierInfo').textContent = `${allAtelierPhotos.length} photo${allAtelierPhotos.length > 1 ? 's' : ''}`;
