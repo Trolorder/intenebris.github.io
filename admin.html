@@ -1941,11 +1941,11 @@
       }
     }
 
-    async function updateAboutConfig(imagePath) {
+    async function updateAboutConfig(newImagePath) {
       const token = sessionStorage.getItem('gh_token');
       const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/config.json`;
 
-      let current = { aboutImage: "" };
+      let current = { aboutImages: [] };
       let sha = null;
 
       try {
@@ -1958,14 +1958,22 @@
         }
       } catch (e) {}
 
-      current.aboutImage = imagePath;
+      // Migration si ancienne version
+      if (current.aboutImage && !current.aboutImages) {
+        current.aboutImages = [current.aboutImage];
+        delete current.aboutImage;
+      }
+
+      // Ajoute seulement si elle n'existe pas déjà
+      if (!current.aboutImages.includes(newImagePath)) {
+        current.aboutImages.unshift(newImagePath); // met la plus récente en premier
+      }
 
       const jsonStr = JSON.stringify(current, null, 2);
       const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
 
-      await githubPutFile('config.json', base64, `✦ Mise à jour image Atelier`);
+      await githubPutFile('config.json', base64, `✦ Ajout photo Atelier : ${newImagePath}`);
     }
-
         // ═════════════════════════════════════════════════════════════════════
     //  PHOTOS DE L'ATELIER — Liste + Suppression directe
     // ═════════════════════════════════════════════════════════════════════
