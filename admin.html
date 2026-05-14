@@ -1445,8 +1445,13 @@
         // Retire aussi l'entrée dans photos-meta.json
         await removeFromMeta(filename);
 
+        // Retire du tableau local et re-render — sans rechargement ni scroll
+        allPhotos = allPhotos.filter(f => f.name !== filename);
+        const pages = Math.ceil(allPhotos.length / pageSize);
+        if (currentPage > pages && currentPage > 1) currentPage--;
+        renderGalleryPage();
+
         notify(`"${filename}" supprimée de la galerie.`, 'success');
-        loadExisting();
 
       } catch (err) {
         notify('Erreur lors de la suppression : ' + err.message, 'error');
