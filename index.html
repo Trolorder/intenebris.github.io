@@ -25,34 +25,45 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: transparent; /* ← était var(--black) */
+      background: var(--black);
       color: var(--bone);
       font-family: 'IM Fell English', Georgia, serif;
       cursor: crosshair;
       overflow-x: hidden;
     }
 
-body {
-  background: #080808; /* fond noir sur le body directement */
-  color: var(--bone);
-  font-family: 'IM Fell English', Georgia, serif;
-  cursor: crosshair;
-  overflow-x: hidden;
-}
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
+    }
 
-/* Grain filmique */
-body {
-  background-color: #080808;
-  background-image: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
-  background-repeat: no-repeat;
-  background-position: center top 5%;
-  background-size: 35%;
-  background-attachment: fixed; /* ← reste en haut au scroll, toujours */
-  color: var(--bone);
-  font-family: 'IM Fell English', Georgia, serif;
-  cursor: crosshair;
-  overflow-x: hidden;
-}
+    /* ─── LOGO EN ARRIÈRE-PLAN ─────────────────────────────────────────
+       Reste fixe au scroll grâce à position:fixed sur un vrai élément.
+       Pour ajuster :
+       - width: 35%     → taille du logo
+       - top: 5%        → position verticale depuis le haut
+       - opacity: 0.12  → transparence (0 = invisible, 1 = plein)
+    ─────────────────────────────────────────────────────────────────── */
+    #logo-bg {
+      position: fixed;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 35%;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #logo-bg img {
+      width: 100%;
+      display: block;
+    }
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
@@ -615,6 +626,11 @@ body {
   </style>
 </head>
 <body>
+
+  <!-- Logo fixe en arrière-plan — reste en place au scroll -->
+  <div id="logo-bg">
+    <img src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png" alt=""/>
+  </div>
 
   <nav>
     <a href="index.html" class="nav-logo">In Tenebris</a>
