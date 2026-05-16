@@ -30,22 +30,16 @@
       font-family: 'IM Fell English', Georgia, serif;
       cursor: crosshair;
       overflow-x: hidden;
+    }
 
-  /* ─── LOGO EN ARRIÈRE-PLAN ──────────────────────────────────────────
-     1. Remplace "logo.png" par le nom de ton fichier logo (déposé à la racine du repo)
-     2. "no-repeat" = pas de répétition en mosaïque
-     3. "center top" = centré horizontalement, collé en haut
-     4. "fixed" = reste en place quand tu scrolles (comme un watermark)
-     5. "30%" = taille du logo — augmente pour l'agrandir, diminue pour le réduire
-  ─────────────────────────────────────────────────────────────────── */
-      background-image: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/09931fd5d22d887a29b3ca6629d22b1c.jpg');
-      background-repeat: no-repeat;
-      background-position: center top;
-      background-attachment: fixed;
-      background-size: 30%;
-
-  /* Optionnel — assombrit le logo pour qu'il ne mange pas le contenu */
-  /* Remplace l'image par un dégradé + image combinés si tu veux plus de contrôle */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.35;
     }
 
     ::-webkit-scrollbar { width: 4px; }
