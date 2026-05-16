@@ -41,29 +41,19 @@ body {
 }
 
 /* Grain filmique */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-  pointer-events: none;
-  z-index: 999;
-  opacity: 0.35;
-}
-
-/* Logo en arrière-plan — ajuste background-size et opacity */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
+body {
+  background-color: #080808;
   background-image: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
   background-repeat: no-repeat;
   background-position: center top 5%;
   background-size: 35%;
-  opacity: 0.15; /* augmente jusqu'à voir le logo, puis diminue à ton goût */
-  pointer-events: none;
-  z-index: 1; /* au-dessus du fond noir, en-dessous du contenu */
+  background-attachment: fixed; /* ← reste en haut au scroll, toujours */
+  color: var(--bone);
+  font-family: 'IM Fell English', Georgia, serif;
+  cursor: crosshair;
+  overflow-x: hidden;
 }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
