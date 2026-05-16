@@ -1417,18 +1417,8 @@
       const path  = `${PHOTOS_PATH}/${filename}`;
       const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
 
-      // Masque immédiatement la carte AVANT l'appel réseau
-      // (évite que la photo reste visible pendant que GitHub supprime)
-      const allCards = document.querySelectorAll('.existing-card');
-      allCards.forEach(card => {
-        const img = card.querySelector('img');
-        if (img && img.alt === filename) {
-          card.style.opacity = '0.15';
-          card.style.pointerEvents = 'none';
-        }
-      });
-
       try {
+        // Pour supprimer un fichier GitHub a besoin de son SHA
         const check = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -1437,6 +1427,7 @@
 
         const { sha } = await check.json();
 
+        // Requête DELETE avec le SHA
         const res = await fetch(url, {
           method: 'DELETE',
           headers: {
@@ -1451,22 +1442,13 @@
 
         if (!res.ok) throw new Error(`Erreur ${res.status}`);
 
+        // Retire aussi l'entrée dans photos-meta.json
         await removeFromMeta(filename);
 
-        // Retire du tableau local et re-render — sans rechargement ni scroll
-        allPhotos = allPhotos.filter(f => f.name !== filename);
-        const pages = Math.ceil(allPhotos.length / pageSize);
-        if (currentPage > pages && currentPage > 1) currentPage--;
-        renderGalleryPage();
-
         notify(`"${filename}" supprimée de la galerie.`, 'success');
+        loadExisting();
 
       } catch (err) {
-        // En cas d'erreur, remet la carte visible
-        allCards.forEach(card => {
-          card.style.opacity = '';
-          card.style.pointerEvents = '';
-        });
         notify('Erreur lors de la suppression : ' + err.message, 'error');
       }
     }
