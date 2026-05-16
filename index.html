@@ -51,18 +51,18 @@
        - "background-position: center top 5%" → position (haut, centré)
        - "opacity: 0.08"               → transparence (0.03 = très discret, 0.15 = visible)
     ─────────────────────────────────────────────────────────────────── */
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
-      background-repeat: no-repeat;
-      background-position: center top 5%;
-      background-size: 35%;
-      opacity: 0.08;
-      pointer-events: none;
-      z-index: -1;
-    }
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png');
+  background-repeat: no-repeat;
+  background-position: center top 5%;
+  background-size: 35%;
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: -1; /* ← était 0, maintenant -1 = derrière TOUT le contenu */
+}
 
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
