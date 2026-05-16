@@ -42,6 +42,28 @@
       opacity: 0.35;
     }
 
+    /* ─── LOGO EN ARRIÈRE-PLAN ─────────────────────────────────────────
+       Dépose ton fichier logo à la RACINE du repo GitHub (ex: logo.png)
+       puis remplace "logo.png" ci-dessous par le bon nom de fichier.
+
+       Pour ajuster :
+       - "background-size: 35%"        → taille du logo (essaie 20% à 60%)
+       - "background-position: center top 5%" → position (haut, centré)
+       - "opacity: 0.08"               → transparence (0.03 = très discret, 0.15 = visible)
+    ─────────────────────────────────────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url('https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/09931fd5d22d887a29b3ca6629d22b1c.jpg');
+      background-repeat: no-repeat;
+      background-position: center top 5%;
+      background-size: 35%;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 0;
+    }
+
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
