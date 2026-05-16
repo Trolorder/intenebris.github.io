@@ -59,17 +59,22 @@
       pointer-events: none;
       z-index: 1;
     }
-
+    
     #logo-bg img {
       width: 100%;
       display: block;
     }
 
-    /* Fond opaque sur toutes les sections pour cacher le logo derrière */
+    /* Fond opaque sur toutes les sections sauf le hero */
     section, footer {
       position: relative;
       z-index: 2;
       background: var(--black);
+    }
+
+    /* Le hero reste transparent — le logo est visible derrière */
+    section.hero {
+      background: transparent;
     }
 
     ::-webkit-scrollbar { width: 4px; }
