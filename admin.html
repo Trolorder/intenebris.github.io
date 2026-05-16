@@ -1414,42 +1414,36 @@
       if (!confirm(`Supprimer définitivement "${filename}" de la galerie ?`)) return;
 
       const token = sessionStorage.getItem('gh_token');
-      const path  = `${PHOTOS_PATH}/${filename}`;
-      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`;
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${PHOTOS_PATH}/${filename}`;
+
+      // Retire IMMÉDIATEMENT du tableau local et re-render (comme deleteDessin)
+      const photosSave = [...allPhotos];
+      allPhotos = allPhotos.filter(f => f.name !== filename);
+      const pages = Math.ceil(allPhotos.length / pageSize);
+      if (currentPage > pages && currentPage > 1) currentPage--;
+      renderGalleryPage();
 
       try {
-        // Pour supprimer un fichier GitHub a besoin de son SHA
-        const check = await fetch(url, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
+        const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (!check.ok) throw new Error('Fichier introuvable');
-
         const { sha } = await check.json();
 
-        // Requête DELETE avec le SHA
         const res = await fetch(url, {
           method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            message: `✦ Suppression : ${filename}`,
-            sha,
-          }),
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `✦ Suppression : ${filename}`, sha }),
         });
 
         if (!res.ok) throw new Error(`Erreur ${res.status}`);
 
-        // Retire aussi l'entrée dans photos-meta.json
         await removeFromMeta(filename);
-
-        notify(`"${filename}" supprimée de la galerie.`, 'success');
-        loadExisting();
+        notify(`"${filename}" supprimée.`, 'success');
 
       } catch (err) {
-        notify('Erreur lors de la suppression : ' + err.message, 'error');
+        // Rollback si GitHub échoue
+        allPhotos = photosSave;
+        renderGalleryPage();
+        notify('Erreur suppression : ' + err.message, 'error');
       }
     }
 
@@ -2057,33 +2051,36 @@
       if (!confirm(`Supprimer définitivement "${filename}" ?`)) return;
 
       const token = sessionStorage.getItem('gh_token');
-      const path = `Photos de L'Atelier/${filename}`;
-      const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(path)}`;
+      const path  = `Photos de L'Atelier/${filename}`;
+      const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${encodeURIComponent(path)}`;
+
+      // Retire IMMÉDIATEMENT du tableau local et re-render (comme deleteDessin)
+      const atelierSave = [...allAtelierPhotos];
+      allAtelierPhotos = allAtelierPhotos.filter(f => f.name !== filename);
+      const pages = Math.ceil(allAtelierPhotos.length / ATELIER_PER_PAGE);
+      if (atelierCurrentPage >= pages && atelierCurrentPage > 0) atelierCurrentPage--;
+      renderAtelierPage();
 
       try {
         const check = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-        if (!check.ok) throw new Error("Fichier introuvable");
-
+        if (!check.ok) throw new Error('Fichier introuvable');
         const { sha } = await check.json();
 
-        await fetch(url, {
+        const res = await fetch(url, {
           method: 'DELETE',
-          headers: { 
-            Authorization: `Bearer ${token}`, 
-            'Content-Type': 'application/json' 
-          },
-          body: JSON.stringify({ 
-            message: `✦ Suppression Photo Atelier : ${filename}`, 
-            sha 
-          })
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: `✦ Suppression Photo Atelier : ${filename}`, sha }),
         });
 
-        notify(`"${filename}" a été supprimée.`, 'success');
-        loadAtelierPhotos();   // Rafraîchit la liste
+        if (!res.ok) throw new Error(`Erreur ${res.status}`);
+
+        notify(`"${filename}" supprimée.`, 'success');
 
       } catch (err) {
-        notify('Erreur lors de la suppression.', 'error');
-        console.error(err);
+        // Rollback si GitHub échoue
+        allAtelierPhotos = atelierSave;
+        renderAtelierPage();
+        notify('Erreur suppression : ' + err.message, 'error');
       }
     }
     
