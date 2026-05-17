@@ -46,6 +46,35 @@
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
+    /* ─── LOGO EN ARRIÈRE-PLAN DU HERO ──────────────────────────────────
+       width: 35%    → taille · top: 8% → position · opacity: 0.12 → transparence
+    ─────────────────────────────────────────────────────────────────── */
+    #logo-bg {
+      position: absolute;
+      top: 8%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 35%;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    #logo-bg img { width: 100%; display: block; }
+
+    /* Sections opaques — cachent le logo quand on scrolle */
+    section, footer {
+      position: relative;
+      z-index: 2;
+      background: var(--black);
+    }
+
+    /* Hero transparent pour laisser voir le logo à l'intérieur */
+    section.hero {
+      background: transparent;
+      z-index: auto;
+    }
+
     /* ── NAV ── */
     nav {
       position: fixed;
@@ -636,6 +665,12 @@
   <a id="adminBtn" href="admin.html" title="Panneau Admin" aria-label="Admin">⚙</a>
 
   <section class="hero">
+
+    <!-- Logo en arrière-plan du hero — disparaît au scroll -->
+    <div id="logo-bg">
+      <img src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/logo%20titre(1).png" alt=""/>
+    </div>
+
     <div class="hero-bg"></div>
     <span class="hero-eyebrow">✦ Rouen · Normandie · Depuis 2018 ✦</span>
     <h1 class="hero-title">In Tenebris</h1>
