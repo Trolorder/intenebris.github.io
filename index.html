@@ -46,43 +46,6 @@
     ::-webkit-scrollbar-track { background: var(--black); }
     ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
-    /* ─── LOGO EN ARRIÈRE-PLAN DU HERO ──────────────────────────────────
-       Le logo est DANS la section hero (position:absolute).
-       Il disparaît naturellement quand on scrolle vers les sections suivantes.
-       Pour ajuster :
-       - width: 35%    → taille du logo
-       - top: 8%       → position verticale dans le hero
-       - opacity: 0.12 → transparence
-    ─────────────────────────────────────────────────────────────────── */
-    #logo-bg {
-      position: absolute;
-      top: 8%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 35%;
-      opacity: 0.12;
-      pointer-events: none;
-      z-index: 1; /* ← était 0, maintenant au-dessus du hero-bg */
-    }
-
-    #logo-bg img {
-      width: 100%;
-      display: block;
-    }
-
-    /* Sections opaques pour masquer proprement le fond */
-    section, footer {
-      position: relative;
-      z-index: 2;
-      background: var(--black);
-    }
-
-    /* Le hero reste transparent — on verra le logo en absolute à l'intérieur */
-    section.hero {
-      background: transparent;
-      z-index: auto;
-    }
-
     /* ── NAV ── */
     nav {
       position: fixed;
@@ -97,12 +60,22 @@
     }
 
     .nav-logo {
-      font-family: 'UnifrakturMaguntia', cursive;
-      font-size: 1.8rem;
-      color: var(--goldlit);
-      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
       text-decoration: none;
-      text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+
+    .nav-logo img {
+      height: 48px; /* ← ajuste cette valeur pour changer la taille du logo */
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(201,168,76,0.35));
+      transition: filter 0.3s, opacity 0.3s;
+    }
+
+    .nav-logo:hover img {
+      filter: drop-shadow(0 0 18px rgba(201,168,76,0.6));
+      opacity: 0.85;
     }
 
     .nav-links { display: flex; gap: 2rem; list-style: none; }
@@ -642,7 +615,12 @@
 <body>
 
   <nav>
-    <a href="index.html" class="nav-logo">In Tenebris</a>
+    <a href="index.html" class="nav-logo">
+      <img
+        src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/logo%20titre(1).png"
+        alt="In Tenebris"
+      />
+    </a>
     <ul class="nav-links">
       <li><a href="#about">L'Atelier</a></li>
       <li><a href="#services">Services</a></li>
@@ -658,14 +636,8 @@
   <a id="adminBtn" href="admin.html" title="Panneau Admin" aria-label="Admin">⚙</a>
 
   <section class="hero">
-
-    <!-- Logo en arrière-plan du hero — disparaît au scroll -->
-    <div id="logo-bg">
-      <img src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06(1).png" alt=""/>
-    </div>
-
     <div class="hero-bg"></div>
-    <span class="hero-eyebrow"> ✦ Rouen · Normandie · Depuis 2018 ✦</span>
+    <span class="hero-eyebrow">✦ Rouen · Normandie · Depuis 2018 ✦</span>
     <h1 class="hero-title">In Tenebris</h1>
     <p class="hero-sub">Salon de Tatouage</p>
     <div class="divider"></div>
