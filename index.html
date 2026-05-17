@@ -42,44 +42,46 @@
       opacity: 0.35;
     }
 
-    /* ─── LOGO EN ARRIÈRE-PLAN ─────────────────────────────────────────
-       Reste fixe au scroll grâce à position:fixed sur un vrai élément.
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--black); }
+    ::-webkit-scrollbar-thumb { background: var(--crimson); }
+
+    /* ─── LOGO EN ARRIÈRE-PLAN DU HERO ──────────────────────────────────
+       Le logo est DANS la section hero (position:absolute).
+       Il disparaît naturellement quand on scrolle vers les sections suivantes.
        Pour ajuster :
-       - width: 35%     → taille du logo
-       - top: 5%        → position verticale depuis le haut
-       - opacity: 0.12  → transparence (0 = invisible, 1 = plein)
+       - width: 35%    → taille du logo
+       - top: 8%       → position verticale dans le hero
+       - opacity: 0.12 → transparence
     ─────────────────────────────────────────────────────────────────── */
     #logo-bg {
-      position: fixed;
-      top: 5%;
+      position: absolute;
+      top: 8%;
       left: 50%;
       transform: translateX(-50%);
       width: 35%;
       opacity: 0.12;
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
     }
-    
+
     #logo-bg img {
       width: 100%;
       display: block;
     }
 
-    /* Fond opaque sur toutes les sections sauf le hero */
+    /* Sections opaques pour masquer proprement le fond */
     section, footer {
       position: relative;
       z-index: 2;
       background: var(--black);
     }
 
-    /* Le hero reste transparent — le logo est visible derrière */
+    /* Le hero reste transparent — on verra le logo en absolute à l'intérieur */
     section.hero {
       background: transparent;
+      z-index: auto;
     }
-
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--black); }
-    ::-webkit-scrollbar-thumb { background: var(--crimson); }
 
     /* ── NAV ── */
     nav {
@@ -639,11 +641,6 @@
 </head>
 <body>
 
-  <!-- Logo fixe en arrière-plan — reste en place au scroll -->
-  <div id="logo-bg">
-    <img src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png" alt=""/>
-  </div>
-
   <nav>
     <a href="index.html" class="nav-logo">In Tenebris</a>
     <ul class="nav-links">
@@ -661,6 +658,12 @@
   <a id="adminBtn" href="admin.html" title="Panneau Admin" aria-label="Admin">⚙</a>
 
   <section class="hero">
+
+    <!-- Logo en arrière-plan du hero — disparaît au scroll -->
+    <div id="logo-bg">
+      <img src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06.png" alt=""/>
+    </div>
+
     <div class="hero-bg"></div>
     <span class="hero-eyebrow">✦ Rouen · Normandie · Depuis 2018 ✦</span>
     <h1 class="hero-title">In Tenebris</h1>
