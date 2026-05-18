@@ -766,7 +766,14 @@
     .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
     .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
+    .admin-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
     @media (max-width: 768px) {
+      .admin-content { padding: 1rem 0.75rem; }
       .admin-nav { flex-wrap: nowrap; padding: 0.8rem 1rem; }
       .admin-nav-logo img { height: 32px; }
       .nav-hamburger { display: flex; margin-left: auto; }
@@ -885,7 +892,7 @@
       </div>
     </div>
 
-    <div style="padding: 2rem; max-width: 1400px; margin: 0 auto;">
+    <div class="admin-content">
 
       <!-- ─── SECTION 1 : AJOUTER DES PHOTOS ──────────────────────── -->
       <span class="section-label">✦ Publier de nouvelles photos</span>
