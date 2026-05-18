@@ -558,7 +558,7 @@
 
     .pending-fields {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 0.8rem;
     }
 
@@ -1192,22 +1192,6 @@
             </select>
           </div>
 
-          <!-- Rune affichée si l'image ne charge pas -->
-          <div class="form-group">
-            <label>Rune (fallback)</label>
-            <select id="${id}_rune">
-              <option value="☠">☠ Crâne</option>
-              <option value="⚔">⚔ Épées</option>
-              <option value="☩">☩ Croix</option>
-              <option value="🜏">🜏 Alchimie</option>
-              <option value="⛧">⛧ Étoile</option>
-              <option value="☽">☽ Lune</option>
-              <option value="⚡">⚡ Foudre</option>
-              <option value="✝">✝ Croix latine</option>
-              <option value="🔱">🔱 Trident</option>
-            </select>
-          </div>
-
           <!-- Barre de progression (visible pendant l'upload) -->
           <div class="progress-bar-wrap" id="${id}_progress">
             <div class="progress-bar" id="${id}_bar"></div>
@@ -1257,7 +1241,6 @@
         // Récupère les valeurs des champs pour ce fichier
         const title = document.getElementById(id + '_title')?.value.trim() || file.name;
         const tag   = document.getElementById(id + '_tag')?.value   || 'blackwork';
-        const rune  = document.getElementById(id + '_rune')?.value  || '☠';
 
         // Affiche la barre de progression
         const progressWrap = document.getElementById(id + '_progress');
@@ -1281,7 +1264,7 @@
           if (progressBar) progressBar.style.width = '85%';
 
           // 3. Met à jour le fichier de métadonnées
-          await updateMeta(file.name, { title, tag, rune });
+          await updateMeta(file.name, { title, tag });
           if (progressBar) progressBar.style.width = '100%';
 
           // Succès — affiche le badge vert et retire de la liste d'attente
@@ -1390,7 +1373,7 @@
 
     // ─── MISE À JOUR DU FICHIER DE MÉTADONNÉES ──────────────────────────
     // photos-meta.json contient le titre, le tag et la rune de chaque photo
-    async function updateMeta(filename, { title, tag, rune }) {
+    async function updateMeta(filename, { title, tag }) {
       const token = sessionStorage.getItem('gh_token');
       const url   = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${META_PATH}`;
 
@@ -1413,7 +1396,7 @@
       } catch {} // fichier inexistant ou JSON invalide → on repart de zéro
 
       // 2. Ajoute / modifie l'entrée pour ce fichier
-      currentMeta[filename] = { title, tag, rune };
+      currentMeta[filename] = { title, tag };
 
       // 3. Ré-encode en base64 pour GitHub
       // encodeURIComponent + unescape = gestion des caractères UTF-8 (accents, runes…)
