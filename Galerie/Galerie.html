@@ -626,7 +626,7 @@
 
   <!-- HERO -->
   <div class="gallery-hero">
-    <p class="gallery-eyebrow">✦ Plus de 1000 œuvres ✦</p>
+    <p class="gallery-eyebrow" id="galleryEyebrow">✦ Chargement… ✦</p>
     <h1 class="gallery-title">Galerie</h1>
     <div class="divider"></div>
     <p class="gallery-subtitle">L'archive de nos ténèbres gravées dans la chair</p>
@@ -945,6 +945,13 @@
         const imageFiles = files.filter(
           f => f.type === 'file' && /\.(jpe?g|png|webp|gif)$/i.test(f.name)
         );
+
+        // ── Met à jour le compteur d'œuvres dans le titre ────────────
+        const eyebrow = document.getElementById('galleryEyebrow');
+        if (eyebrow) {
+          const n = imageFiles.length;
+          eyebrow.textContent = `✦ ${n} œuvre${n > 1 ? 's' : ''} ✦`;
+        }
 
         if (imageFiles.length === 0) {
           grid.innerHTML = `<p style="grid-column:1/-1; text-align:center; padding:3rem;
