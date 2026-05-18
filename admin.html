@@ -767,7 +767,9 @@
     .nav-hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
     @media (max-width: 768px) {
-      .nav-hamburger { display: flex; }
+      .admin-nav { flex-wrap: nowrap; padding: 0.8rem 1rem; }
+      .admin-nav-logo img { height: 32px; }
+      .nav-hamburger { display: flex; margin-left: auto; }
       .admin-nav-links {
         display: flex;
         flex-direction: column;
