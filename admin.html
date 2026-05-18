@@ -77,11 +77,22 @@
     }
 
     .admin-nav-logo {
-      font-family: 'UnifrakturMaguntia', cursive;
-      font-size: 1.6rem;
-      color: var(--goldlit);
-      text-shadow: 0 0 15px rgba(201,168,76,0.4);
-      text-decoration: none; /* c'est un lien vers l'accueil */
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .admin-nav-logo img {
+      height: 48px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 0 12px rgba(201,168,76,0.35));
+      transition: filter 0.3s, opacity 0.3s;
+    }
+
+    .admin-nav-logo:hover img {
+      filter: drop-shadow(0 0 18px rgba(201,168,76,0.6));
+      opacity: 0.85;
     }
 
     /* Liens vers les pages du site (L'Atelier, Services, etc.) */
@@ -785,7 +796,12 @@
     <!-- Barre de navigation — logo + liens vers le site + déconnexion -->
     <div class="admin-nav">
       <!-- Logo = lien retour accueil -->
-      <a href="index.html" class="admin-nav-logo">In Tenebris</a>
+      <a href="index.html" class="admin-nav-logo">
+        <img
+          src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/main/logo%20titre(1).png"
+          alt="In Tenebris"
+        />
+      </a>
 
       <!-- Liens vers les sections du site, comme dans la nav principale -->
       <ul class="admin-nav-links">
