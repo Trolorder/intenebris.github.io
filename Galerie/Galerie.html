@@ -55,8 +55,8 @@
        IMPORTANT : cette page est dans /Galerie/ donc les liens remontent d'un niveau avec ../
     */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
+      position: sticky;
+      top: 0;
       z-index: 100;
       display: flex;
       justify-content: space-between;
@@ -116,7 +116,7 @@
 
     /* ── HERO ── */
     .gallery-hero {
-      padding: 10rem 2rem 4rem;
+      padding: 4rem 2rem 4rem;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -595,7 +595,7 @@
       .nav-links a:hover, .nav-links a.active { color: var(--goldlit); background: rgba(139,0,0,0.05); }
       .controls-bar { padding: 0.8rem 1rem; }
       .filter-btn { font-size: 0.52rem; padding: 0.35rem 0.8rem; letter-spacing: 1px; }
-      .gallery-hero { padding: 6rem 1rem 2rem; }
+      .gallery-hero { padding: 2rem 1rem 2rem; }
       .gallery-section { padding: 1.5rem 0.75rem 4rem; }
     }
 
