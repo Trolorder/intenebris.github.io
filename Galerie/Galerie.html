@@ -598,6 +598,19 @@
       .gallery-hero { padding: 6rem 1rem 2rem; }
       .gallery-section { padding: 1.5rem 0.75rem 4rem; }
     }
+
+    /* ── Logo watermark dans le hero (même ambiance que index) ── */
+    .hero-logo-bg {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 35%;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hero-logo-bg img { width: 100%; display: block; }
   </style>
 </head>
 <body>
@@ -628,6 +641,9 @@
 
   <!-- HERO -->
   <div class="gallery-hero">
+      <div class="hero-logo-bg">
+        <img src="../logo%20titre(1).png" alt="" />
+      </div>
     <p class="gallery-eyebrow" id="galleryEyebrow">✦ Chargement… ✦</p>
     <h1 class="gallery-title">Galerie</h1>
     <div class="divider"></div>
