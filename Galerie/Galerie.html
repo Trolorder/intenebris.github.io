@@ -599,21 +599,24 @@
       .gallery-section { padding: 1.5rem 0.75rem 4rem; }
     }
 
-    /* ── Logo watermark dans le hero (même ambiance que index) ── */
-    .hero-logo-bg {
-      position: absolute;
-      top: 15%;
+    /* ── Watermark fixe — même position sur toutes les pages ── */
+    #page-watermark {
+      position: fixed;
+      top: 86px; /* juste sous la nav */
       left: 50%;
       transform: translateX(-50%);
       width: 22%;
-      opacity: 0.1;
+      opacity: 0.07;
       pointer-events: none;
-      z-index: 1;
+      z-index: 0;
     }
-    .hero-logo-bg img { width: 100%; display: block; }
+    #page-watermark img { width: 100%; display: block; }
   </style>
 </head>
 <body>
+
+  <!-- Watermark fixe -->
+  <div id="page-watermark"><img src="../2021-12-06(1).png" alt="" /></div>
 
   <!-- NAV — liens avec ../ car on est dans le sous-dossier /Galerie/ -->
   <nav>
@@ -641,9 +644,6 @@
 
   <!-- HERO -->
   <div class="gallery-hero">
-      <div class="hero-logo-bg">
-        <img src="../2021-12-06(1).png" alt="" />
-      </div>
     <p class="gallery-eyebrow" id="galleryEyebrow">✦ Chargement… ✦</p>
     <h1 class="gallery-title">Galerie</h1>
     <div class="divider"></div>
