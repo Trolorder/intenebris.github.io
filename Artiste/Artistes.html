@@ -439,6 +439,19 @@
       .nav-links a:hover, .nav-links a.active { color: var(--goldlit); background: rgba(139,0,0,0.05); }
       .artists-grid { grid-template-columns: 1fr; }
     }
+
+    /* ── Logo watermark dans le hero (même ambiance que index) ── */
+    .hero-logo-bg {
+      position: absolute;
+      top: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 35%;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hero-logo-bg img { width: 100%; display: block; }
   </style>
 </head>
 <body>
@@ -469,6 +482,9 @@
 
   <!-- HERO -->
   <div class="page-hero">
+      <div class="hero-logo-bg">
+        <img src="../logo%20titre(1).png" alt="" />
+      </div>
     <p class="page-eyebrow">✦ Les gardiens de l'encre ✦</p>
     <h1 class="page-title">Artistes</h1>
     <div class="divider"></div>
