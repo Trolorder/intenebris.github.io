@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In Tenebris</title>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=Cinzel:wght@400&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#060608;cursor:none}
+    canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+    #fire-canvas{z-index:12}
+    #mold-canvas{z-index:20;opacity:0;transition:opacity .3s}
+    #cursor{position:fixed;z-index:9999;pointer-events:none;width:6px;height:6px;border-radius:50%;background:rgba(160,0,8,.9);transform:translate(-50%,-50%);opacity:0}
+    #overlay{position:fixed;inset:0;z-index:25;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:opacity .6s}
+    .eyebrow{font-family:'Cinzel',serif;font-size:clamp(.42rem,.85vw,.6rem);letter-spacing:.55em;text-transform:uppercase;color:rgba(201,168,76,.7);transition:opacity .5s}
+    .divider{width:clamp(120px,25vw,280px);height:1px;background:linear-gradient(to right,transparent,rgba(139,0,0,.7),transparent);margin:.9rem 0;transition:opacity .5s}
+    #title{font-family:'UnifrakturMaguntia',cursive;font-size:clamp(2.8rem,9.5vw,8rem);color:#c9a84c;line-height:1;transition:color 1.2s ease}
+    .sub{font-family:'Cinzel',serif;font-size:clamp(.42rem,.9vw,.6rem);letter-spacing:.65em;text-transform:uppercase;color:rgba(201,168,76,.6);margin-top:.9rem;transition:opacity .5s}
+    .cta{pointer-events:auto;margin-top:3rem;transition:opacity .4s;font-family:'Cinzel',serif;font-size:clamp(.45rem,.95vw,.63rem);letter-spacing:.45em;text-transform:uppercase;text-decoration:none;color:rgba(201,168,76,.8);border:1px solid rgba(139,0,0,.5);padding:.85rem 2.2rem;transition:border-color .4s,color .4s;cursor:none}
+    .cta:hover{border-color:rgba(139,0,0,.85);color:#c9a84c}
+    #hint{position:fixed;bottom:1.4rem;left:50%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:.48rem;letter-spacing:.35em;text-transform:uppercase;color:rgba(139,0,0,.3);z-index:10;pointer-events:none;animation:b 5s ease-in-out infinite;transition:opacity 1s}
+    @keyframes b{0%,100%{opacity:0}50%{opacity:1}}
+  </style>
+</head>
+<body>
+<div id="cursor"></div>
+<canvas id="c"></canvas>
+<canvas id="fire-canvas"></canvas>
+<canvas id="mold-canvas"></canvas>
+<div id="overlay">
+  <p class="eyebrow">✦ Rouen · Normandie · Depuis 2018 ✦</p>
+  <div class="divider"></div>
+  <img id="title" src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06(1).png" alt="In Tenebris">
+  <div class="divider"></div>
+  <p class="sub"></p>
+  <a href="Accueil.html" class="cta" id="cta">✦ &nbsp;Visitez notre univers&nbsp; ✦</a>
+</div>
+<p id="hint">Déplace ta souris</p>
+
+<script>
+/* ══ SETUP ══════════════════════════════════════════════════════ */
+const canvas   = document.getElementById('c');
+const fireCanvas = document.getElementById('fire-canvas');
+const moldCanvas = document.getElementById('mold-canvas');
+const ctx  = canvas.getContext('2d');
+const fctx = fireCanvas.getContext('2d');
+const mctx = moldCanvas.getContext('2d');
+const cur  = document.getElementById('cursor');
+const titleEl = document.getElementById('title');
+
+let W, H, titleRect, titleFont;
+
+function resize(){
+  W = canvas.width = fireCanvas.width = moldCanvas.width = window.innerWidth;
+  H = canvas.height = fireCanvas.height = moldCanvas.height = window.innerHeight;
+  updateTitleInfo();
+}
+
+function updateTitleInfo(){
+  titleRect = titleEl.getBoundingClientRect();
+  const fs = parseFloat(getComputedStyle(titleEl).fontSize);
+  titleFont = `${fs}px UnifrakturMaguntia, cursive`;
+}
+
+/* curseur */
+let mx=0,my=0;
+window.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  cur.style.opacity='1';
+});
+window.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const t=e.touches[0];mx=t.clientX;my=t.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+  cur.style.opacity='1';
+},{passive:false});
+window.addEventListener('touchend',()=>cur.style.opacity='0');
+window.addEventListener('touchcancel',()=>cur.style.opacity='0');
+
+/* ══ CURSOR TENDRILS ════════════════════════════════════════════ */
+class Filament{
+  constructor(x,y,a,maxLen,depth,w){
+    this.depth=depth;this.w=w;this.life=1;this.done=false;
+    this.children=[];this.spawned=false;
+    this.pts=[{x,y}];
+    let cx=x,cy=y,ang=a,tot=0;
+    while(tot<maxLen){
+      ang+=(Math.random()-.5)*(depth>1?1.0:.65);
+      const s=1.2+Math.random()*2.2;
+      cx+=Math.cos(ang)*s;cy+=Math.sin(ang)*s;tot+=s;
+      this.pts.push({x:cx,y:cy});
+    }
+    this.endX=cx;this.endY=cy;this.endA=ang;
+    this.prog=0;this.speed=0.08+Math.random()*.07;
+    this.spines=[];
+    if(depth>=2){
+      for(let i=0;i<Math.floor(Math.random()*4)+2;i++){
+        const seg=Math.floor(Math.random()*this.pts.length);
+        const side=Math.random()<.5?1:-1;
+        this.spines.push({seg,len:2+Math.random()*6,a:ang+side*(Math.PI/2+(Math.random()-.5)*.5)});
+      }
+    }
+  }
+  update(){
+    if(this.prog<1){
+      this.prog=Math.min(1,this.prog+this.speed);
+      if(this.prog>.6&&!this.spawned&&this.depth>0){
+        this.spawned=true;
+        const nk=this.depth>1?Math.floor(Math.random()*3)+2:Math.floor(Math.random()*2)+1;
+        for(let k=0;k<nk;k++){
+          const a=this.endA+(Math.random()-.5)*Math.PI*(this.depth>1?.9:.55);
+          const l=(6+Math.random()*14)*(this.depth/2);
+          this.children.push(new Filament(this.endX,this.endY,a,l,this.depth-1,this.w*(0.3+Math.random()*.25)));
+        }
+      }
+    } else {
+      this.life-=0.015;
+      if(this.life<=0)this.done=true;
+    }
+    for(const ch of this.children)ch.update();
+    this.children=this.children.filter(ch=>!ch.done);
+  }
+  draw(ctx){
+    if(this.pts.length<2)return;
+    const mi=Math.floor(this.prog*(this.pts.length-1));
+    if(mi<1)return;
+    const a=Math.max(0,this.life*(0.6+this.depth*.08));
+    ctx.beginPath();ctx.moveTo(this.pts[0].x,this.pts[0].y);
+    for(let i=1;i<=mi;i++)ctx.lineTo(this.pts[i].x,this.pts[i].y);
+    ctx.strokeStyle=`rgba(160,0,8,${a.toFixed(3)})`;
+    ctx.lineWidth=this.w*this.life;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+    for(const sp of this.spines){
+      if(sp.seg>mi)continue;
+      const p=this.pts[sp.seg];
+      ctx.beginPath();ctx.moveTo(p.x,p.y);
+      ctx.lineTo(p.x+Math.cos(sp.a)*sp.len*this.prog,p.y+Math.sin(sp.a)*sp.len*this.prog);
+      ctx.strokeStyle=`rgba(160,0,8,${(a*.45).toFixed(3)})`;
+      ctx.lineWidth=this.w*.25*this.life;ctx.stroke();
+    }
+    for(const ch of this.children)ch.draw(ctx);
+  }
+}
+class Cluster{
+  constructor(x,y){
+    this.f=[];
+    const n=Math.floor(Math.random()*5)+8;
+    for(let i=0;i<n;i++){
+      const a=(i/n)*Math.PI*2+(Math.random()-.5)*.5;
+      this.f.push(new Filament(x,y,a,8+Math.random()*18,2,.35+Math.random()*.4));
+    }
+  }
+  get dead(){return this.f.every(f=>f.done);}
+  update(){for(const f of this.f)f.update();}
+  draw(ctx){for(const f of this.f)f.draw(ctx);}
+}
+let clusters=[],lastX=-999,lastY=-999,hintGone=false;
+function spawnAt(x,y){
+  const d=Math.hypot(x-lastX,y-lastY);
+  if(d>16&&clusters.length<16){
+    clusters.push(new Cluster(x,y));lastX=x;lastY=y;
+    if(!hintGone){document.getElementById('hint').style.opacity='0';hintGone=true;}
+  }
+}
+window.addEventListener('mousemove',e=>spawnAt(e.clientX,e.clientY));
+window.addEventListener('touchmove',e=>{e.preventDefault();spawnAt(e.touches[0].clientX,e.touches[0].clientY);},{passive:false});
+
+/* ══ EMBER / FEU visible à travers les lettres ══════════════════ */
+class Ember{
+  constructor(random){this.reset(random);}
+  reset(random){
+    const r=titleRect||{left:W*.2,top:H*.4,width:W*.6,height:80};
+    this.x=r.left+Math.random()*r.width;
+    this.y=random?(r.top+Math.random()*r.height):(r.top+r.height+5);
+    this.vy=-(0.6+Math.random()*1.8);
+    this.vx=(Math.random()-.5)*.6;
+    this.size=0.8+Math.random()*2.2;
+    this.life=1;
+    this.decay=0.006+Math.random()*0.01;
+    this.wobble=Math.random()*Math.PI*2;
+    this.wobbleSpeed=0.04+Math.random()*.04;
+  }
+  update(){
+    this.wobble+=this.wobbleSpeed;
+    this.x+=this.vx+Math.sin(this.wobble)*.4;
+    this.y+=this.vy;
+    this.life-=this.decay;
+    if(this.life<=0||(titleRect&&this.y<titleRect.top-30))this.reset(false);
+  }
+  draw(ctx){
+    const l=this.life;
+    /* couleur : blanc-jaune vif → orange → rouge */
+    let r,g,b;
+    if(l>.7){r=255;g=200+Math.floor((l-.7)/.3*55);b=80;}
+    else if(l>.4){r=255;g=Math.floor((l-.4)/.3*200);b=10;}
+    else{r=200+Math.floor(l/.4*55);g=0;b=0;}
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size*l,0,Math.PI*2);
+    ctx.fillStyle=`rgba(${r},${g},${b},${(l*.95).toFixed(2)})`;
+    ctx.fill();
+  }
+}
+
+let embers=[];
+/* couleur titre : gold→blood selon progression braise */
+let fireProgress=0; /* 0=gold, 1=blood */
+let titleBlood=false;
+
+function lerp(a,b,t){return a+(b-a)*t;}
+function lerpColor(c1,c2,t){
+  return {r:Math.round(lerp(c1.r,c2.r,t)),g:Math.round(lerp(c1.g,c2.g,t)),b:Math.round(lerp(c1.b,c2.b,t))};
+}
+const GOLD ={r:201,g:168,b:76};
+const BLOOD={r:139,g:0,b:0};
+
+function renderFire(){
+  fctx.clearRect(0,0,W,H);
+  if(!titleRect||!titleFont)return;
+
+  /* 1 — dessiner les braises */
+  for(const e of embers){e.update();e.draw(fctx);}
+
+  /* 2 — masquer : ne garder que les pixels dans les lettres */
+  fctx.globalCompositeOperation='destination-in';
+  fctx.font=titleFont;
+  fctx.textAlign='center';
+  fctx.textBaseline='middle';
+  fctx.fillStyle='black';
+  const cy=titleRect.top+titleRect.height/2;
+  fctx.fillText('In Tenebris',W/2,cy);
+  fctx.globalCompositeOperation='source-over';
+
+  /* logo : couleur d'origine, pas de transition */
+}
+
+/* ══ MOISISSURE — depuis le périmètre du titre ══════════════════ */
+function makeShape(n){
+  const p=[],s=(Math.PI*2)/n;
+  for(let i=0;i<n;i++){const a=i*s;p.push([Math.cos(a)*(.65+Math.random()*.55),Math.sin(a)*(.65+Math.random()*.55)]);}
+  return p;
+}
+function drawShape(c,shape,x,y,r,color,alpha){
+  c.beginPath();c.moveTo(x+shape[0][0]*r,y+shape[0][1]*r);
+  for(let i=1;i<shape.length;i++)c.lineTo(x+shape[i][0]*r,y+shape[i][1]*r);
+  c.closePath();c.fillStyle=color;c.globalAlpha=alpha;c.fill();c.globalAlpha=1;
+}
+
+class MoldSystem{
+  constructor(rect){
+    this.rect=rect;
+    this.cx=rect.left+rect.width/2;
+    this.cy=rect.top+rect.height/2;
+    this.time=0;
+
+    /* deux offscreens : gold et blood */
+    this.offGold =document.createElement('canvas');
+    this.offBlood=document.createElement('canvas');
+    this.tmpBlood=document.createElement('canvas');
+    [this.offGold,this.offBlood,this.tmpBlood].forEach(cv=>{cv.width=W;cv.height=H;});
+    this.gctx=this.offGold.getContext('2d');
+    this.bctx=this.offBlood.getContext('2d');
+    this.tctx=this.tmpBlood.getContext('2d');
+
+    /* rayon de diffusion blood : part de 0, grandit avec les battements */
+    this.bloodR=0;
+    this.maxBloodR=Math.hypot(W,H); /* diagonale max */
+
+    /* générer segments */
+    this.segs=[];
+    const origins=[];
+    const {left,top,width,height}=rect;
+    for(let x=left;x<=left+width;x+=width/14)
+      origins.push({x,y:top},{x,y:top+height});
+    for(let y=top;y<=top+height;y+=height/4)
+      origins.push({x:left,y},{x:left+width,y});
+    for(let i=0;i<8;i++)
+      origins.push({x:left+Math.random()*width,y:top+Math.random()*height});
+    for(const o of origins)this._buildFrom(o.x,o.y,Math.floor(Math.random()*4)+4);
+    this.segs.sort((a,b)=>a.d-b.d);
+    this.si=0;
+  }
+
+  _buildFrom(ox,oy,nArms){
+    const stack=[];
+    for(let i=0;i<nArms;i++){
+      const a=(i/nArms)*Math.PI*2+(Math.random()-.5)*.6;
+      stack.push({x:ox,y:oy,a,len:50+Math.random()*120,depth:3,gen:0,d:Math.random()*8});
+    }
+    while(stack.length){
+      const {x,y,a:sa,len,depth,gen,d}=stack.pop();
+      if(depth<0||len<2)continue;
+      let cx=x,cy=y,a=sa,tot=0,dd=d;
+      while(tot<len){
+        a+=(Math.random()-.5)*(depth>1?1.0:.65);
+        const s=1.5+Math.random()*3;
+        const nx=cx+Math.cos(a)*s,ny=cy+Math.sin(a)*s;
+        /* gold */
+        const rr=Math.max(80,201-gen*18),gg=Math.max(35,168-gen*22);
+        const w=Math.max(0.15,depth*.5*(1-gen*.05));
+        this.segs.push({x1:cx,y1:cy,x2:nx,y2:ny,w,rr,gg,d:dd});
+        dd+=0.3;cx=nx;cy=ny;tot+=s;
+      }
+      if(depth>0){
+        const nk=depth>1?Math.floor(Math.random()*3)+2:Math.floor(Math.random()*2)+1;
+        for(let k=0;k<nk;k++){
+          const na=a+(Math.random()-.5)*Math.PI*(depth>1?.85:.5);
+          const nl=len*(0.38+Math.random()*.48);
+          stack.push({x:cx,y:cy,a:na,len:nl,depth:depth-1,gen:gen+1,d:dd+1});
+        }
+      }
+    }
+  }
+
+  update(){
+    this.time++;
+
+    /* 72 BPM — lub-dub */
+    const phase=(this.time%50)/50;
+    const lub=Math.exp(-Math.pow((phase-.08)*80,2));
+    const dub=Math.exp(-Math.pow((phase-.22)*90,2))*.45;
+    this.pulse=1+(lub+dub)*.28;
+
+    /* diffusion blood : lente en continu, surge sur battements */
+    this.bloodR+=0.4;              /* progression de fond très lente */
+    this.bloodR+=lub*45+dub*18;   /* surge : lub fort, dub léger */
+    this.bloodR=Math.min(this.bloodR,this.maxBloodR);
+
+    /* peindre nouveaux segments sur les deux offscreens */
+    const speed=Math.min(4,1+this.time/40);
+    const threshold=this.time*speed;
+    while(this.si<this.segs.length&&this.segs[this.si].d<=threshold){
+      const s=this.segs[this.si++];
+      /* gold */
+      this.gctx.beginPath();this.gctx.moveTo(s.x1,s.y1);this.gctx.lineTo(s.x2,s.y2);
+      this.gctx.strokeStyle=`rgba(${s.rr},${s.gg},5,.9)`;
+      this.gctx.lineWidth=s.w;this.gctx.lineCap='round';this.gctx.stroke();
+      /* blood */
+      this.bctx.beginPath();this.bctx.moveTo(s.x1,s.y1);this.bctx.lineTo(s.x2,s.y2);
+      this.bctx.strokeStyle=`rgba(180,0,0,1)`;
+      this.bctx.lineWidth=s.w;this.bctx.lineCap='round';this.bctx.stroke();
+    }
+  }
+
+  draw(){
+    mctx.clearRect(0,0,W,H);
+    const p=this.pulse||1;
+    const cx=this.cx, cy=this.cy;
+
+    /* 1 — couche gold avec pulse scale */
+    mctx.save();
+    mctx.translate(cx,cy);mctx.scale(1+(p-1)*.15,1+(p-1)*.15);mctx.translate(-cx,-cy);
+    mctx.drawImage(this.offGold,0,0);
+    mctx.restore();
+
+    /* 2 — couche blood : clippée dans un cercle dégradé depuis le centre */
+    const r=this.bloodR*(1+(p-1)*.2); /* le cercle pulse aussi */
+    const softEdge=Math.max(30, r*0.12); /* bord progressif */
+
+    this.tctx.clearRect(0,0,W,H);
+    /* dessiner blood */
+    this.tctx.save();
+    this.tctx.translate(cx,cy);this.tctx.scale(1+(p-1)*.15,1+(p-1)*.15);this.tctx.translate(-cx,-cy);
+    this.tctx.drawImage(this.offBlood,0,0);
+    this.tctx.restore();
+    /* masque radial dégradé : opaque au centre, transparent à r */
+    this.tctx.globalCompositeOperation='destination-in';
+    const gr=this.tctx.createRadialGradient(cx,cy,Math.max(0,r-softEdge),cx,cy,r);
+    gr.addColorStop(0,'rgba(0,0,0,1)');
+    gr.addColorStop(1,'rgba(0,0,0,0)');
+    this.tctx.fillStyle=gr;
+    this.tctx.fillRect(0,0,W,H);
+    this.tctx.globalCompositeOperation='source-over';
+
+    /* composite blood sur gold */
+    mctx.drawImage(this.tmpBlood,0,0);
+  }
+
+  get done(){return this.si>=this.segs.length;}
+}
+
+/* ══ BOUCLE PRINCIPALE ══════════════════════════════════════════ */
+let mold=null, moldDone=false, moldFade=0;
+
+function mainLoop(){
+  requestAnimationFrame(mainLoop);
+
+  /* background */
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='#060608';ctx.fillRect(0,0,W,H);
+  const vg=ctx.createRadialGradient(W/2,H/2,0,W/2,H/2,Math.max(W,H)*.7);
+  vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.65)');
+  ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+
+  /* tendrils curseur */
+  for(const cl of clusters){cl.update();cl.draw(ctx);}
+  clusters=clusters.filter(cl=>!cl.dead);
+
+  /* feu à travers les lettres */
+  renderFire();
+
+  /* moisissure */
+  if(mold){
+    mold.update();mold.draw();
+    if(mold.done){
+      moldFade+=0.006;
+      mctx.fillStyle=`rgba(0,0,0,${Math.min(.06,moldFade).toFixed(4)})`;
+      mctx.fillRect(0,0,W,H);
+      /* redirect géré par setTimeout */
+    }
+  }
+}
+
+/* ══ INIT APRÈS CHARGEMENT POLICES ══════════════════════════════ */
+document.fonts.ready.then(()=>{
+  resize();
+  window.addEventListener('resize',resize);
+
+  /* spawner les braises */
+  for(let i=0;i<35;i++)embers.push(new Ember(true));
+  setInterval(()=>{if(embers.length<55)embers.push(new Ember(false));},120);
+
+  mainLoop();
+});
+
+/* ══ CLICK CTA ══════════════════════════════════════════════════ */
+document.getElementById('cta').addEventListener('click',function(e){
+  e.preventDefault();
+  if(moldDone)return;moldDone=true;
+  moldCanvas.style.opacity='1';
+  document.getElementById('cta').style.opacity='0';
+  document.getElementById('cta').style.pointerEvents='none';
+  document.querySelector('.sub').style.opacity='0';
+  document.querySelector('.eyebrow').style.opacity='0';
+  document.querySelectorAll('.divider').forEach(d=>d.style.opacity='0');
+  updateTitleInfo();
+  mold=new MoldSystem(titleRect);
+  mold._href=this.href;
+  const href=this.href;
+  const REDIRECT_DELAY = 8000; /* ← modifie ce chiffre (en ms) : 8000 = 8 secondes */
+  setTimeout(()=>{ window.location.href=href; }, REDIRECT_DELAY);
+  /* clic/touch pour aller plus vite (après 1.5s min) */
+  setTimeout(()=>{
+    window.addEventListener('click',  ()=>window.location.href=href, {once:true});
+    window.addEventListener('touchend',()=>window.location.href=href, {once:true});
+  }, 2000);
+
+});
+</script>
+</body>
+</html>
