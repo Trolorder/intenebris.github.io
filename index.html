@@ -33,8 +33,8 @@
   <div class="divider"></div>
   <img id="title" src="https://raw.githubusercontent.com/Trolorder/intenebris.github.io/refs/heads/main/2021-12-06(1).png" alt="In Tenebris">
   <div class="divider"></div>
-  <p class="sub"></p>
-  <a href="Accueil.html" class="cta" id="cta">✦ &nbsp;Visitez notre univers&nbsp; ✦</a>
+  <p class="sub">Salon de Tatouage</p>
+  <a href="index.html" class="cta" id="cta">✦ &nbsp;Visitez notre univers&nbsp; ✦</a>
 </div>
 <p id="hint">Déplace ta souris</p>
 
@@ -315,18 +315,27 @@ class MoldSystem{
   update(){
     this.time++;
 
-    /* 72 BPM — lub-dub */
-    const phase=(this.time%50)/50;
-    const lub=Math.exp(-Math.pow((phase-.08)*80,2));
-    const dub=Math.exp(-Math.pow((phase-.22)*90,2))*.45;
-    this.pulse=1+(lub+dub)*.28;
+    /* Temps réel en secondes — indépendant du framerate */
+    const now = performance.now() / 1000;
+    if(!this._t0) this._t0 = now;
+    const elapsed = now - this._t0;
+    if(!this._lastNow) this._lastNow = now;
+    const dt = Math.min(now - this._lastNow, 0.05); /* cap à 50ms */
+    this._lastNow = now;
 
-    /* diffusion blood : lente en continu, surge sur battements */
-    this.bloodR+=0.4;              /* progression de fond très lente */
-    this.bloodR+=lub*45+dub*18;   /* surge : lub fort, dub léger */
-    this.bloodR=Math.min(this.bloodR,this.maxBloodR);
+    /* 72 BPM = période 0.833s — basé sur temps réel */
+    const period = 0.833;
+    const phase  = (elapsed % period) / period;
+    const lub = Math.exp(-Math.pow((phase-.08)*65,2));
+    const dub = Math.exp(-Math.pow((phase-.22)*75,2))*.45;
+    this.pulse = 1+(lub+dub)*.28;
 
-    /* peindre nouveaux segments sur les deux offscreens */
+    /* diffusion blood basée sur dt (px/seconde) — même vitesse sur tous les appareils */
+    this.bloodR += 22 * dt;          /* ~22px/s de base */
+    this.bloodR += lub*45 + dub*18;  /* surge sur battements */
+    this.bloodR  = Math.min(this.bloodR, this.maxBloodR);
+
+    /* segments : toujours basé sur frame count pour la croissance du blob */
     const speed=Math.min(4,1+this.time/40);
     const threshold=this.time*speed;
     while(this.si<this.segs.length&&this.segs[this.si].d<=threshold){
@@ -443,7 +452,7 @@ document.getElementById('cta').addEventListener('click',function(e){
   setTimeout(()=>{
     window.addEventListener('click',  ()=>window.location.href=href, {once:true});
     window.addEventListener('touchend',()=>window.location.href=href, {once:true});
-  }, 2000);
+  }, 1500);
 
 });
 </script>
