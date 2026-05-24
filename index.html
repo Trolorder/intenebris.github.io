@@ -422,16 +422,27 @@ function mainLoop(){
   }
 }
 
-/* ══ INIT APRÈS CHARGEMENT POLICES ══════════════════════════════ */
+/* ══ INIT — attend polices ET image rendue ══════════════════════ */
+function startApp(){
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      resize();
+      window.addEventListener('resize', resize);
+      for(let i=0;i<35;i++) embers.push(new Ember(true));
+      setInterval(()=>{if(embers.length<55)embers.push(new Ember(false));},120);
+      mainLoop();
+    });
+  });
+}
+
 document.fonts.ready.then(()=>{
-  resize();
-  window.addEventListener('resize',resize);
-
-  /* spawner les braises */
-  for(let i=0;i<35;i++)embers.push(new Ember(true));
-  setInterval(()=>{if(embers.length<55)embers.push(new Ember(false));},120);
-
-  mainLoop();
+  const img = document.getElementById('title');
+  if(img && img.tagName==='IMG'){
+    if(img.complete && img.naturalWidth>0) startApp();
+    else { img.addEventListener('load', startApp); img.addEventListener('error', startApp); }
+  } else {
+    startApp();
+  }
 });
 
 /* ══ CLICK CTA ══════════════════════════════════════════════════ */
