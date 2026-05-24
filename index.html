@@ -158,8 +158,10 @@ class Cluster{
 let clusters=[],lastX=-999,lastY=-999,hintGone=false;
 function spawnAt(x,y){
   const d=Math.hypot(x-lastX,y-lastY);
-  if(d>16&&clusters.length<16){
-    clusters.push(new Cluster(x,y));lastX=x;lastY=y;
+  /* toujours mettre à jour la position pour éviter les sauts */
+  if(d>10) lastX=x, lastY=y;
+  if(d>10&&clusters.length<28){
+    clusters.push(new Cluster(x,y));
     if(!hintGone){document.getElementById('hint').style.opacity='0';hintGone=true;}
   }
 }
@@ -452,7 +454,7 @@ document.getElementById('cta').addEventListener('click',function(e){
   setTimeout(()=>{
     window.addEventListener('click',  ()=>window.location.href=href, {once:true});
     window.addEventListener('touchend',()=>window.location.href=href, {once:true});
-  }, 1500);
+  }, 2000);
 
 });
 </script>
